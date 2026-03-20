@@ -102,20 +102,7 @@ export default function Home() {
 
   return (
     <main className="container" style={{ paddingBottom: '100px', position: 'relative' }}>
-      <header className="catalog-header" style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        position: 'sticky', 
-        top: 0, 
-        zIndex: 100, 
-        margin: '0 -40px', 
-        padding: '24px 40px', 
-        background: 'rgba(255, 255, 255, 0.03)', 
-        backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.03)'
-      }}>
+      <header className="catalog-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <Logo size={64} />
           <div className="header-text">
@@ -255,18 +242,8 @@ export default function Home() {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="lightbox-content"
+              className="lightbox-modal"
               onClick={(e) => e.stopPropagation()}
-              style={{
-                width: '100%',
-                maxWidth: '1240px',
-                height: '80vh',
-                background: '#f8fafc',
-                borderRadius: '48px',
-                overflow: 'hidden',
-                position: 'relative',
-                boxShadow: '0 50px 100px -20px rgba(0, 0, 0, 0.5)'
-              }}
             >
               <ProductCard 
                 product={selectedProduct} 

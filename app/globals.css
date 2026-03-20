@@ -35,17 +35,31 @@ body {
   padding: 0 40px;
 }
 
-/* Header */
 .catalog-header {
-  padding: 60px 0 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  margin: 0 -40px;
+  padding: 24px 40px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s ease;
 }
 
 .catalog-header h1 {
   font-family: var(--font-display);
   font-size: 32px;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  color: #0f172a;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: #00A89E;
+  text-transform: uppercase;
+  margin: 0;
 }
 
 .admin-access-btn:hover {
@@ -154,6 +168,44 @@ body {
 }
 
 /* Lightbox Specifics */
+.lightbox-overlay {
+  padding: 40px;
+}
+
+.lightbox-modal {
+  width: 100%;
+  max-width: 1240px;
+  height: 90vh;
+  background: #f8fafc;
+  border-radius: 48px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.5);
+  display: flex;
+}
+
+/* Lightbox Content Layout */
+.product-card.in-lightbox {
+  display: grid !important;
+  grid-template-columns: 1.2fr 1fr;
+  width: 100%;
+}
+
+.lightbox-details {
+  width: 450px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  background: white;
+  border-left: 1px solid #f1f5f9;
+}
+
+.lightbox-details-inner {
+  padding: 60px 40px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
 .lightbox-nav {
   background: white !important;
   color: var(--accent) !important;
@@ -169,48 +221,66 @@ body {
   color: white !important;
 }
 
-/* Ensure the grid is clean with 4 columns */
-.product-card:not(.in-lightbox) {
-  height: 380px;
-  position: relative;
+/* Responsive Overrides */
+@media (max-width: 1024px) {
+  .lightbox-modal {
+    height: 95vh;
+    border-radius: 32px;
+  }
+  
+  .product-card.in-lightbox {
+    grid-template-columns: 1fr;
+    display: flex !important;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .lightbox-details {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .lightbox-details-inner {
+    padding: 32px 24px;
+  }
+
+  .lightbox-nav {
+    width: 48px !important;
+    height: 48px !important;
+  }
+
+  .lightbox-overlay {
+    padding: 10px;
+  }
 }
 
-.product-card:not(.in-lightbox) .image-area {
-  height: 100%;
+@media (max-width: 640px) {
+  .catalog-header {
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start !important;
+    padding: 20px !important;
+  }
+
+  .catalog-header h1 {
+    font-size: 24px !important;
+  }
+
+  .header-text p {
+    font-size: 11px !important;
+  }
+
+  .search-container {
+    margin: 20px 20px 40px;
+  }
+
+  .lightbox-modal h2 {
+    font-size: 28px !important;
+  }
 }
 
-/* Card */
-.product-card {
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.product-card:hover {
-  transform: translateY(-12px) scale(1.01);
-  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.12);
-}
-
-/* Pills & Buttons */
-.pill-btn:hover:not(.active) {
-  background: #e2e8f0 !important;
-  color: #0f172a !important;
-}
-
-.color-dot-wrapper:hover {
-  transform: scale(1.1);
-}
-
-.color-dot-wrapper.active {
-  transform: scale(1.1);
-}
-
-/* Image Area */
-.image-area {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16/11;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent !important;
-  overflow: hidden;
+/* Utils */
+.in-lightbox {
+  transition: all 0.5s ease;
 }

@@ -82,8 +82,6 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       style={{
         ...cardStyles,
-        display: isLightboxView ? 'grid' : 'block',
-        gridTemplateColumns: isLightboxView ? '1.2fr 1fr' : 'none',
         height: isLightboxView ? '100%' : 'auto'
       }}
     >
@@ -165,8 +163,8 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
       
       {/* Selection controls - only visible in Lightbox side panel */}
       {isLightboxView && (
-        <div className="lightbox-details" style={{ width: '450px', flexShrink: 0, overflowY: 'auto', background: 'white', borderLeft: '1px solid #f1f5f9' }}>
-          <div style={{ padding: '60px 40px', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+        <div className="lightbox-details">
+          <div className="lightbox-details-inner">
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
                 <div>
