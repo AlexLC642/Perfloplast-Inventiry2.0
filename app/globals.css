@@ -187,12 +187,13 @@ body {
 /* Lightbox Content Layout */
 .product-card.in-lightbox {
   display: grid !important;
-  grid-template-columns: 1.2fr 1fr;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 450px);
   width: 100%;
 }
 
 .lightbox-details {
-  width: 450px;
+  width: 100%;
+  max-width: 450px;
   flex-shrink: 0;
   overflow-y: auto;
   background: white;
@@ -222,7 +223,7 @@ body {
 }
 
 /* Responsive Overrides */
-@media (max-width: 1024px) {
+@media (max-width: 1100px) {
   .lightbox-modal {
     height: 95vh;
     border-radius: 32px;
@@ -236,7 +237,7 @@ body {
   }
 
   .lightbox-details {
-    width: 100%;
+    max-width: 100%;
     border-left: none;
     border-top: 1px solid #f1f5f9;
   }
