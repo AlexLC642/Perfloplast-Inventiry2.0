@@ -1,32 +1,34 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
-// Studio Staging Engine v6.0 - "The Professional Realism Standard"
-// Optimized for: Global Scene Compositing & High-Fidelity Coloration.
+// Studio Staging Engine v6.1 - "The High-Performance Realism Standard"
+// Optimized for: Instantaneous Color Swapping & Hardware-Accelerated Compositing.
 export default function DynamicImage({ src, maskSrc, color, transform = { scale: 1, x: 0, y: 0 }, sceneSrc = '' }) {
-  const [resolvedSrc, setResolvedSrc] = useState(null);
-  const [resolvedMask, setResolvedMask] = useState(null);
+  // Memoize resolved URLs to avoid flickering and unnecessary effect cycles for static strings
+  const resolvedSrc = useMemo(() => {
+    if (!src) return null;
+    if (typeof src === 'string') return src;
+    try { return URL.createObjectURL(src); } catch (e) { return null; }
+  }, [src]);
 
+  const resolvedMask = useMemo(() => {
+    if (!maskSrc) return null;
+    if (typeof maskSrc === 'string') return maskSrc;
+    try { return URL.createObjectURL(maskSrc); } catch (e) { return null; }
+  }, [maskSrc]);
+
+  // Cleanup blob URLs only if they were actually created
   useEffect(() => {
-    const createSafeUrl = (s) => {
-      if (!s) return null;
-      if (typeof s === 'string') return s;
-      try { return URL.createObjectURL(s); } catch (e) { return null; }
-    };
-    const ns = createSafeUrl(src);
-    const nm = createSafeUrl(maskSrc);
-    setResolvedSrc(ns);
-    setResolvedMask(nm);
     return () => {
-      if (src && typeof src !== 'string' && ns) URL.revokeObjectURL(ns);
-      if (maskSrc && typeof maskSrc !== 'string' && nm) URL.revokeObjectURL(nm);
+      if (src && typeof src !== 'string' && resolvedSrc) URL.revokeObjectURL(resolvedSrc);
+      if (maskSrc && typeof maskSrc !== 'string' && resolvedMask) URL.revokeObjectURL(resolvedMask);
     };
-  }, [src, maskSrc]);
+  }, [src, maskSrc, resolvedSrc, resolvedMask]);
 
   if (!resolvedSrc) return null;
 
   // ---------------------------------------------------------
-  // COLORING ENGINE (v6.1 - "Masked Layer Architecture")
+  // COLORING ENGINE (v6.2 - "Direct GPU Integration")
   // ---------------------------------------------------------
   
   const commonStyles = {
@@ -35,12 +37,12 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
     width: '100%',
     height: '100%',
     objectFit: 'contain',
-    transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+    transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease-out, filter 0.2s ease-out',
     transformOrigin: 'center center',
     transform: `scale(${transform.scale}) translate(${transform.x}%, ${transform.y}%)`,
+    willChange: 'transform, opacity, filter',
   };
 
-  // The mask is calculated once and applied to a container
   const maskUrl = resolvedMask ? `url(${resolvedMask})` : `url(${resolvedSrc})`;
   const containerMaskStyles = {
     position: 'absolute',
@@ -55,11 +57,12 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
     WebkitMaskRepeat: 'no-repeat',
     maskPosition: 'center',
     WebkitMaskPosition: 'center',
-    zIndex: 10, // Must be above the base original image
+    zIndex: 10,
     pointerEvents: 'none',
     transformOrigin: 'center center',
     transform: `scale(${transform.scale}) translate(${transform.x}%, ${transform.y}%)`,
-    transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+    transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease-out',
+    willChange: 'transform, opacity, mask-image',
   };
 
   const isDefaultColor = !color || color.toLowerCase() === '#ffffff' || color.toLowerCase() === 'transparent';
@@ -72,7 +75,7 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
         <img src={sceneSrc} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
       )}
 
-      {/* 1. ORIGINAL BASE IMAGE (Preserves the core photo details) */}
+      {/* 1. ORIGINAL BASE IMAGE */}
       <img 
         src={resolvedSrc} 
         alt="" 
@@ -83,10 +86,10 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
         }} 
       />
 
-      {/* 2. DYNAMIC COLORING STACK (Only active if a color is selected) */}
+      {/* 2. DYNAMIC COLORING STACK */}
       {!isDefaultColor && (
         <div style={containerMaskStyles}>
-          {/* A. Neutralization pass (strips original color but keeps light/shadow) */}
+          {/* A. Neutralization pass */}
           <img 
             src={resolvedSrc} 
             alt="" 
@@ -97,34 +100,40 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
             }} 
           />
 
-          {/* B. Main Hue Pass (The actual chosen color) */}
+          {/* B. Main Hue Pass (GPU accelerated) */}
           <div style={{ 
             position: 'absolute', inset: 0, 
             backgroundColor: color, 
             mixBlendMode: 'color', 
             opacity: 0.9,
-            zIndex: 11
+            zIndex: 11,
+            transition: 'background-color 0.2s ease-out',
+            willChange: 'background-color'
           }} />
 
-          {/* C. Soft-Light Polish (Adds dimension and satin finish) */}
+          {/* C. Soft-Light Polish */}
           <div style={{ 
             position: 'absolute', inset: 0, 
             backgroundColor: color, 
             mixBlendMode: 'soft-light', 
             opacity: 0.7,
-            zIndex: 12
+            zIndex: 12,
+            transition: 'background-color 0.2s ease-out',
+            willChange: 'background-color'
           }} />
 
-          {/* D. Multiply Depth (Adds realism to crevices and shadows) */}
+          {/* D. Multiply Depth */}
           <div style={{ 
             position: 'absolute', inset: 0, 
             backgroundColor: color, 
             mixBlendMode: 'multiply', 
             opacity: 0.15,
-            zIndex: 13
+            zIndex: 13,
+            transition: 'background-color 0.2s ease-out',
+            willChange: 'background-color'
           }} />
           
-          {/* E. Specular Reflection Recovery (Brings back the "shine") */}
+          {/* E. Specular Reflection Recovery */}
           <div style={{ 
             position: 'absolute', inset: 0, 
             backgroundImage: `url(${resolvedSrc})`,
