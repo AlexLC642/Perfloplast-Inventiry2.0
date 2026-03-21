@@ -1,56 +1,61 @@
 'use client';
-import { motion } from 'framer-motion';
 
 export default function Logo({ size = 56, color = '#0047AB' }) {
+  // size represents the height of the icon; total width is proportional
   return (
-    <motion.div 
-      initial={{ rotate: -10, scale: 0.9 }}
-      animate={{ rotate: 0, scale: 1 }}
+    <div 
+      className="logo-container" 
       style={{ 
-        width: size, 
-        height: size, 
         display: 'flex', 
         alignItems: 'center', 
-        justifyContent: 'center',
-        position: 'relative'
+        gap: `${size * 0.3}px`, 
+        cursor: 'pointer',
+        userSelect: 'none'
       }}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-        <svg width={size} height={size * 0.8} viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-          {/* Official 'P' Logo Icon (Dual-block construction) */}
-          {/* Main Block (Blue) */}
-          <path d="M10 40L35 15H75L85 25V45H60L50 35V80H30L25 75V40H10Z" fill={color} />
-          {/* Accent Block (Darker/Different depth) */}
-          <path d="M60 25V45H85L90 40V20L80 15H60L60 25Z" fill={color} opacity="0.9" />
-          {/* Internal negative space */}
-          <path d="M50 25H65V40H50V25Z" fill="white" />
-        </svg>
-        
-        <div style={{ marginTop: '4px' }}>
-          <div style={{ 
-            fontSize: size * 0.28, 
-            fontWeight: '900', 
-            color: '#008B8B', 
-            letterSpacing: '0.02em', 
-            textTransform: 'uppercase',
-            lineHeight: 1,
-            fontFamily: 'var(--font-display)'
-          }}>
-            PERFLO PLAST
-          </div>
-          <div style={{ 
-            fontSize: size * 0.09, 
-            fontWeight: '600', 
-            color: '#64748b', 
-            letterSpacing: '0.3em', 
-            textTransform: 'uppercase',
-            marginTop: '2px',
-            lineHeight: 1
-          }}>
-            INDUSTRIA DE PLÁSTICO
-          </div>
-        </div>
+      <svg 
+        width={size} 
+        height={size} 
+        viewBox="0 0 100 100" 
+        fill="none" 
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
+      >
+        {/* The "P" Symbol - Dual Block Design as per Image 4 */}
+        <path 
+          d="M20 15V85H42V15H20Z" 
+          fill={color} 
+        />
+        <path 
+          d="M42 15V52H65C78.2548 52 89 41.2548 89 28C89 14.7452 78.2548 4 65 4H42V15Z" 
+          fill="#002D72" 
+          style={{ opacity: 0.95 }}
+        />
+      </svg>
+      
+      <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
+        <span style={{ 
+          fontSize: `${size * 0.55}px`, 
+          fontWeight: '900', 
+          color: '#006666', 
+          letterSpacing: '-0.01em',
+          fontFamily: 'var(--font-display, sans-serif)',
+          whiteSpace: 'nowrap'
+        }}>
+          PERFLO PLAST
+        </span>
+        <span style={{ 
+          fontSize: `${size * 0.16}px`, 
+          fontWeight: '700', 
+          color: '#64748b', 
+          letterSpacing: '0.15em',
+          textTransform: 'uppercase',
+          marginTop: '2px',
+          whiteSpace: 'nowrap'
+        }}>
+          INDUSTRIA DE PLÁSTICO
+        </span>
       </div>
-    </motion.div>
+    </div>
   );
 }

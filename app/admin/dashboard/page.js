@@ -466,23 +466,6 @@ export default function AdminDashboard({ params, searchParams }) {
             </div>
 
             <div style={{ display: 'flex', gap: '16px' }}>
-              <a href="/" style={{ 
-                padding: '12px 24px', 
-                borderRadius: '16px', 
-                background: 'rgba(255, 255, 255, 0.5)', 
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(197, 160, 89, 0.1)', 
-                color: '#64748b', 
-                fontSize: '14px', 
-                fontWeight: '700', 
-                textDecoration: 'none', 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '8px', 
-                transition: 'all 0.3s ease'
-              }}>
-                Ver Catálogo
-              </a>
               <motion.button
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
@@ -618,30 +601,27 @@ export default function AdminDashboard({ params, searchParams }) {
                     height: 'fit-content'
                   }}
                 >
-                  <div style={{ 
-                    width: '100%', 
-                    aspectRatio: '16/10',
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(197,160,89,0.05) 100%)',
-                    borderRadius: '20px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: '24px',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    border: '1px solid rgba(255,255,255,0.8)'
-                  }}>
-                    <motion.img 
-                      whileHover={{ scale: 1.1, rotate: 2 }}
-                      src={product.image} 
-                      style={{ 
-                        maxWidth: '85%', 
-                        maxHeight: '85%', 
-                        objectFit: 'contain',
-                        filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.1))'
-                      }} 
-                    />
-                    <div style={{ position: 'absolute', top: '16px', right: '16px', display: 'flex', gap: '8px', zIndex: 10 }}>
+                    <div style={{ 
+                      width: '100%', 
+                      aspectRatio: '16/10',
+                      borderRadius: '20px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: '24px',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      border: '1px solid rgba(0,0,0,0.05)',
+                      boxShadow: 'inset 0 0 40px rgba(0,0,0,0.02)'
+                    }}>
+                      <DynamicImage 
+                        src={product.image} 
+                        maskSrc={product.maskImage}
+                        color="#ffffff"
+                        transform={product.imageTransform}
+                        sceneSrc={product.sceneBackground || settings.productSceneBackground}
+                      />
+                      <div style={{ position: 'absolute', top: '16px', right: '16px', display: 'flex', gap: '8px', zIndex: 50 }}>
                       <motion.button 
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
@@ -1115,13 +1095,29 @@ export default function AdminDashboard({ params, searchParams }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <label style={{ fontSize: '14px', fontWeight: '800', color: '#475569' }}>Fondo de Escena Maestro (Global)</label>
-                    <div style={{ position: 'relative', background: 'white', border: '2px dashed #cbd5e1', borderRadius: '24px', padding: '32px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', minHeight: '160px', justifyContent: 'center', overflow: 'hidden' }}>
+                    <div style={{ 
+                      position: 'relative', 
+                      background: 'white', 
+                      border: '2px dashed #cbd5e1', 
+                      borderRadius: '24px', 
+                      padding: '32px', 
+                      textAlign: 'center', 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      alignItems: 'center', 
+                      gap: '12px', 
+                      minHeight: '160px', 
+                      justifyContent: 'center', 
+                      overflow: 'hidden',
+                      transition: 'all 0.3s ease'
+                    }}>
                       <input type="file" accept="image/*" onChange={(e) => setSceneFile(e.target.files[0])} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} />
                       
                       {sceneFile ? (
                         <div style={{ position: 'relative', zIndex: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                          <img src={URL.createObjectURL(sceneFile)} style={{ width: '120px', height: '60px', objectFit: 'cover', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-                          <span style={{ fontSize: '12px', fontWeight: '800', color: '#1e293b' }}>{sceneFile.name} (Listo para subir)</span>
+                          <img src={URL.createObjectURL(sceneFile)} style={{ width: '100%', maxHeight: '120px', objectFit: 'cover', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                          <span style={{ fontSize: '12px', fontWeight: '800', color: '#006666' }}>✓ Imagen Seleccionada: {sceneFile.name}</span>
+                          <button onClick={(e) => { e.stopPropagation(); setSceneFile(null); }} style={{ background: '#f1f5f9', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer', color: '#64748b' }}>Cambiar</button>
                         </div>
                       ) : (
                         <>
@@ -1129,20 +1125,23 @@ export default function AdminDashboard({ params, searchParams }) {
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                           </div>
                           <span style={{ fontSize: '13px', fontWeight: '700', color: '#64748b' }}>
-                            {settings.productSceneBackground ? 'Actualizar fondo global' : 'Subir fondo de escena'}
+                            Arrastra o haz clic para subir fondo global
                           </span>
                         </>
                       )}
                     </div>
                   </div>
 
-                  {settings.productSceneBackground && (
+                  {settings.productSceneBackground && !sceneFile && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <span style={{ fontSize: '11px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Escenario Actual</span>
-                      <div style={{ width: '100%', height: '120px', borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
-                        <img src={settings.productSceneBackground} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '11px', fontWeight: '900', color: '#94a3b8', textTransform: 'uppercase' }}>Fondo Actual Guardado</span>
+                        <button onClick={() => setSettings({ ...settings, productSceneBackground: '' })} style={{ background: '#fef2f2', color: '#ef4444', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                         Eliminar Fondo
+                        </button>
                       </div>
-                      <button onClick={() => setSettings({ ...settings, productSceneBackground: '' })} style={{ alignSelf: 'flex-start', background: '#fee2e2', color: '#ef4444', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>Quitar Escenario</button>
+                      <div style={{ width: '100%', height: '100px', borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0', background: `url(${settings.productSceneBackground})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
                     </div>
                   )}
 
@@ -1150,9 +1149,9 @@ export default function AdminDashboard({ params, searchParams }) {
                     whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                     onClick={handleSettingsSubmit}
                     disabled={savingSettings}
-                    style={{ background: 'linear-gradient(135deg, #c5a059 0%, #a38241 100%)', color: 'white', border: 'none', padding: '16px', borderRadius: '16px', fontWeight: '800', fontSize: '15px', cursor: 'pointer', boxShadow: '0 10px 20px rgba(197, 160, 89, 0.2)', marginTop: '12px' }}
+                    style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', color: 'white', border: 'none', padding: '16px', borderRadius: '16px', fontWeight: '800', fontSize: '15px', cursor: 'pointer', boxShadow: '0 10px 20px rgba(0,0,0,0.1)', marginTop: '12px' }}
                   >
-                    {savingSettings ? 'Guardando...' : 'Guardar Configuración Global'}
+                    {savingSettings ? 'Guardando...' : 'Guardar Cambios de Escena'}
                   </motion.button>
                 </div>
               </motion.div>

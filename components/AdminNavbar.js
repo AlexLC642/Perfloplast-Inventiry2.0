@@ -27,7 +27,6 @@ export default function AdminNavbar() {
         PERFLO-PLAST <span style={{ color: '#c5a059' }}>ADMIN</span>
       </div>
       <div style={{ display: 'flex', gap: '32px', fontSize: '13px', alignItems: 'center' }}>
-        <Link href="/admin/dashboard" style={{ color: '#64748b', textDecoration: 'none', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Escritorio</Link>
         <Link href="/" style={{ color: '#64748b', textDecoration: 'none', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ver Catálogo</Link>
         <button 
           onClick={() => window.location.href = '/admin/login'} 
