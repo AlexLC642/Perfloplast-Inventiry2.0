@@ -84,12 +84,19 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
   const isDefaultColor = !color || color.toLowerCase() === '#ffffff' || color.toLowerCase() === 'transparent';
 
   return (
-    <div className="studio-staging-v61" style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', background: 'transparent' }}>
-      
-      {/* 0. GLOBAL SCENE BACKGROUND */}
-      {resolvedScene && (
-        <img src={resolvedScene} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
-      )}
+    <div 
+      className="studio-staging-v61" 
+      style={{ 
+        position: 'relative', 
+        width: '100%', 
+        height: '100%', 
+        overflow: 'hidden', 
+        background: resolvedScene ? `url(${resolvedScene})` : 'transparent',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}
+    >
+      {/* Dynamic Background Layer (handled via parent div background for performance) */}
 
       {/* 1. ORIGINAL BASE IMAGE */}
       <img 

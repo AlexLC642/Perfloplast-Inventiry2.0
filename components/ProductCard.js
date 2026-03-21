@@ -92,9 +92,14 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        background: `radial-gradient(circle at 50% 50%, ${selectedColor.hex}25 0%, ${selectedColor.hex}10 35%, transparent 70%)`,
+        background: isLightboxView ? 'transparent' : `radial-gradient(circle at 50% 50%, ${selectedColor.hex}15 0%, transparent 70%)`,
         transition: 'background 0.8s ease'
       }}>
+        {/* Company Branding Watermark (Top-Left) */}
+        <div style={{ position: 'absolute', top: '20px', left: '24px', zIndex: 30, opacity: 0.5, pointerEvents: 'none' }}>
+          <Logo size={24} color="#0047AB" />
+        </div>
+
         {/* Studio Floor Line (Subtle grounding) */}
         <div style={{
           position: 'absolute',

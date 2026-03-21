@@ -104,11 +104,7 @@ export default function Home() {
     <main className="container" style={{ paddingBottom: '100px', position: 'relative' }}>
       <header className="catalog-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <Logo size={64} />
-          <div className="header-text">
-            <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '900', letterSpacing: '0.05em', color: '#00A89E', textTransform: 'uppercase' }}>PERFLO PLAST</h1>
-            <p style={{ margin: 0, color: '#64748b', fontWeight: '600', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Industria de Plástico</p>
-          </div>
+          <Logo size={56} />
         </div>
 
         <motion.a 
@@ -290,9 +286,9 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      <footer className="main-footer" style={{ marginTop: '80px', paddingTop: '40px' }}>
+      <footer className="main-footer" style={{ marginTop: '80px', paddingTop: '40px', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', opacity: 0.5, color: '#1a1a1b' }}>
-          <span style={{ fontSize: '14px' }}>&copy; 2026 Perflo-plast. Diseñado para la excelencia.</span>
+          <span style={{ fontSize: '13px', fontWeight: '600' }}>&copy; {new Date().getFullYear()} Perflo-Plast. Industria de Plástico.</span>
         </div>
       </footer>
     </main>
