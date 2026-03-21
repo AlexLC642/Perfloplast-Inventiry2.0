@@ -847,50 +847,85 @@ export default function AdminDashboard({ params, searchParams }) {
                         <motion.div key="types" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                           <h4 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: '#1e293b' }}>Modelos y Variantes</h4>
                           
-                          <div style={{ background: '#f8fafc', padding: '24px', borderRadius: '24px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                            <div style={{ display: 'flex', gap: '12px' }}>
-                              <input type="text" placeholder="Ej: Con Tapa Rosca" value={tempType} onChange={(e) => setTempType(e.target.value)} style={{ flex: 1, padding: '14px', borderRadius: '14px', border: '1px solid #cbd5e1', fontSize: '14px' }} />
-                              <button type="button" onClick={addType} style={{ padding: '0 24px', background: '#1e293b', color: 'white', border: 'none', borderRadius: '14px', fontWeight: '800', cursor: 'pointer' }}>Añadir Modelo</button>
-                            </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                <label style={{ fontSize: '11px', fontWeight: '800', color: '#64748b' }}>Foto del Modelo</label>
-                                <div style={{ position: 'relative' }}>
-                                  <input type="file" accept="image/png" onChange={(e) => setTempTypeFile(e.target.files[0])} style={{ fontSize: '12px', width: '100%' }} />
-                                  {tempTypeFile && (
-                                    <button type="button" onClick={(e) => { e.stopPropagation(); setTempTypeFile(null); }} style={{ position: 'absolute', top: '-10px', right: '0', background: '#fee2e2', color: '#ef4444', border: 'none', padding: '2px 6px', borderRadius: '6px', fontSize: '9px', fontWeight: '800', cursor: 'pointer' }}>Eliminar</button>
-                                  )}
-                                </div>
+                      <div style={{ background: '#f8fafc', padding: '32px', borderRadius: '32px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                        <div style={{ display: 'flex', gap: '16px' }}>
+                          <input type="text" placeholder="Ej: Con Tapa Rosca" value={tempType} onChange={(e) => setTempType(e.target.value)} style={{ flex: 1, padding: '18px 24px', borderRadius: '20px', border: '1px solid #cbd5e1', fontSize: '15px', fontWeight: '500', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)' }} />
+                          <button type="button" onClick={addType} style={{ padding: '0 32px', background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', color: 'white', border: 'none', borderRadius: '20px', fontWeight: '800', cursor: 'pointer', boxShadow: '0 10px 20px rgba(15, 23, 42, 0.15)', transition: 'all 0.3s ease' }}>Añadir Modelo</button>
+                        </div>
+                        
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                          {/* Model Photo Upload */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <label style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Foto del Modelo</label>
+                            <div style={{ position: 'relative', background: 'white', border: '2px dashed #cbd5e1', borderRadius: '24px', padding: '24px', textAlign: 'center', minHeight: '140px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', transition: 'all 0.3s ease' }}>
+                              <input type="file" accept="image/png" onChange={(e) => setTempTypeFile(e.target.files[0])} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} title="" />
+                              <div style={{ width: '44px', height: '44px', background: 'rgba(197, 160, 89, 0.1)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c5a059' }}>
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                               </div>
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                <label style={{ fontSize: '11px', fontWeight: '800', color: '#64748b' }}>Máscara del Modelo</label>
-                                <div style={{ position: 'relative' }}>
-                                  <input type="file" accept="image/png" onChange={(e) => setTempTypeMaskFile(e.target.files[0])} style={{ fontSize: '12px', width: '100%' }} />
-                                  {tempTypeMaskFile && (
-                                    <button type="button" onClick={(e) => { e.stopPropagation(); setTempTypeMaskFile(null); }} style={{ position: 'absolute', top: '-10px', right: '0', background: '#fee2e2', color: '#ef4444', border: 'none', padding: '2px 6px', borderRadius: '6px', fontSize: '9px', fontWeight: '800', cursor: 'pointer' }}>Eliminar</button>
-                                  )}
-                                </div>
-                                {tempTypeFile && !tempTypeMaskFile && (
-                                  <button type="button" onClick={() => generateAutoMask(tempTypeFile, setTempTypeMaskFile)} style={{ marginTop: '4px', background: '#e2e8f0', color: '#475569', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '10px', fontWeight: '800', cursor: 'pointer', alignSelf: 'flex-start' }}>
-                                    ✨ Auto-Generar
-                                  </button>
-                                )}
-                              </div>
+                              <span style={{ fontSize: '13px', fontWeight: '700', color: '#1e293b', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {tempTypeFile ? tempTypeFile.name : 'Seleccionar Foto'}
+                              </span>
+                              {tempTypeFile && (
+                                <button type="button" onClick={(e) => { e.stopPropagation(); setTempTypeFile(null); }} style={{ position: 'absolute', top: '12px', right: '12px', background: '#fee2e2', color: '#ef4444', border: 'none', padding: '6px 10px', borderRadius: '10px', fontSize: '10px', fontWeight: '800', cursor: 'pointer', zIndex: 20 }}>Quitar</button>
+                              )}
                             </div>
                           </div>
 
+                          {/* Model Mask Upload */}
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            {types.map((t, i) => (
-                              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', background: adjustTarget === i ? '#f0f9ff' : 'white', borderRadius: '20px', border: adjustTarget === i ? '2px solid #0ea5e9' : '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
-                                <div style={{ width: '48px', height: '48px', background: '#f1f5f9', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                                  {(t.file || t.image) && <img src={t.file ? URL.createObjectURL(t.file) : t.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />}
+                            <label style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Máscara (Opcional)</label>
+                            <div style={{ position: 'relative', background: 'white', border: '2px dashed #cbd5e1', borderRadius: '24px', padding: '24px', textAlign: 'center', minHeight: '140px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', transition: 'all 0.3s ease' }}>
+                              <input type="file" accept="image/png" onChange={(e) => setTempTypeMaskFile(e.target.files[0])} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} title="" />
+                              <div style={{ width: '44px', height: '44px', background: 'rgba(71, 85, 105, 0.1)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569' }}>
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                              </div>
+                              <span style={{ fontSize: '13px', fontWeight: '700', color: '#1e293b', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {tempTypeMaskFile ? tempTypeMaskFile.name : 'Seleccionar Máscara'}
+                              </span>
+                              {tempTypeMaskFile && (
+                                <button type="button" onClick={(e) => { e.stopPropagation(); setTempTypeMaskFile(null); }} style={{ position: 'absolute', top: '12px', right: '12px', background: '#fee2e2', color: '#ef4444', border: 'none', padding: '6px 10px', borderRadius: '10px', fontSize: '10px', fontWeight: '800', cursor: 'pointer', zIndex: 20 }}>Quitar</button>
+                              )}
+                            </div>
+                            {tempTypeFile && !tempTypeMaskFile && (
+                              <button type="button" onClick={() => generateAutoMask(tempTypeFile, setTempTypeMaskFile)} style={{ background: '#f1f5f9', color: '#444', border: '1px solid #e2e8f0', padding: '8px 16px', borderRadius: '12px', fontSize: '11px', fontWeight: '800', cursor: 'pointer', alignSelf: 'center', marginTop: '4px' }}>
+                                ✨ Generar Máscara Automática
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '12px' }}>
+                            <p style={{ margin: 0, fontSize: '12px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Modelos Registrados</p>
+                            {types.length === 0 ? (
+                              <div style={{ padding: '40px', textAlign: 'center', background: '#f8fafc', borderRadius: '24px', border: '1px solid #f1f5f9' }}>
+                                <p style={{ margin: 0, fontSize: '14px', color: '#94a3b8', fontStyle: 'italic' }}>No has añadido modelos aún.</p>
+                              </div>
+                            ) : types.map((t, i) => (
+                              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '20px', padding: '20px', background: adjustTarget === i ? '#f0f9ff' : 'white', borderRadius: '24px', border: adjustTarget === i ? '2px solid #0ea5e9' : '1px solid #f1f5f9', boxShadow: adjustTarget === i ? '0 10px 20px rgba(14, 165, 233, 0.1)' : '0 4px 12px rgba(0,0,0,0.02)', transition: 'all 0.2s ease' }}>
+                                <div style={{ width: '64px', height: '64px', background: 'white', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '1px solid #f1f5f9' }}>
+                                  {(t.file || t.image) ? (
+                                    <img src={t.file ? URL.createObjectURL(t.file) : t.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                  ) : (
+                                    <div style={{ opacity: 0.2 }}>📦</div>
+                                  )}
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                  <p style={{ margin: 0, fontSize: '14px', fontWeight: '800', color: '#1e293b' }}>{t.name}</p>
-                                  <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>{t.maskFile || t.maskImage ? 'Con máscara personalizada' : 'Sin máscara'}</p>
+                                  <p style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#1e293b' }}>{t.name}</p>
+                                  <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                                    <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '6px', background: (t.maskFile || t.maskImage) ? '#dcfce7' : '#f1f5f9', color: (t.maskFile || t.maskImage) ? '#166534' : '#64748b' }}>
+                                      {(t.maskFile || t.maskImage) ? 'MÁSCARA ACTIVA' : 'SIN MÁSCARA'}
+                                    </span>
+                                  </div>
                                 </div>
-                                <button type="button" onClick={() => setAdjustTarget(i)} style={{ padding: '8px 16px', borderRadius: '10px', background: adjustTarget === i ? '#0ea5e9' : 'white', color: adjustTarget === i ? 'white' : '#0ea5e9', border: '1px solid #0ea5e9', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>Ajustar</button>
-                                <button type="button" onClick={() => setTypes(types.filter((_, idx) => idx !== i))} style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#fee2e2', border: 'none', color: '#ef4444', fontSize: '20px', cursor: 'pointer' }}>×</button>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                  <button type="button" onClick={() => setAdjustTarget(i)} style={{ padding: '10px 18px', borderRadius: '12px', background: adjustTarget === i ? '#0ea5e9' : 'white', color: adjustTarget === i ? 'white' : '#0ea5e9', border: '1px solid #0ea5e9', fontSize: '12px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s' }}>
+                                    Ajustar
+                                  </button>
+                                  <button type="button" onClick={() => setTypes(types.filter((_, idx) => idx !== i))} style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#fef2f2', border: 'none', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                                  </button>
+                                </div>
                               </div>
                             ))}
                           </div>

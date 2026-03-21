@@ -4,26 +4,33 @@ import { useState, useEffect, useMemo } from 'react';
 // Studio Staging Engine v6.1 - "The High-Performance Realism Standard"
 // Optimized for: Instantaneous Color Swapping & Hardware-Accelerated Compositing.
 export default function DynamicImage({ src, maskSrc, color, transform = { scale: 1, x: 0, y: 0 }, sceneSrc = '' }) {
-  // Memoize resolved URLs to avoid flickering and unnecessary effect cycles for static strings
-  const resolvedSrc = useMemo(() => {
-    if (!src) return null;
-    if (typeof src === 'string') return src;
-    try { return URL.createObjectURL(src); } catch (e) { return null; }
-  }, [src]);
+  const [resolvedSrc, setResolvedSrc] = useState(null);
+  const [resolvedMask, setResolvedMask] = useState(null);
 
-  const resolvedMask = useMemo(() => {
-    if (!maskSrc) return null;
-    if (typeof maskSrc === 'string') return maskSrc;
-    try { return URL.createObjectURL(maskSrc); } catch (e) { return null; }
-  }, [maskSrc]);
-
-  // Cleanup blob URLs only if they were actually created
+  // Robust Blob URL Management (v6.3)
   useEffect(() => {
+    let srcUrl = null;
+    let maskUrl = null;
+
+    if (src) {
+      if (typeof src === 'string') srcUrl = src;
+      else srcUrl = URL.createObjectURL(src);
+    }
+    
+    if (maskSrc) {
+      if (typeof maskSrc === 'string') maskUrl = maskSrc;
+      else maskUrl = URL.createObjectURL(maskSrc);
+    }
+
+    setResolvedSrc(srcUrl);
+    setResolvedMask(maskUrl);
+
+    // Cleanup: only revoke URLs we created (Blobs/Files)
     return () => {
-      if (src && typeof src !== 'string' && resolvedSrc) URL.revokeObjectURL(resolvedSrc);
-      if (maskSrc && typeof maskSrc !== 'string' && resolvedMask) URL.revokeObjectURL(resolvedMask);
+      if (srcUrl && typeof src !== 'string') URL.revokeObjectURL(srcUrl);
+      if (maskUrl && typeof maskSrc !== 'string') URL.revokeObjectURL(maskUrl);
     };
-  }, [src, maskSrc, resolvedSrc, resolvedMask]);
+  }, [src, maskSrc]);
 
   if (!resolvedSrc) return null;
 
