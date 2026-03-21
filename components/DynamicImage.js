@@ -6,11 +6,13 @@ import { useState, useEffect, useMemo } from 'react';
 export default function DynamicImage({ src, maskSrc, color, transform = { scale: 1, x: 0, y: 0 }, sceneSrc = '' }) {
   const [resolvedSrc, setResolvedSrc] = useState(null);
   const [resolvedMask, setResolvedMask] = useState(null);
+  const [resolvedScene, setResolvedScene] = useState(null);
 
-  // Robust Blob URL Management (v6.3)
+  // Robust Blob URL Management (v6.4)
   useEffect(() => {
     let srcUrl = null;
     let maskUrl = null;
+    let sceneUrl = null;
 
     if (src) {
       if (typeof src === 'string') srcUrl = src;
@@ -22,15 +24,22 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
       else maskUrl = URL.createObjectURL(maskSrc);
     }
 
+    if (sceneSrc) {
+      if (typeof sceneSrc === 'string') sceneUrl = sceneSrc;
+      else sceneUrl = URL.createObjectURL(sceneSrc);
+    }
+
     setResolvedSrc(srcUrl);
     setResolvedMask(maskUrl);
+    setResolvedScene(sceneUrl);
 
     // Cleanup: only revoke URLs we created (Blobs/Files)
     return () => {
       if (srcUrl && typeof src !== 'string') URL.revokeObjectURL(srcUrl);
       if (maskUrl && typeof maskSrc !== 'string') URL.revokeObjectURL(maskUrl);
+      if (sceneUrl && typeof sceneSrc !== 'string') URL.revokeObjectURL(sceneUrl);
     };
-  }, [src, maskSrc]);
+  }, [src, maskSrc, sceneSrc]);
 
   if (!resolvedSrc) return null;
 
@@ -78,8 +87,8 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
     <div className="studio-staging-v61" style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', background: 'transparent' }}>
       
       {/* 0. GLOBAL SCENE BACKGROUND */}
-      {sceneSrc && (
-        <img src={sceneSrc} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
+      {resolvedScene && (
+        <img src={resolvedScene} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
       )}
 
       {/* 1. ORIGINAL BASE IMAGE */}

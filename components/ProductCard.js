@@ -126,7 +126,7 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
           src={selectedType?.image || product.image} 
           maskSrc={selectedType?.maskImage || product.maskImage}
           transform={activeTransform || selectedType?.imageTransform || product.imageTransform}
-          sceneSrc={sceneSrc}
+          sceneSrc={product.sceneBackground || sceneSrc}
         />
         
         {/* Decorative elements only in grid view */}

@@ -23,6 +23,7 @@ export default function AdminDashboard({ params, searchParams }) {
   // Temp Color Fields
   const [tempColorName, setTempColorName] = useState('');
   const [tempColorHex, setTempColorHex] = useState('#000000');
+  const [productSceneFile, setProductSceneFile] = useState(null);
   const [tempType, setTempType] = useState('');
   const [tempTypeFile, setTempTypeFile] = useState(null);
   const [tempTypeMaskFile, setTempTypeMaskFile] = useState(null);
@@ -145,6 +146,7 @@ export default function AdminDashboard({ params, searchParams }) {
       setTypes(formattedTypes);
       setBaseHue(product.baseHue || 0);
       setImageTransform(product.imageTransform || { scale: 1, x: 0, y: 0 });
+      setProductSceneFile(null);
     } else {
       setEditingProduct(null);
       setName('');
@@ -153,6 +155,7 @@ export default function AdminDashboard({ params, searchParams }) {
       setTypes([]);
       setBaseHue(0);
       setImageTransform({ scale: 1, x: 0, y: 0 });
+      setProductSceneFile(null);
     }
     setShowForm(true);
   };
@@ -231,6 +234,16 @@ export default function AdminDashboard({ params, searchParams }) {
         const uploadData = await uploadRes.json();
         maskUrl = uploadData.url;
       }
+      
+      // 2.5 Upload Product-Specific Scene Background
+      let productSceneUrl = editingProduct ? (editingProduct.sceneBackground || null) : null;
+      if (productSceneFile) {
+        const formData = new FormData();
+        formData.append('file', productSceneFile);
+        const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
+        const uploadData = await uploadRes.json();
+        productSceneUrl = uploadData.url;
+      }
 
       // 3. Upload Type Images and save their individual settings
       const finalTypes = await Promise.all(types.map(async (t) => {
@@ -280,7 +293,8 @@ export default function AdminDashboard({ params, searchParams }) {
         colors, 
         types: finalTypes,
         baseHue,
-        imageTransform
+        imageTransform,
+        sceneBackground: productSceneUrl
       };
       
       const url = editingProduct ? `/api/products/${editingProduct.id}` : '/api/products';
@@ -777,33 +791,57 @@ export default function AdminDashboard({ params, searchParams }) {
                                 )}
                               </div>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                              <label style={{ fontSize: '13px', fontWeight: '700', color: '#475569' }}>Máscara Alpha (Opcional)</label>
-                              <div style={{ position: 'relative', background: '#f8fafc', border: '2px dashed #cbd5e1', borderRadius: '24px', padding: '20px', textAlign: 'center', minHeight: '140px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                <input type="file" accept="image/png" onChange={(e) => setMaskFile(e.target.files[0])} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} />
-                                <div style={{ width: '40px', height: '40px', background: 'white', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-                                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                <label style={{ fontSize: '13px', fontWeight: '700', color: '#475569' }}>Máscara Alpha (Opcional)</label>
+                                <div style={{ position: 'relative', background: '#f8fafc', border: '2px dashed #cbd5e1', borderRadius: '24px', padding: '20px', textAlign: 'center', minHeight: '140px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                  <input type="file" accept="image/png" onChange={(e) => setMaskFile(e.target.files[0])} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} />
+                                  <div style={{ width: '40px', height: '40px', background: 'white', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                  </div>
+                                  <span style={{ fontSize: '12px', fontWeight: '700', color: '#1e293b', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    {maskFile ? maskFile.name : (editingProduct?.maskImage ? editingProduct.maskImage.split('/').pop() : 'Subir Máscara')}
+                                  </span>
+                                  {(maskFile || editingProduct?.maskImage) && (
+                                    <button type="button" onClick={(e) => { 
+                                      e.stopPropagation(); 
+                                      if (maskFile) setMaskFile(null); 
+                                      else setEditingProduct({...editingProduct, maskImage: null});
+                                    }} style={{ position: 'absolute', top: '10px', right: '10px', background: '#fee2e2', color: '#ef4444', border: 'none', padding: '4px 8px', borderRadius: '8px', fontSize: '10px', fontWeight: '800', cursor: 'pointer', zIndex: 20 }}>Eliminar</button>
+                                  )}
                                 </div>
-                                <span style={{ fontSize: '12px', fontWeight: '700', color: '#1e293b', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                  {maskFile ? maskFile.name : (editingProduct?.maskImage ? editingProduct.maskImage.split('/').pop() : 'Subir Máscara')}
-                                </span>
-                                {(maskFile || editingProduct?.maskImage) && (
-                                  <button type="button" onClick={(e) => { 
-                                    e.stopPropagation(); 
-                                    if (maskFile) setMaskFile(null); 
-                                    else setEditingProduct({...editingProduct, maskImage: null});
-                                  }} style={{ position: 'absolute', top: '10px', right: '10px', background: '#fee2e2', color: '#ef4444', border: 'none', padding: '4px 8px', borderRadius: '8px', fontSize: '10px', fontWeight: '800', cursor: 'pointer', zIndex: 20 }}>Eliminar</button>
+                                {file && !maskFile && (
+                                  <button type="button" onClick={() => generateAutoMask(file, setMaskFile)} style={{ marginTop: '12px', background: '#f1f5f9', color: '#444', border: '1px solid #e2e8f0', padding: '8px 16px', borderRadius: '14px', fontSize: '11px', fontWeight: '800', cursor: 'pointer', alignSelf: 'center' }}>
+                                    ✨ Generar Máscara Automática
+                                  </button>
                                 )}
                               </div>
-                              {file && !maskFile && (
-                                <button type="button" onClick={() => generateAutoMask(file, setMaskFile)} style={{ marginTop: '12px', background: '#e2e8f0', color: '#475569', border: 'none', padding: '8px 16px', borderRadius: '10px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
-                                  ✨ Generar Automáticamente
-                                </button>
-                              )}
                             </div>
-                          </div>
-                        </motion.div>
-                      )}
+
+                            {/* Per-Product Scene Background Override */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '24px', background: '#f8fafc', borderRadius: '24px', border: '1px solid #e2e8f0', marginTop: '16px' }}>
+                              <div>
+                                  <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: '#1e293b' }}>Escenario Personalizado (Opcional)</h4>
+                                  <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '12px' }}>Si subes una imagen aquí, este producto ignorará el fondo global.</p>
+                              </div>
+                              <div style={{ position: 'relative', background: 'white', border: '2px dashed #cbd5e1', borderRadius: '20px', padding: '24px', textAlign: 'center', minHeight: '120px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                <input type="file" accept="image/*" onChange={(e) => setProductSceneFile(e.target.files[0])} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} />
+                                <div style={{ width: '40px', height: '40px', background: 'rgba(197, 160, 89, 0.1)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c5a059' }}>
+                                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                </div>
+                                <span style={{ fontSize: '12px', fontWeight: '700', color: '#1e293b' }}>
+                                  {productSceneFile ? productSceneFile.name : (editingProduct?.sceneBackground ? 'Cambiar fondo específico' : 'Subir fondo para este producto')}
+                                </span>
+                                {(productSceneFile || editingProduct?.sceneBackground) && (
+                                  <button type="button" onClick={(e) => { 
+                                    e.stopPropagation(); 
+                                    if (productSceneFile) setProductSceneFile(null); 
+                                    else setEditingProduct({...editingProduct, sceneBackground: null});
+                                  }} style={{ position: 'absolute', top: '10px', right: '10px', background: '#fee2e2', color: '#ef4444', border: 'none', padding: '4px 8px', borderRadius: '8px', fontSize: '10px', fontWeight: '800', cursor: 'pointer', zIndex: 20 }}>Quitar</button>
+                                )}
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
 
                       {activeTab === 'colors' && (
                         <motion.div key="colors" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
@@ -954,7 +992,7 @@ export default function AdminDashboard({ params, searchParams }) {
                         color={colors.length > 0 ? colors[0].hex : (editingProduct?.colors?.[0]?.hex || '#d32f2f')} 
                         baseHue={getActiveSettings().baseHue}
                         transform={getActiveSettings().imageTransform}
-                        sceneSrc={settings.productSceneBackground}
+                        sceneSrc={productSceneFile || (editingProduct?.sceneBackground || (sceneFile || settings.productSceneBackground))}
                       />
                       <div style={{ position: 'absolute', bottom: '12px', left: '12px', right: '12px', display: 'flex', justifyContent: 'center', zIndex: 10 }}>
                          <div style={{ background: 'rgba(255, 255, 255, 0.9)', color: '#1e293b', padding: '4px 12px', borderRadius: '12px', fontSize: '9px', fontWeight: '900', border: '1px solid #e2e8f0', backdropFilter: 'blur(4px)' }}>
@@ -1077,14 +1115,24 @@ export default function AdminDashboard({ params, searchParams }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <label style={{ fontSize: '14px', fontWeight: '800', color: '#475569' }}>Fondo de Escena Maestro (Global)</label>
-                    <div style={{ position: 'relative', background: '#f8fafc', border: '2px dashed #cbd5e1', borderRadius: '24px', padding: '32px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-                      <input type="file" accept="image/*" onChange={(e) => setSceneFile(e.target.files[0])} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer' }} />
-                      <div style={{ width: '56px', height: '56px', background: 'white', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c5a059', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                      </div>
-                      <span style={{ fontSize: '13px', fontWeight: '700', color: '#1e293b' }}>
-                        {sceneFile ? sceneFile.name : (settings.productSceneBackground ? 'Cambiar imagen actual' : 'Subir imagen de escenario')}
-                      </span>
+                    <div style={{ position: 'relative', background: 'white', border: '2px dashed #cbd5e1', borderRadius: '24px', padding: '32px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', minHeight: '160px', justifyContent: 'center', overflow: 'hidden' }}>
+                      <input type="file" accept="image/*" onChange={(e) => setSceneFile(e.target.files[0])} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} />
+                      
+                      {sceneFile ? (
+                        <div style={{ position: 'relative', zIndex: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                          <img src={URL.createObjectURL(sceneFile)} style={{ width: '120px', height: '60px', objectFit: 'cover', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                          <span style={{ fontSize: '12px', fontWeight: '800', color: '#1e293b' }}>{sceneFile.name} (Listo para subir)</span>
+                        </div>
+                      ) : (
+                        <>
+                          <div style={{ width: '56px', height: '56px', background: 'rgba(197, 160, 89, 0.1)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c5a059' }}>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                          </div>
+                          <span style={{ fontSize: '13px', fontWeight: '700', color: '#64748b' }}>
+                            {settings.productSceneBackground ? 'Actualizar fondo global' : 'Subir fondo de escena'}
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
 
