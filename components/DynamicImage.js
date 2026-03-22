@@ -52,10 +52,11 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
 
   return (
     <div 
-      className="lumina-fidelity-final-v7.14" 
+      className="lumina-fidelity-final-v7.15" 
       key={resSrc} // Force clean remount when product changes to prevent ID collisions
       style={{ 
         position: 'relative', width: '100%', height: '100%', overflow: 'hidden', 
+        backgroundColor: '#f8fafc', // Definitive fallback to prevent black background
         backgroundImage: resScene ? `url(${resScene})` : 'none', 
         backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: 'inherit' 
       }}
@@ -89,8 +90,8 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
                 backgroundImage: `url(${resSrc})`,
                 backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
                 mixBlendMode: 'screen', 
-                opacity: 0.85, 
-                filter: 'grayscale(1) contrast(10) brightness(0.85)',
+                opacity: 0.75, // Slightly lower opacity for more natural feel
+                filter: 'grayscale(1) contrast(5) brightness(0.95)', // Drastically softened contrast
                 zIndex: 6 
              }} />
           </div>

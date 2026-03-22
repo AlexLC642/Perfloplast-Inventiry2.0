@@ -93,13 +93,13 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        background: isLightboxView ? 'transparent' : `radial-gradient(circle at 50% 50%, ${selectedColor.hex}15 0%, transparent 70%)`,
+        background: isLightboxView ? '#f8fafc' : `radial-gradient(circle at 50% 50%, ${selectedColor.hex}15 0%, transparent 70%)`,
         transition: 'background 0.8s ease',
         minHeight: isLightboxView ? '500px' : 'auto'
       }}>
         {/* Company Branding Watermark (Top-Left) */}
-        <div style={{ position: 'absolute', top: '20px', left: '24px', zIndex: 30, opacity: 0.5, pointerEvents: 'none' }}>
-          <Logo size={24} color="#0047AB" />
+        <div style={{ position: 'absolute', top: '32px', left: '32px', zIndex: 30, opacity: 0.35, pointerEvents: 'none' }}>
+          <Logo size={18} color="#0047AB" />
         </div>
 
         {/* Studio Floor Line (Subtle grounding) */}
@@ -127,14 +127,24 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
           mixBlendMode: 'multiply' 
         }} />
 
-        <DynamicImage 
-          key={selectedType?.name || 'original'}
-          color={selectedColor?.hex || '#ffffff'} 
-          src={selectedType?.image || product.image} 
-          maskSrc={selectedType?.maskImage || product.maskImage}
-          transform={activeTransform || selectedType?.imageTransform || product.imageTransform}
-          sceneSrc={product.sceneBackground || sceneSrc}
-        />
+        <div style={{
+          position: 'relative',
+          width: '100%',
+          height: '100%',
+          padding: isLightboxView ? '64px' : '0', // Add "air" around the product in detail view
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <DynamicImage 
+            key={selectedType?.name || 'original'}
+            color={selectedColor?.hex || '#ffffff'} 
+            src={selectedType?.image || product.image} 
+            maskSrc={selectedType?.maskImage || product.maskImage}
+            transform={activeTransform || selectedType?.imageTransform || product.imageTransform}
+            sceneSrc={product.sceneBackground || sceneSrc}
+          />
+        </div>
         
         {/* Decorative elements only in grid view */}
         {!isLightboxView && (

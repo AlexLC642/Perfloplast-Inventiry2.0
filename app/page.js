@@ -273,7 +273,7 @@ export default function Home() {
               <button 
                 onClick={closeLightbox}
                 style={{
-                  position: 'absolute', top: '32px', left: '32px', background: 'white', border: 'none', borderRadius: '50%', width: '48px', height: '48px',
+                  position: 'absolute', top: '32px', right: '32px', background: 'white', border: 'none', borderRadius: '50%', width: '48px', height: '48px',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', color: '#64748b', zIndex: 3001
                 }}
               >

@@ -49,7 +49,7 @@ export async function POST(request) {
       
       if (isVercel) {
         return NextResponse.json({ 
-          error: 'Cloudinary no disponible. Verifica tus credenciales en Vercel.',
+          error: 'CONFIGURACIÓN REQUERIDA: Cloudinary no está configurado en Vercel. Asegúrate de añadir la variable de entorno CLOUDINARY_URL.',
           detail: cloudErr.message
         }, { status: 503 });
       }
