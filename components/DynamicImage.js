@@ -13,7 +13,10 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
   const [maskSource, setMaskSource] = useState(null);
   const [sceneSource, setSceneSource] = useState(null);
 
+  const [hasError, setHasError] = useState(false);
+
   useEffect(() => {
+    setHasError(false); // Reset error state on source change
     let sUrl = null, mUrl = null, scUrl = null;
     if (src) sUrl = typeof src === 'string' ? src : URL.createObjectURL(src);
     if (maskSrc) mUrl = typeof maskSrc === 'string' ? maskSrc : URL.createObjectURL(maskSrc);
@@ -38,6 +41,7 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
     objectFit: 'contain', transformOrigin: 'center center',
     transform: `scale(${transform.scale}) translate(${transform.x}%, ${transform.y}%)`,
     transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+    opacity: hasError ? 0 : 1, // Hide if broken
   };
 
   const activeMask = maskSource ? `url(${maskSource})` : `url(${imageSource})`;
@@ -49,26 +53,34 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
     maskPosition: 'center', WebkitMaskPosition: 'center',
   };
 
-  if (!imageSource) return null;
+  // Skip rendering if no valid source or error detected early
+  if (!imageSource || imageSource.length < 5) {
+    return (
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: "url('/images/backgrounds/marble-bg.png')", backgroundSize: 'cover' }} />
+    );
+  }
 
   return (
     <div 
-      className="fidelity-v7.20-clean" 
+      className="fidelity-v7.21-invulnerable" 
       key={imageSource} 
       style={{ 
         position: 'relative', width: '100%', height: '100%', overflow: 'hidden', 
-        borderRadius: 'inherit', backgroundColor: '#f1f5f9'
+        borderRadius: 'inherit',
+        background: "#f1f5f9 url('/images/backgrounds/marble-bg.png') center/cover no-repeat" 
       }}
     >
-      {/* A. MARBLE BACKGROUND (INDESTRUCTIBLE LAYER) */}
-      <div style={{
-        position: 'absolute', inset: 0,
-        backgroundImage: (sceneSource && !sceneSource.includes('uploads')) ? `url(${sceneSource})` : "url('/images/backgrounds/marble-bg.png')",
-        backgroundSize: 'cover', backgroundPosition: 'center',
-        zIndex: 0
-      }} />
+      {/* 1. OPTIONAL SCENE OVERRIDE */}
+      {(sceneSource && !sceneSource.includes('uploads')) && (
+        <div style={{
+          position: 'absolute', inset: 0,
+          backgroundImage: `url(${sceneSource})`,
+          backgroundSize: 'cover', backgroundPosition: 'center',
+          zIndex: 1
+        }} />
+      )}
 
-      {/* B. ISOLATION ENGINE SVG (HIDDEN BUT ACTIVE) */}
+      {/* 2. ISOLATION ENGINE SVG (Active but hidden) */}
       <div style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden', opacity: 0 }}>
         <svg xmlns="http://www.w3.org/2000/svg">
           <filter id={smartEraserId} colorInterpolationFilters="sRGB">
@@ -79,26 +91,30 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
         </svg>
       </div>
 
-      {/* C. PRODUCT RENDERING STACK */}
-      <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+      {/* 3. PRODUCT STACK */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
         {/* BASE PHOTO (FILTERED) */}
-        <img 
-          src={imageSource} 
-          alt="" 
-          style={{ 
-            ...baseStyles, 
-            zIndex: 1, 
-            filter: !maskSource ? `url(#${smartEraserId}) contrast(1.1) brightness(1.02)` : 'contrast(1.1) brightness(1.02)' 
-          }} 
-        />
+        {!hasError && (
+          <img 
+            src={imageSource} 
+            alt="" 
+            onError={() => setHasError(true)}
+            style={{ 
+              ...baseStyles, 
+              zIndex: 1, 
+              filter: !maskSource ? `url(#${smartEraserId}) contrast(1.1) brightness(1.02)` : 'contrast(1.1) brightness(1.02)' 
+            }} 
+          />
+        )}
 
         {/* LUMINA ENGINE (COLOR LAYERS) */}
-        {!isNeutral && (
+        {(!isNeutral && !hasError) && (
           <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
              {/* 1. Neutralizer Pass */}
              <img 
                 src={imageSource} 
                 alt="" 
+                onError={() => setHasError(true)}
                 style={{ 
                   ...maskStyles, 
                   filter: !maskSource ? `url(#${smartEraserId}) grayscale(1) brightness(1.05) contrast(1.1)` : 'grayscale(1) brightness(1.05) contrast(1.1)', 
