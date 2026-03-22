@@ -93,7 +93,7 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        background: isLightboxView ? '#f8fafc' : `radial-gradient(circle at 50% 50%, ${selectedColor.hex}15 0%, transparent 70%)`,
+        background: isLightboxView ? 'transparent' : `radial-gradient(circle at 50% 50%, ${selectedColor.hex}15 0%, transparent 70%)`,
         transition: 'background 0.8s ease',
         minHeight: isLightboxView ? '500px' : 'auto'
       }}>

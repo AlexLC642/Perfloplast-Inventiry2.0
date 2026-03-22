@@ -52,49 +52,77 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
 
   return (
     <div 
-      className="lumina-fidelity-final-v7.15" 
-      key={resSrc} // Force clean remount when product changes to prevent ID collisions
+      className="lumina-fidelity-v7.18" 
+      key={resSrc} 
       style={{ 
         position: 'relative', width: '100%', height: '100%', overflow: 'hidden', 
-        backgroundColor: '#f8fafc', // Definitive fallback to prevent black background
-        backgroundImage: resScene ? `url(${resScene})` : 'none', 
-        backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: 'inherit' 
+        borderRadius: 'inherit',
+        backgroundColor: '#f1f5f9' // Elegant fallback
       }}
     >
-      {/* ISOLATION ENGINE SVG */}
-      <svg style={{ position: 'absolute', width: 0, height: 0 }}>
-        <filter id={fidEngineId} colorInterpolationFilters="sRGB">
-          <feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 -1.5 -1.5 -1.5 1 3.5" />
+      {/* 1. PERMANENT SCENE LAYER (Marble Fallback) */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        backgroundImage: (resScene && !resScene.includes('uploads')) ? `url(${resScene})` : "url('/images/backgrounds/marble-bg.png')",
+        backgroundSize: 'cover', backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        zIndex: 0
+      }} />
+
+      {/* 2. ISOLATION ENGINE SVG (Non-blocking but Active) */}
+      <svg style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+        <filter id={fidEngineId} colorInterpolationFilters="sRGB" x="-10%" y="-10%" width="120%" height="120%">
+           <feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 -1.5 -1.5 -1.5 1 3.5" result="erased" />
+           <feGaussianBlur in="erased" stdDeviation="0.5" result="soft" />
+           <feComposite in="erased" in2="soft" operator="over" />
         </filter>
       </svg>
 
-      <div style={{ position: 'absolute', inset: 0, filter: !resMask ? `url(#${fidEngineId})` : 'none' }}>
-        {/* BASE: Original high-res photo for perfect whites */}
-        <img src={resSrc} alt="" style={{ ...studioStyles, zIndex: 1, filter: 'contrast(1.1) brightness(1.02)' }} />
+      {/* 3. PRODUCT STACK */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+        {/* BASE: The filtered original photo with a subtle shadow */}
+        <img 
+          src={resSrc} 
+          alt="" 
+          style={{ 
+            ...studioStyles, 
+            zIndex: 1, 
+            filter: !resMask ? `url(#${fidEngineId}) drop-shadow(0 10px 30px rgba(0,0,0,0.15)) contrast(1.1) brightness(1.02)` : 'drop-shadow(0 10px 30px rgba(0,0,0,0.15)) contrast(1.1) brightness(1.02)' 
+          }} 
+        />
 
         {/* LUMINA COLORING SYSTEM */}
         {!isNeutralColor && (
-          <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
-             {/* A. Neutralizer Pass */}
-             <img src={resSrc} alt="" style={{ ...alphaMaskStyles, filter: 'grayscale(1) brightness(1.05) contrast(1.1)', opacity: 1, zIndex: 3 }} />
+          <>
+             {/* A. Neutralizer (Filtered) */}
+             <img 
+                src={resSrc} 
+                alt="" 
+                style={{ 
+                  ...alphaMaskStyles, 
+                  filter: !resMask ? `url(#${fidEngineId}) grayscale(1) brightness(1.05) contrast(1.1)` : 'grayscale(1) brightness(1.05) contrast(1.1)', 
+                  opacity: 1, 
+                  zIndex: 2 
+                }} 
+             />
              
              {/* B. Color Hue Injection */}
-             <div style={{ ...alphaMaskStyles, backgroundColor: color, mixBlendMode: 'color', opacity: 0.9, zIndex: 4 }} />
+             <div style={{ ...alphaMaskStyles, backgroundColor: color, mixBlendMode: 'color', opacity: 0.9, zIndex: 3 }} />
              
              {/* C. Soft-Light Volume */}
-             <div style={{ ...alphaMaskStyles, backgroundColor: color, mixBlendMode: 'soft-light', opacity: 0.5, zIndex: 5 }} />
+             <div style={{ ...alphaMaskStyles, backgroundColor: color, mixBlendMode: 'soft-light', opacity: 0.45, zIndex: 4 }} />
 
-             {/* D. SPECULAR OVERRIDE (Final White-Lid Protection) */}
+             {/* D. SPECULAR OVERRIDE (Protecting Whites) */}
              <div style={{ 
                 ...alphaMaskStyles, 
                 backgroundImage: `url(${resSrc})`,
                 backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
                 mixBlendMode: 'screen', 
-                opacity: 0.75, // Slightly lower opacity for more natural feel
-                filter: 'grayscale(1) contrast(5) brightness(0.95)', // Drastically softened contrast
-                zIndex: 6 
+                opacity: 0.7, 
+                filter: 'grayscale(1) contrast(3) brightness(1.0)', // Even more natural specular recovery
+                zIndex: 5 
              }} />
-          </div>
+          </>
         )}
       </div>
     </div>
