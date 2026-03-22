@@ -85,7 +85,7 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
 
   return (
     <div 
-      className="studio-staging-v61" 
+      className="studio-staging-v6.5" 
       style={{ 
         position: 'relative', 
         width: '100%', 
@@ -93,83 +93,91 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
         overflow: 'hidden', 
         background: resolvedScene ? `url(${resolvedScene})` : 'transparent',
         backgroundSize: 'cover',
-        backgroundPosition: 'center'
+        backgroundPosition: 'center',
+        borderRadius: 'inherit'
       }}
     >
-      {/* Dynamic Background Layer (handled via parent div background for performance) */}
+      {/* 
+          SVG FILTER: Smart Background Eraser (v6.5)
+          Dynamically removes white/light-gray backgrounds from non-transparent images (JPGs)
+          by calculating inverse luminance and converting it to alpha.
+      */}
+      <svg style={{ position: 'absolute', width: 0, height: 0 }}>
+        <filter id="smart-eraser" colorInterpolationFilters="sRGB">
+          <feColorMatrix type="matrix" values="
+            1  0  0  0  0
+            0  1  0  0  0
+            0  0  1  0  0
+            -0.8 -0.8 -0.8 1 2.2
+          " />
+        </filter>
+      </svg>
 
-      {/* 1. ORIGINAL BASE IMAGE */}
-      <img 
-        src={resolvedSrc} 
-        alt="" 
-        style={{ 
-          ...commonStyles, 
-          zIndex: 1, 
-          filter: 'contrast(1.02) saturate(0.98)' 
-        }} 
-      />
+      <div style={{
+        ...containerMaskStyles,
+        filter: !resolvedMask ? 'url(#smart-eraser)' : 'none'
+      }}>
+        {/* 1. ORIGINAL BASE IMAGE */}
+        <img 
+          src={resolvedSrc} 
+          alt="" 
+          style={{ 
+            ...commonStyles, 
+            transform: 'none',
+            zIndex: 1, 
+            filter: 'contrast(1.05) saturate(1.05)' 
+          }} 
+        />
 
-      {/* 2. DYNAMIC COLORING STACK */}
-      {!isDefaultColor && (
-        <div style={containerMaskStyles}>
-          {/* A. Neutralization pass */}
-          <img 
-            src={resolvedSrc} 
-            alt="" 
-            style={{ 
-              width: '100%', height: '100%', objectFit: 'contain',
-              filter: 'grayscale(1) brightness(1.2) contrast(0.85)', 
-              opacity: 1
-            }} 
-          />
+        {/* 2. DYNAMIC COLORING STACK */}
+        {!isDefaultColor && (
+          <>
+            {/* A. Neutralization pass */}
+            <img 
+              src={resolvedSrc} 
+              alt="" 
+              style={{ 
+                ...commonStyles,
+                transform: 'none',
+                filter: 'grayscale(1) brightness(1.1) contrast(0.9)', 
+                opacity: 0.9,
+                zIndex: 2
+              }} 
+            />
 
-          {/* B. Main Hue Pass (GPU accelerated) */}
-          <div style={{ 
-            position: 'absolute', inset: 0, 
-            backgroundColor: color, 
-            mixBlendMode: 'color', 
-            opacity: 0.9,
-            zIndex: 11,
-            transition: 'background-color 0.2s ease-out',
-            willChange: 'background-color'
-          }} />
+            {/* B. Main Hue Pass */}
+            <div style={{ 
+              position: 'absolute', inset: 0, 
+              backgroundColor: color, 
+              mixBlendMode: 'color', 
+              opacity: 0.8,
+              zIndex: 3,
+            }} />
 
-          {/* C. Soft-Light Polish */}
-          <div style={{ 
-            position: 'absolute', inset: 0, 
-            backgroundColor: color, 
-            mixBlendMode: 'soft-light', 
-            opacity: 0.7,
-            zIndex: 12,
-            transition: 'background-color 0.2s ease-out',
-            willChange: 'background-color'
-          }} />
-
-          {/* D. Multiply Depth */}
-          <div style={{ 
-            position: 'absolute', inset: 0, 
-            backgroundColor: color, 
-            mixBlendMode: 'multiply', 
-            opacity: 0.15,
-            zIndex: 13,
-            transition: 'background-color 0.2s ease-out',
-            willChange: 'background-color'
-          }} />
-          
-          {/* E. Specular Reflection Recovery */}
-          <div style={{ 
-            position: 'absolute', inset: 0, 
-            backgroundImage: `url(${resolvedSrc})`,
-            backgroundSize: 'contain',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            mixBlendMode: 'screen', 
-            opacity: 0.35,
-            filter: 'grayscale(1) contrast(5) brightness(0.6)',
-            zIndex: 14
-          }} />
-        </div>
-      )}
+            {/* C. Soft-Light Polish */}
+            <div style={{ 
+              position: 'absolute', inset: 0, 
+              backgroundColor: color, 
+              mixBlendMode: 'soft-light', 
+              opacity: 0.6,
+              zIndex: 4,
+            }} />
+            
+            {/* D. Specular Reflection Recovery (Masked to src) */}
+            <div style={{ 
+              position: 'absolute', inset: 0, 
+              backgroundImage: `url(${resolvedSrc})`,
+              backgroundSize: 'contain',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              mixBlendMode: 'screen', 
+              opacity: 0.3,
+              filter: 'grayscale(1) contrast(5) brightness(0.6)',
+              zIndex: 5
+            }} />
+          </>
+        )}
+      </div>
     </div>
   );
 }

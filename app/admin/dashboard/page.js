@@ -1092,66 +1092,128 @@ export default function AdminDashboard({ params, searchParams }) {
                   <button onClick={() => setShowSettings(false)} style={{ border: 'none', background: '#f1f5f9', width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer', color: '#64748b', fontSize: '20px' }}>×</button>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                  {/* 1. Selector de Nuevo Fondo */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <label style={{ fontSize: '14px', fontWeight: '800', color: '#475569' }}>Fondo de Escena Maestro (Global)</label>
+                    <label style={{ fontSize: '13px', fontWeight: '900', color: '#1e293b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                      Cargar Nuevo Fondo (Global)
+                    </label>
                     <div style={{ 
                       position: 'relative', 
-                      background: 'white', 
+                      background: '#f8fafc', 
                       border: '2px dashed #cbd5e1', 
                       borderRadius: '24px', 
-                      padding: '32px', 
+                      padding: '48px 24px', 
                       textAlign: 'center', 
                       display: 'flex', 
                       flexDirection: 'column', 
                       alignItems: 'center', 
                       gap: '12px', 
-                      minHeight: '160px', 
-                      justifyContent: 'center', 
-                      overflow: 'hidden',
-                      transition: 'all 0.3s ease'
+                      cursor: 'pointer',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      overflow: 'hidden'
                     }}>
-                      <input type="file" accept="image/*" onChange={(e) => setSceneFile(e.target.files[0])} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} />
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={(e) => setSceneFile(e.target.files[0])} 
+                        style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} 
+                      />
                       
                       {sceneFile ? (
-                        <div style={{ position: 'relative', zIndex: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                          <img src={URL.createObjectURL(sceneFile)} style={{ width: '100%', maxHeight: '120px', objectFit: 'cover', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-                          <span style={{ fontSize: '12px', fontWeight: '800', color: '#006666' }}>✓ Imagen Seleccionada: {sceneFile.name}</span>
-                          <button onClick={(e) => { e.stopPropagation(); setSceneFile(null); }} style={{ background: '#f1f5f9', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer', color: '#64748b' }}>Cambiar</button>
+                        <div style={{ position: 'relative', zIndex: 11, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', width: '100%' }}>
+                          <img src={URL.createObjectURL(sceneFile)} style={{ width: '200px', height: '100px', objectFit: 'cover', borderRadius: '14px', boxShadow: '0 12px 24px rgba(0,0,0,0.15)' }} />
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <span style={{ fontSize: '14px', fontWeight: '900', color: '#006666' }}>✓ Imagen Seleccionada</span>
+                            <span style={{ fontSize: '11px', color: '#64748b' }}>{sceneFile.name}</span>
+                          </div>
+                          <button onClick={(e) => { e.stopPropagation(); setSceneFile(null); }} style={{ background: 'white', border: '1px solid #fee2e2', padding: '10px 20px', borderRadius: '12px', fontSize: '11px', fontWeight: '900', cursor: 'pointer', color: '#ef4444' }}>Deseleccionar</button>
                         </div>
                       ) : (
                         <>
-                          <div style={{ width: '56px', height: '56px', background: 'rgba(197, 160, 89, 0.1)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c5a059' }}>
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                          <div style={{ width: '64px', height: '64px', background: 'white', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c5a059', boxShadow: '0 8px 16px rgba(0,0,0,0.06)' }}>
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                           </div>
-                          <span style={{ fontSize: '13px', fontWeight: '700', color: '#64748b' }}>
-                            Arrastra o haz clic para subir fondo global
-                          </span>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            <span style={{ fontSize: '15px', fontWeight: '900', color: '#0f172a' }}>Haz clic o arrastra un archivo</span>
+                            <span style={{ fontSize: '12px', color: '#94a3b8' }}>Recomendado: 1920x1080 o superior</span>
+                          </div>
                         </>
                       )}
                     </div>
                   </div>
 
-                  {settings.productSceneBackground && !sceneFile && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {/* 2. Visualización de Fondo Almacenado (FORCE PREVIEW) */}
+                  {(settings?.productSceneBackground || (!sceneFile && settings.productSceneBackground)) && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '28px', background: '#f8fafc', borderRadius: '28px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '11px', fontWeight: '900', color: '#94a3b8', textTransform: 'uppercase' }}>Fondo Actual Guardado</span>
-                        <button onClick={() => setSettings({ ...settings, productSceneBackground: '' })} style={{ background: '#fef2f2', color: '#ef4444', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
-                         Eliminar Fondo
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{ width: '8px', height: '8px', background: '#10b981', borderRadius: '50%' }}></div>
+                          <span style={{ fontSize: '11px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Escenario Actual en Producción</span>
+                        </div>
+                        <button 
+                          onClick={() => setSettings({ ...settings, productSceneBackground: '' })} 
+                          style={{ 
+                            background: '#fee2e2', 
+                            color: '#ef4444', 
+                            border: 'none', 
+                            padding: '10px 18px', 
+                            borderRadius: '12px', 
+                            fontSize: '11px', 
+                            fontWeight: '900', 
+                            cursor: 'pointer', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '8px',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                          Eliminar Fondo
                         </button>
                       </div>
-                      <div style={{ width: '100%', height: '100px', borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0', background: `url(${settings.productSceneBackground})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                      <div style={{ 
+                        width: '100%', 
+                        height: '160px', 
+                        borderRadius: '20px', 
+                        overflow: 'hidden', 
+                        border: '4px solid white', 
+                        boxShadow: '0 12px 30px rgba(0,0,0,0.12)',
+                        position: 'relative',
+                        background: '#e2e8f0'
+                      }}>
+                        <img 
+                          src={settings.productSceneBackground || '/images/placeholder-bg.jpg'} 
+                          alt="Current backdrop"
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        />
+                      </div>
                     </div>
                   )}
 
                   <motion.button 
-                    whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: 1.01 }} 
+                    whileTap={{ scale: 0.99 }}
                     onClick={handleSettingsSubmit}
                     disabled={savingSettings}
-                    style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', color: 'white', border: 'none', padding: '16px', borderRadius: '16px', fontWeight: '800', fontSize: '15px', cursor: 'pointer', boxShadow: '0 10px 20px rgba(0,0,0,0.1)', marginTop: '12px' }}
+                    style={{ 
+                      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', 
+                      color: 'white', 
+                      border: 'none', 
+                      padding: '22px', 
+                      borderRadius: '24px', 
+                      fontWeight: '900', 
+                      fontSize: '16px', 
+                      cursor: 'pointer', 
+                      boxShadow: '0 20px 40px -12px rgba(15, 23, 42, 0.4)', 
+                      marginTop: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '12px'
+                    }}
                   >
-                    {savingSettings ? 'Guardando...' : 'Guardar Cambios de Escena'}
+                    {savingSettings ? 'Procesando Escenario...' : 'Guardar y Publicar Escenario'}
                   </motion.button>
                 </div>
               </motion.div>
