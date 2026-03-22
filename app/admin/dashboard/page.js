@@ -322,19 +322,44 @@ export default function AdminDashboard({ params, searchParams }) {
   };
 
   const handleSettingsSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setSavingSettings(true);
+    console.log('--- Iniciando Guardado de Escenario v7.7 ---');
     try {
-      let sceneUrl = settings.productSceneBackground;
+      let sceneUrl = settings?.productSceneBackground || '';
+      
+      // 1. UPLOAD IMAGE (IF SELECTED)
       if (sceneFile) {
-        const formData = new FormData();
-        formData.append('file', sceneFile);
-        const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
-        if (!uploadRes.ok) throw new Error('Error al subir la imagen');
-        const uploadData = await uploadRes.json();
-        sceneUrl = uploadData.url;
+        console.log('Subiendo archivo...', sceneFile.name);
+        // Use a 15-second timeout for the fetch
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        
+        try {
+          const formData = new FormData();
+          formData.append('file', sceneFile);
+          const uploadRes = await fetch('/api/upload', { 
+            method: 'POST', 
+            body: formData,
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+
+          if (!uploadRes.ok) {
+            const upErr = await uploadRes.json();
+            throw new Error(upErr.error || 'Servidor de subida no respondió');
+          }
+          const uploadData = await uploadRes.json();
+          sceneUrl = uploadData.url;
+          console.log(`Subida completada via ${uploadData.storage || 'desconocido'}:`, sceneUrl);
+        } catch (upErr) {
+          clearTimeout(timeoutId);
+          throw upErr;
+        }
       }
 
+      // 2. PERSIST SETTINGS
+      console.log('Confirmando ajustes en servidor...');
       const res = await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -343,19 +368,19 @@ export default function AdminDashboard({ params, searchParams }) {
 
       if (res.ok) {
         const updated = await res.json();
-        const finalSettings = updated.value || updated; // Handle MongoDB findOneAndUpdate vs simple JSON return
+        const finalSettings = updated.value || updated;
         setSettings(finalSettings);
         setShowSettings(false);
         setSceneFile(null);
-        alert('🎨 ¡Escenario actualizado con éxito!');
-        // Force re-fetch from main catalog to sync
+        alert('🎨 ¡Fondo de pantalla guardado y activado!');
         fetchProducts(); 
       } else {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Error al guardar en el servidor');
+        throw new Error(errorData.error || 'Error al persistir cambios');
       }
     } catch (err) {
-      alert(`⚠️ Problema al guardar: ${err.message}`);
+      console.error('Error Crítico:', err);
+      alert(`⚠️ NO SE PUDO GUARDAR: ${err.name === 'AbortError' ? 'Tiempo de espera agotado' : err.message}`);
     } finally {
       setSavingSettings(false);
     }
