@@ -80,8 +80,42 @@ export default function AdminDashboard({ params, searchParams }) {
     setLoading(false);
   };
 
+  const validateFile = (file, type = 'image') => {
+    if (!file) return false;
+    
+    // 1. Type Validation
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('❌ Formato no permitido. Por favor sube una imagen JPG, PNG o WEBP.');
+      return false;
+    }
+
+    // 2. Size Validation (5MB)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert('⚠️ El archivo es muy pesado. El límite es de 5MB para mantener la velocidad del catálogo.');
+      return false;
+    }
+
+    // 3. Dimension Suggestion (Async check)
+    if (file.type.startsWith('image/')) {
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = () => {
+        if (img.width < 1280 || img.height < 720) {
+          console.warn('Imagen de baja resolución detectada:', img.width, 'x', img.height);
+          // Optional: We don't alert here to avoid annoying the user, 
+          // but we could add a subtle UI hint later.
+        }
+        URL.revokeObjectURL(img.src);
+      };
+    }
+
+    return true;
+  };
+
   const generateAutoMask = async (sourceFile, setTargetMask) => {
-    if (!sourceFile) return;
+    if (!validateFile(sourceFile)) return;
     const img = new Image();
     const url = URL.createObjectURL(sourceFile);
     img.src = url;
@@ -349,42 +383,25 @@ export default function AdminDashboard({ params, searchParams }) {
   const handleSettingsSubmit = async (e) => {
     if (e) e.preventDefault();
     setSavingSettings(true);
-    console.log('--- Iniciando Guardado de Escenario v7.7 ---');
+    
     try {
       let sceneUrl = settings?.productSceneBackground || '';
       
-      // 1. UPLOAD IMAGE (IF SELECTED)
+      // 1. UPLOAD IMAGE
       if (sceneFile) {
-        console.log('Subiendo archivo...', sceneFile.name);
-        // Use a 15-second timeout for the fetch
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const formData = new FormData();
+        formData.append('file', sceneFile);
+        const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
         
-        try {
-          const formData = new FormData();
-          formData.append('file', sceneFile);
-          const uploadRes = await fetch('/api/upload', { 
-            method: 'POST', 
-            body: formData,
-            signal: controller.signal
-          });
-          clearTimeout(timeoutId);
-
-          if (!uploadRes.ok) {
-            const upErr = await uploadRes.json();
-            throw new Error(upErr.error || 'Servidor de subida no respondió');
-          }
-          const uploadData = await uploadRes.json();
-          sceneUrl = uploadData.url;
-          console.log(`Subida completada via ${uploadData.storage || 'desconocido'}:`, sceneUrl);
-        } catch (upErr) {
-          clearTimeout(timeoutId);
-          throw upErr;
+        if (!uploadRes.ok) {
+          const upErr = await uploadRes.json();
+          throw new Error(upErr.error || 'Error al subir la imagen');
         }
+        const uploadData = await uploadRes.json();
+        sceneUrl = uploadData.url;
       }
 
       // 2. PERSIST SETTINGS
-      console.log('Confirmando ajustes en servidor...');
       const res = await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -393,19 +410,21 @@ export default function AdminDashboard({ params, searchParams }) {
 
       if (res.ok) {
         const updated = await res.json();
+        // Handle MongoDB response structure ({ value: { ... } } or { ... })
         const finalSettings = updated.value || updated;
         setSettings(finalSettings);
         setShowSettings(false);
         setSceneFile(null);
-        alert('🎨 ¡Fondo de pantalla guardado y activado!');
-        fetchProducts(); 
+        alert('✅ ¡Escenario global actualizado con éxito!');
+        // Force refresh of current products to show the new background
+        fetchProducts();
       } else {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Error al persistir cambios');
+        throw new Error(errorData.error || 'Error al guardar los ajustes');
       }
     } catch (err) {
-      console.error('Error Crítico:', err);
-      alert(`⚠️ NO SE PUDO GUARDAR: ${err.name === 'AbortError' ? 'Tiempo de espera agotado' : err.message}`);
+      console.error('Settings Error:', err);
+      alert(`⚠️ ERROR: ${err.message}`);
     } finally {
       setSavingSettings(false);
     }
@@ -813,7 +832,15 @@ export default function AdminDashboard({ params, searchParams }) {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                               <label style={{ fontSize: '13px', fontWeight: '700', color: '#475569' }}>Imagen Representativa (PNG)</label>
                               <div style={{ position: 'relative', background: '#f8fafc', border: '2px dashed #cbd5e1', borderRadius: '24px', padding: '20px', textAlign: 'center', minHeight: '140px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                <input type="file" accept="image/png" onChange={(e) => setFile(e.target.files[0])} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} />
+                                <input 
+                                  type="file" 
+                                  accept="image/png,image/jpeg,image/webp" 
+                                  onChange={(e) => {
+                                    const f = e.target.files[0];
+                                    if (validateFile(f)) setFile(f);
+                                  }} 
+                                  style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} 
+                                />
                                 <div style={{ width: '40px', height: '40px', background: 'white', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c5a059', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
                                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                 </div>
@@ -832,7 +859,15 @@ export default function AdminDashboard({ params, searchParams }) {
                               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                 <label style={{ fontSize: '13px', fontWeight: '700', color: '#475569' }}>Máscara Alpha (Opcional)</label>
                                 <div style={{ position: 'relative', background: '#f8fafc', border: '2px dashed #cbd5e1', borderRadius: '24px', padding: '20px', textAlign: 'center', minHeight: '140px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                  <input type="file" accept="image/png" onChange={(e) => setMaskFile(e.target.files[0])} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} />
+                                  <input 
+                                    type="file" 
+                                    accept="image/png,image/jpeg,image/webp" 
+                                    onChange={(e) => {
+                                      const f = e.target.files[0];
+                                      if (validateFile(f)) setMaskFile(f);
+                                    }} 
+                                    style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} 
+                                  />
                                   <div style={{ width: '40px', height: '40px', background: 'white', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                                   </div>
@@ -862,7 +897,15 @@ export default function AdminDashboard({ params, searchParams }) {
                                   <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '12px' }}>Si subes una imagen aquí, este producto ignorará el fondo global.</p>
                               </div>
                               <div style={{ position: 'relative', background: 'white', border: '2px dashed #cbd5e1', borderRadius: '20px', padding: '24px', textAlign: 'center', minHeight: '120px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                <input type="file" accept="image/*" onChange={(e) => setProductSceneFile(e.target.files[0])} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} />
+                                <input 
+                                  type="file" 
+                                  accept="image/jpeg,image/png,image/webp" 
+                                  onChange={(e) => {
+                                    const f = e.target.files[0];
+                                    if (validateFile(f)) setProductSceneFile(f);
+                                  }} 
+                                  style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} 
+                                />
                                 <div style={{ width: '40px', height: '40px', background: 'rgba(197, 160, 89, 0.1)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c5a059' }}>
                                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                                 </div>
@@ -934,7 +977,16 @@ export default function AdminDashboard({ params, searchParams }) {
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             <label style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Foto del Modelo</label>
                             <div style={{ position: 'relative', background: 'white', border: '2px dashed #cbd5e1', borderRadius: '24px', padding: '24px', textAlign: 'center', minHeight: '140px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', transition: 'all 0.3s ease' }}>
-                              <input type="file" accept="image/png" onChange={(e) => setTempTypeFile(e.target.files[0])} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} title="" />
+                              <input 
+                                type="file" 
+                                accept="image/png,image/jpeg,image/webp" 
+                                onChange={(e) => {
+                                  const f = e.target.files[0];
+                                  if (validateFile(f)) setTempTypeFile(f);
+                                }} 
+                                style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} 
+                                title="" 
+                              />
                               <div style={{ width: '44px', height: '44px', background: 'rgba(197, 160, 89, 0.1)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c5a059' }}>
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                               </div>
@@ -951,7 +1003,16 @@ export default function AdminDashboard({ params, searchParams }) {
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             <label style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Máscara (Opcional)</label>
                             <div style={{ position: 'relative', background: 'white', border: '2px dashed #cbd5e1', borderRadius: '24px', padding: '24px', textAlign: 'center', minHeight: '140px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', transition: 'all 0.3s ease' }}>
-                              <input type="file" accept="image/png" onChange={(e) => setTempTypeMaskFile(e.target.files[0])} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} title="" />
+                              <input 
+                                type="file" 
+                                accept="image/png,image/jpeg,image/webp" 
+                                onChange={(e) => {
+                                  const f = e.target.files[0];
+                                  if (validateFile(f)) setTempTypeMaskFile(f);
+                                }} 
+                                style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} 
+                                title="" 
+                              />
                               <div style={{ width: '44px', height: '44px', background: 'rgba(71, 85, 105, 0.1)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569' }}>
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                               </div>
@@ -1173,8 +1234,11 @@ export default function AdminDashboard({ params, searchParams }) {
                     }}>
                       <input 
                         type="file" 
-                        accept="image/*" 
-                        onChange={(e) => setSceneFile(e.target.files[0])} 
+                        accept="image/jpeg,image/png,image/webp" 
+                        onChange={(e) => {
+                          const f = e.target.files[0];
+                          if (validateFile(f)) setSceneFile(f);
+                        }} 
                         style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} 
                       />
                       
