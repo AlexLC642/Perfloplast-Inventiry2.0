@@ -1,181 +1,99 @@
 'use client';
 import { useState, useEffect, useMemo } from 'react';
 
-// Studio Staging Engine v6.1 - "The High-Performance Realism Standard"
-// Optimized for: Instantaneous Color Swapping & Hardware-Accelerated Compositing.
+// Fidelity Engine v7.14 - "Lumina Hardware Fidelity"
+// Final Handover Version: Sanitized hooks and variable collision protection.
 export default function DynamicImage({ src, maskSrc, color, transform = { scale: 1, x: 0, y: 0 }, sceneSrc = '' }) {
-  // 1. ALL HOOKS MUST BE AT THE TOP (Rules of Hooks)
-  const filterId = useMemo(() => `smart-eraser-${Math.random().toString(36).substr(2, 9)}`, []);
-
-  const [resolvedSrc, setResolvedSrc] = useState(null);
-  const [resolvedMask, setResolvedMask] = useState(null);
-  const [resolvedScene, setResolvedScene] = useState(null);
+  // 1. ALL HOOKS (Strictly ordered at the top level)
+  const fidEngineId = useMemo(() => `fid-${Math.random().toString(36).substr(2, 9)}`, []);
+  
+  const [resSrc, setResSrc] = useState(null);
+  const [resMask, setResMask] = useState(null);
+  const [resScene, setResScene] = useState(null);
 
   useEffect(() => {
-    let srcUrl = null;
-    let maskUrl = null;
-    let sceneUrl = null;
+    let sUrl = null, mUrl = null, scUrl = null;
+    if (src) sUrl = typeof src === 'string' ? src : URL.createObjectURL(src);
+    if (maskSrc) mUrl = typeof maskSrc === 'string' ? maskSrc : URL.createObjectURL(maskSrc);
+    if (sceneSrc) scUrl = typeof sceneSrc === 'string' ? sceneSrc : URL.createObjectURL(sceneSrc);
 
-    if (src) {
-      if (typeof src === 'string') srcUrl = src;
-      else srcUrl = URL.createObjectURL(src);
-    }
-    
-    if (maskSrc) {
-      if (typeof maskSrc === 'string') maskUrl = maskSrc;
-      else maskUrl = URL.createObjectURL(maskSrc);
-    }
-
-    if (sceneSrc) {
-      if (typeof sceneSrc === 'string') sceneUrl = sceneSrc;
-      else sceneUrl = URL.createObjectURL(sceneSrc);
-    }
-
-    setResolvedSrc(srcUrl);
-    setResolvedMask(maskUrl);
-    setResolvedScene(sceneUrl);
+    setResSrc(sUrl);
+    setResMask(mUrl);
+    setResScene(scUrl);
 
     return () => {
-      if (srcUrl && typeof src !== 'string') URL.revokeObjectURL(srcUrl);
-      if (maskUrl && typeof maskSrc !== 'string') URL.revokeObjectURL(maskUrl);
-      if (sceneUrl && typeof sceneSrc !== 'string') URL.revokeObjectURL(sceneUrl);
+      if (sUrl && typeof src !== 'string') URL.revokeObjectURL(sUrl);
+      if (mUrl && typeof maskSrc !== 'string') URL.revokeObjectURL(mUrl);
+      if (scUrl && typeof sceneSrc !== 'string') URL.revokeObjectURL(scUrl);
     };
   }, [src, maskSrc, sceneSrc]);
 
-  // 2. CONDITIONAL RETURN AFTER HOOKS
-  if (!resolvedSrc) return null;
-
-  // ---------------------------------------------------------
-  // COLORING ENGINE (v6.2 - "Direct GPU Integration")
-  // ---------------------------------------------------------
+  // 2. COMPUTED CONSTANTS (After all hooks)
+  const isNeutralColor = !color || color.toLowerCase() === '#ffffff' || color.toLowerCase() === 'transparent';
   
-  const commonStyles = {
-    position: 'absolute',
-    inset: 0,
-    width: '100%',
-    height: '100%',
-    objectFit: 'contain',
-    transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease-out, filter 0.2s ease-out',
-    transformOrigin: 'center center',
+  const studioStyles = {
+    position: 'absolute', inset: 0, width: '100%', height: '100%',
+    objectFit: 'contain', transformOrigin: 'center center',
     transform: `scale(${transform.scale}) translate(${transform.x}%, ${transform.y}%)`,
+    transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
     willChange: 'transform, opacity, filter',
   };
 
-  const maskUrl = resolvedMask ? `url(${resolvedMask})` : `url(${resolvedSrc})`;
-  const containerMaskStyles = {
-    position: 'absolute',
-    inset: 0,
-    width: '100%',
-    height: '100%',
-    maskImage: maskUrl,
-    WebkitMaskImage: maskUrl,
-    maskSize: 'contain',
-    WebkitMaskSize: 'contain',
-    maskRepeat: 'no-repeat',
-    WebkitMaskRepeat: 'no-repeat',
-    maskPosition: 'center',
-    WebkitMaskPosition: 'center',
-    zIndex: 10,
-    pointerEvents: 'none',
-    transformOrigin: 'center center',
-    transform: `scale(${transform.scale}) translate(${transform.x}%, ${transform.y}%)`,
-    transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease-out',
-    willChange: 'transform, opacity, mask-image',
+  const activeMaskUrl = resMask ? `url(${resMask})` : `url(${resSrc})`;
+  const alphaMaskStyles = {
+    ...studioStyles,
+    maskImage: activeMaskUrl, WebkitMaskImage: activeMaskUrl,
+    maskSize: 'contain', WebkitMaskSize: 'contain',
+    maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat',
+    maskPosition: 'center', WebkitMaskPosition: 'center',
   };
 
-  const isDefaultColor = !color || color.toLowerCase() === '#ffffff' || color.toLowerCase() === 'transparent';
+  if (!resSrc) return null;
 
   return (
     <div 
-      className="studio-staging-v7.5-stable" 
+      className="lumina-fidelity-final-v7.14" 
+      key={resSrc} // Force clean remount when product changes to prevent ID collisions
       style={{ 
-        position: 'relative', 
-        width: '100%', 
-        height: '100%', 
-        overflow: 'hidden', 
-        backgroundImage: resolvedScene ? `url(${resolvedScene})` : 'none',
-        backgroundColor: resolvedScene ? 'transparent' : 'none',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        borderRadius: 'inherit'
+        position: 'relative', width: '100%', height: '100%', overflow: 'hidden', 
+        backgroundImage: resScene ? `url(${resScene})` : 'none', 
+        backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: 'inherit' 
       }}
     >
-      {/* SVG FILTER: Smart Background Eraser (v7.5) */}
+      {/* ISOLATION ENGINE SVG */}
       <svg style={{ position: 'absolute', width: 0, height: 0 }}>
-        <filter id={filterId} colorInterpolationFilters="sRGB">
-          <feColorMatrix type="matrix" values="
-            1  0  0  0  0
-            0  1  0  0  0
-            0  0  1  0  0
-            -1.5 -1.5 -1.5 1 3.5
-          " />
+        <filter id={fidEngineId} colorInterpolationFilters="sRGB">
+          <feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 -1.5 -1.5 -1.5 1 3.5" />
         </filter>
       </svg>
 
-      <div style={{
-        ...containerMaskStyles,
-        filter: !resolvedMask ? `url(#${filterId})` : 'none',
-        mixBlendMode: (resolvedScene && !resolvedMask) ? 'multiply' : 'normal'
-      }}>
-        {/* 1. ORIGINAL BASE IMAGE */}
-        <img 
-          src={resolvedSrc} 
-          alt="" 
-          style={{ 
-            ...commonStyles, 
-            transform: 'none',
-            zIndex: 1, 
-            filter: 'contrast(1.08) saturate(1.05)' 
-          }} 
-        />
+      <div style={{ position: 'absolute', inset: 0, filter: !resMask ? `url(#${fidEngineId})` : 'none' }}>
+        {/* BASE: Original high-res photo for perfect whites */}
+        <img src={resSrc} alt="" style={{ ...studioStyles, zIndex: 1, filter: 'contrast(1.1) brightness(1.02)' }} />
 
-        {/* 2. DYNAMIC COLORING STACK (v7.5 Stable) */}
-        {!isDefaultColor && (
-          <>
-            {/* A. Neutralization pass */}
-            <img 
-              src={resolvedSrc} 
-              alt="" 
-              style={{ 
-                ...commonStyles,
-                transform: 'none',
-                filter: 'grayscale(1) brightness(1.1) contrast(0.9)', 
-                opacity: 0.9,
-                zIndex: 2
-              }} 
-            />
+        {/* LUMINA COLORING SYSTEM */}
+        {!isNeutralColor && (
+          <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
+             {/* A. Neutralizer Pass */}
+             <img src={resSrc} alt="" style={{ ...alphaMaskStyles, filter: 'grayscale(1) brightness(1.05) contrast(1.1)', opacity: 1, zIndex: 3 }} />
+             
+             {/* B. Color Hue Injection */}
+             <div style={{ ...alphaMaskStyles, backgroundColor: color, mixBlendMode: 'color', opacity: 0.9, zIndex: 4 }} />
+             
+             {/* C. Soft-Light Volume */}
+             <div style={{ ...alphaMaskStyles, backgroundColor: color, mixBlendMode: 'soft-light', opacity: 0.5, zIndex: 5 }} />
 
-            {/* B. Main Hue Pass */}
-            <div style={{ 
-              position: 'absolute', inset: 0, 
-              backgroundColor: color, 
-              mixBlendMode: 'color', 
-              opacity: 0.8,
-              zIndex: 3,
-            }} />
-
-            {/* C. Soft-Light Polish */}
-            <div style={{ 
-              position: 'absolute', inset: 0, 
-              backgroundColor: color, 
-              mixBlendMode: 'soft-light', 
-              opacity: 0.6,
-              zIndex: 4,
-            }} />
-            
-            {/* D. Specular Reflection Recovery (Final Gloss & Lid Protection) */}
-            <div style={{ 
-              position: 'absolute', inset: 0, 
-              backgroundImage: `url(${resolvedSrc})`,
-              backgroundSize: 'contain',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-              mixBlendMode: 'screen', 
-              opacity: 0.55, // Increased for better white-lid preservation
-              filter: 'grayscale(1) contrast(5) brightness(0.8)',
-              zIndex: 5
-            }} />
-          </>
+             {/* D. SPECULAR OVERRIDE (Final White-Lid Protection) */}
+             <div style={{ 
+                ...alphaMaskStyles, 
+                backgroundImage: `url(${resSrc})`,
+                backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
+                mixBlendMode: 'screen', 
+                opacity: 0.85, 
+                filter: 'grayscale(1) contrast(10) brightness(0.85)',
+                zIndex: 6 
+             }} />
+          </div>
         )}
       </div>
     </div>
