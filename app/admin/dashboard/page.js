@@ -382,9 +382,11 @@ export default function AdminDashboard({ params, searchParams }) {
 
   const handleSettingsSubmit = async (e) => {
     if (e) e.preventDefault();
+    console.log('🔄 Click detectado en Guardar Escenario...');
     setSavingSettings(true);
     
     try {
+      console.log('--- Iniciando Proceso de Guardado v7.22 ---');
       let sceneUrl = settings?.productSceneBackground || '';
       
       // 1. UPLOAD IMAGE

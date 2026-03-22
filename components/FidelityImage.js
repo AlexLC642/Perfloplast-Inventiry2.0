@@ -6,6 +6,7 @@ import { useState, useEffect, useMemo, useId } from 'react';
  * TOTAL REWRITE to break HMR cache collisions and fix "filterId" duplicate errors.
  */
 export default function FidelityImage({ src, maskSrc, color, transform = { scale: 1, x: 0, y: 0 }, sceneSrc = '' }) {
+  useEffect(() => { console.log('🚀 FidelityEngine v7.22: Ready'); }, []);
   // 1. UNIQUE IDENTIFIERS (Standardized via React useId)
   const smartEraserId = useId().replace(/:/g, ''); // SVG-safe unique ID
   
