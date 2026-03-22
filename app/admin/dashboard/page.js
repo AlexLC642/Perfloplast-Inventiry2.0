@@ -330,6 +330,7 @@ export default function AdminDashboard({ params, searchParams }) {
         const formData = new FormData();
         formData.append('file', sceneFile);
         const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
+        if (!uploadRes.ok) throw new Error('Error al subir la imagen');
         const uploadData = await uploadRes.json();
         sceneUrl = uploadData.url;
       }
@@ -342,12 +343,19 @@ export default function AdminDashboard({ params, searchParams }) {
 
       if (res.ok) {
         const updated = await res.json();
-        setSettings(updated);
+        const finalSettings = updated.value || updated; // Handle MongoDB findOneAndUpdate vs simple JSON return
+        setSettings(finalSettings);
         setShowSettings(false);
         setSceneFile(null);
+        alert('🎨 ¡Escenario actualizado con éxito!');
+        // Force re-fetch from main catalog to sync
+        fetchProducts(); 
+      } else {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Error al guardar en el servidor');
       }
     } catch (err) {
-      alert('Error al guardar ajustes');
+      alert(`⚠️ Problema al guardar: ${err.message}`);
     } finally {
       setSavingSettings(false);
     }

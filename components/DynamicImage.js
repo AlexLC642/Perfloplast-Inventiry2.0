@@ -4,11 +4,13 @@ import { useState, useEffect, useMemo } from 'react';
 // Studio Staging Engine v6.1 - "The High-Performance Realism Standard"
 // Optimized for: Instantaneous Color Swapping & Hardware-Accelerated Compositing.
 export default function DynamicImage({ src, maskSrc, color, transform = { scale: 1, x: 0, y: 0 }, sceneSrc = '' }) {
+  // 1. ALL HOOKS MUST BE AT THE TOP (Rules of Hooks)
+  const filterId = useMemo(() => `smart-eraser-${Math.random().toString(36).substr(2, 9)}`, []);
+
   const [resolvedSrc, setResolvedSrc] = useState(null);
   const [resolvedMask, setResolvedMask] = useState(null);
   const [resolvedScene, setResolvedScene] = useState(null);
 
-  // Robust Blob URL Management (v6.4)
   useEffect(() => {
     let srcUrl = null;
     let maskUrl = null;
@@ -33,7 +35,6 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
     setResolvedMask(maskUrl);
     setResolvedScene(sceneUrl);
 
-    // Cleanup: only revoke URLs we created (Blobs/Files)
     return () => {
       if (srcUrl && typeof src !== 'string') URL.revokeObjectURL(srcUrl);
       if (maskUrl && typeof maskSrc !== 'string') URL.revokeObjectURL(maskUrl);
@@ -41,6 +42,7 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
     };
   }, [src, maskSrc, sceneSrc]);
 
+  // 2. CONDITIONAL RETURN AFTER HOOKS
   if (!resolvedSrc) return null;
 
   // ---------------------------------------------------------
@@ -85,7 +87,7 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
 
   return (
     <div 
-      className="studio-staging-v6.5" 
+      className="studio-staging-v7.5" 
       style={{ 
         position: 'relative', 
         width: '100%', 
@@ -98,24 +100,26 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
       }}
     >
       {/* 
-          SVG FILTER: Smart Background Eraser (v6.5)
-          Dynamically removes white/light-gray backgrounds from non-transparent images (JPGs)
-          by calculating inverse luminance and converting it to alpha.
+          SVG FILTER: Smart Background Eraser (v7.5)
+          ID: Unique per component to prevent rendering bugs in product grids.
+          Matrix Values: Highly aggressive (-1.5) to catch shadows and off-white.
       */}
       <svg style={{ position: 'absolute', width: 0, height: 0 }}>
-        <filter id="smart-eraser" colorInterpolationFilters="sRGB">
+        <filter id={filterId} colorInterpolationFilters="sRGB">
           <feColorMatrix type="matrix" values="
             1  0  0  0  0
             0  1  0  0  0
             0  0  1  0  0
-            -0.8 -0.8 -0.8 1 2.2
+            -1.5 -1.5 -1.5 1 3.5
           " />
         </filter>
       </svg>
 
       <div style={{
         ...containerMaskStyles,
-        filter: !resolvedMask ? 'url(#smart-eraser)' : 'none'
+        filter: !resolvedMask ? `url(#${filterId})` : 'none',
+        // Support for Marble/Light backgrounds: Multiply blend mode
+        mixBlendMode: (resolvedScene && !resolvedMask) ? 'multiply' : 'normal'
       }}>
         {/* 1. ORIGINAL BASE IMAGE */}
         <img 
@@ -125,7 +129,7 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
             ...commonStyles, 
             transform: 'none',
             zIndex: 1, 
-            filter: 'contrast(1.05) saturate(1.05)' 
+            filter: 'contrast(1.08) saturate(1.05)' 
           }} 
         />
 
