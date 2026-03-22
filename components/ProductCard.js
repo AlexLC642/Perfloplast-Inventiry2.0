@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import DynamicImage from './DynamicImage';
+import FidelityImage from './FidelityImage';
 import Logo from './Logo';
 
 export default function ProductCard({ product, onClick, isLightboxView = false, activeTransform = null, sceneSrc = '' }) {
@@ -136,7 +136,7 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
           alignItems: 'center',
           justifyContent: 'center',
         }}>
-          <DynamicImage 
+          <FidelityImage 
             key={selectedType?.name || 'original'}
             color={selectedColor?.hex || '#ffffff'} 
             src={selectedType?.image || product.image} 

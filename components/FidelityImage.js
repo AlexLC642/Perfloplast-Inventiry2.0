@@ -5,7 +5,7 @@ import { useState, useEffect, useMemo, useId } from 'react';
  * FIDELITY ENGINE v7.20 - "CLEAN SLATE" 🚀
  * TOTAL REWRITE to break HMR cache collisions and fix "filterId" duplicate errors.
  */
-export default function DynamicImage({ src, maskSrc, color, transform = { scale: 1, x: 0, y: 0 }, sceneSrc = '' }) {
+export default function FidelityImage({ src, maskSrc, color, transform = { scale: 1, x: 0, y: 0 }, sceneSrc = '' }) {
   // 1. UNIQUE IDENTIFIERS (Standardized via React useId)
   const smartEraserId = useId().replace(/:/g, ''); // SVG-safe unique ID
   

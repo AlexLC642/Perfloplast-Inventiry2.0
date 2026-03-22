@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import DynamicImage from '../../../components/DynamicImage';
+import FidelityImage from '../../../components/FidelityImage';
 
 export default function AdminDashboard({ params, searchParams }) {
   const [products, setProducts] = useState([]);
@@ -691,7 +691,7 @@ export default function AdminDashboard({ params, searchParams }) {
                       border: '1px solid rgba(0,0,0,0.05)',
                       boxShadow: 'inset 0 0 40px rgba(0,0,0,0.02)'
                     }}>
-                      <DynamicImage 
+                      <FidelityImage 
                         src={product.image} 
                         maskSrc={product.maskImage}
                         color="#ffffff"
@@ -1085,7 +1085,7 @@ export default function AdminDashboard({ params, searchParams }) {
                       {/* Contact Shadow (Sync with ProductCard) */}
                       <div style={{ position: 'absolute', bottom: '22%', width: '45%', height: '14px', background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, transparent 80%)', filter: 'blur(8px)', borderRadius: '50%', zIndex: 1, opacity: 0.9, transform: 'scaleY(0.7)' }} />
 
-                      <DynamicImage 
+                      <FidelityImage 
                         src={getActiveSettings().image} 
                         maskSrc={getActiveSettings().maskImage || (getActiveSettings().isMain ? editingProduct?.maskImage : types[adjustTarget]?.maskImage)}
                         color={colors.length > 0 ? colors[0].hex : (editingProduct?.colors?.[0]?.hex || '#d32f2f')} 
