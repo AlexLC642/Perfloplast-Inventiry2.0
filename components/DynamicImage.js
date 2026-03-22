@@ -1,15 +1,17 @@
 'use client';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useId } from 'react';
 
-// Fidelity Engine v7.14 - "Lumina Hardware Fidelity"
-// Final Handover Version: Sanitized hooks and variable collision protection.
+/**
+ * FIDELITY ENGINE v7.20 - "CLEAN SLATE" 🚀
+ * TOTAL REWRITE to break HMR cache collisions and fix "filterId" duplicate errors.
+ */
 export default function DynamicImage({ src, maskSrc, color, transform = { scale: 1, x: 0, y: 0 }, sceneSrc = '' }) {
-  // 1. ALL HOOKS (Strictly ordered at the top level)
-  const fidEngineId = useMemo(() => `fid-${Math.random().toString(36).substr(2, 9)}`, []);
+  // 1. UNIQUE IDENTIFIERS (Standardized via React useId)
+  const smartEraserId = useId().replace(/:/g, ''); // SVG-safe unique ID
   
-  const [resSrc, setResSrc] = useState(null);
-  const [resMask, setResMask] = useState(null);
-  const [resScene, setResScene] = useState(null);
+  const [imageSource, setImageSource] = useState(null);
+  const [maskSource, setMaskSource] = useState(null);
+  const [sceneSource, setSceneSource] = useState(null);
 
   useEffect(() => {
     let sUrl = null, mUrl = null, scUrl = null;
@@ -17,9 +19,9 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
     if (maskSrc) mUrl = typeof maskSrc === 'string' ? maskSrc : URL.createObjectURL(maskSrc);
     if (sceneSrc) scUrl = typeof sceneSrc === 'string' ? sceneSrc : URL.createObjectURL(sceneSrc);
 
-    setResSrc(sUrl);
-    setResMask(mUrl);
-    setResScene(scUrl);
+    setImageSource(sUrl);
+    setMaskSource(mUrl);
+    setSceneSource(scUrl);
 
     return () => {
       if (sUrl && typeof src !== 'string') URL.revokeObjectURL(sUrl);
@@ -28,99 +30,97 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
     };
   }, [src, maskSrc, sceneSrc]);
 
-  // 2. COMPUTED CONSTANTS (After all hooks)
-  const isNeutralColor = !color || color.toLowerCase() === '#ffffff' || color.toLowerCase() === 'transparent';
+  // 2. RENDERING LOGIC
+  const isNeutral = !color || color.toLowerCase() === '#ffffff' || color.toLowerCase() === 'transparent';
   
-  const studioStyles = {
+  const baseStyles = {
     position: 'absolute', inset: 0, width: '100%', height: '100%',
     objectFit: 'contain', transformOrigin: 'center center',
     transform: `scale(${transform.scale}) translate(${transform.x}%, ${transform.y}%)`,
     transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-    willChange: 'transform, opacity, filter',
   };
 
-  const activeMaskUrl = resMask ? `url(${resMask})` : `url(${resSrc})`;
-  const alphaMaskStyles = {
-    ...studioStyles,
-    maskImage: activeMaskUrl, WebkitMaskImage: activeMaskUrl,
+  const activeMask = maskSource ? `url(${maskSource})` : `url(${imageSource})`;
+  const maskStyles = {
+    ...baseStyles,
+    maskImage: activeMask, WebkitMaskImage: activeMask,
     maskSize: 'contain', WebkitMaskSize: 'contain',
     maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat',
     maskPosition: 'center', WebkitMaskPosition: 'center',
   };
 
-  if (!resSrc) return null;
+  if (!imageSource) return null;
 
   return (
     <div 
-      className="lumina-fidelity-v7.19" 
-      key={resSrc} 
+      className="fidelity-v7.20-clean" 
+      key={imageSource} 
       style={{ 
         position: 'relative', width: '100%', height: '100%', overflow: 'hidden', 
-        borderRadius: 'inherit',
-        background: "#f1f5f9 url('/images/backgrounds/marble-bg.png') center/cover no-repeat" 
+        borderRadius: 'inherit', backgroundColor: '#f1f5f9'
       }}
     >
-      {/* 1. OPTIONAL SCENE OVERRIDE */}
-      {(resScene && !resScene.includes('uploads')) && (
-        <div style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: `url(${resScene})`,
-          backgroundSize: 'cover', backgroundPosition: 'center',
-          zIndex: 1
-        }} />
-      )}
+      {/* A. MARBLE BACKGROUND (INDESTRUCTIBLE LAYER) */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        backgroundImage: (sceneSource && !sceneSource.includes('uploads')) ? `url(${sceneSource})` : "url('/images/backgrounds/marble-bg.png')",
+        backgroundSize: 'cover', backgroundPosition: 'center',
+        zIndex: 0
+      }} />
 
-      {/* 2. ISOLATION ENGINE SVG (Active but hidden) */}
-      <svg style={{ position: 'absolute', top: 0, left: 0, width: '1px', height: '1px', opacity: 0.1, pointerEvents: 'none', zIndex: -1 }}>
-        <filter id={fidEngineId} colorInterpolationFilters="sRGB">
-           <feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 -1.5 -1.5 -1.5 1 3.5" result="erased" />
-           <feGaussianBlur in="erased" stdDeviation="0.4" result="soft" />
-           <feComposite in="erased" in2="soft" operator="over" />
-        </filter>
-      </svg>
+      {/* B. ISOLATION ENGINE SVG (HIDDEN BUT ACTIVE) */}
+      <div style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden', opacity: 0 }}>
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <filter id={smartEraserId} colorInterpolationFilters="sRGB">
+            <feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 -1.5 -1.5 -1.5 1 3.5" result="iso" />
+            <feGaussianBlur in="iso" stdDeviation="0.4" result="blur" />
+            <feComposite in="iso" in2="blur" operator="over" />
+          </filter>
+        </svg>
+      </div>
 
-      {/* 3. PRODUCT STACK */}
-      <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
-        {/* BASE: The filtered original photo with a subtle shadow */}
+      {/* C. PRODUCT RENDERING STACK */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+        {/* BASE PHOTO (FILTERED) */}
         <img 
-          src={resSrc} 
+          src={imageSource} 
           alt="" 
           style={{ 
-            ...studioStyles, 
+            ...baseStyles, 
             zIndex: 1, 
-            filter: !resMask ? `url(#${fidEngineId}) drop-shadow(0 15px 40px rgba(0,0,0,0.2))` : 'drop-shadow(0 15px 40px rgba(0,0,0,0.2))' 
+            filter: !maskSource ? `url(#${smartEraserId}) contrast(1.1) brightness(1.02)` : 'contrast(1.1) brightness(1.02)' 
           }} 
         />
 
-        {/* LUMINA COLORING SYSTEM */}
-        {!isNeutralColor && (
+        {/* LUMINA ENGINE (COLOR LAYERS) */}
+        {!isNeutral && (
           <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
-             {/* A. Neutralizer (Filtered) */}
+             {/* 1. Neutralizer Pass */}
              <img 
-                src={resSrc} 
+                src={imageSource} 
                 alt="" 
                 style={{ 
-                  ...alphaMaskStyles, 
-                  filter: !resMask ? `url(#${fidEngineId}) grayscale(1) brightness(1.05) contrast(1.15)` : 'grayscale(1) brightness(1.05) contrast(1.15)', 
+                  ...maskStyles, 
+                  filter: !maskSource ? `url(#${smartEraserId}) grayscale(1) brightness(1.05) contrast(1.1)` : 'grayscale(1) brightness(1.05) contrast(1.1)', 
                   opacity: 1, 
                   zIndex: 3 
                 }} 
              />
              
-             {/* B. Color Hue Injection */}
-             <div style={{ ...alphaMaskStyles, backgroundColor: color, mixBlendMode: 'color', opacity: 0.95, zIndex: 4 }} />
+             {/* 2. Color Burn/Hue */}
+             <div style={{ ...maskStyles, backgroundColor: color, mixBlendMode: 'color', opacity: 0.9, zIndex: 4 }} />
              
-             {/* C. Soft-Light Volume */}
-             <div style={{ ...alphaMaskStyles, backgroundColor: color, mixBlendMode: 'soft-light', opacity: 0.5, zIndex: 5 }} />
+             {/* 3. Soft Volume */}
+             <div style={{ ...maskStyles, backgroundColor: color, mixBlendMode: 'soft-light', opacity: 0.4, zIndex: 5 }} />
 
-             {/* D. SPECULAR OVERRIDE (Protecting Whites) */}
+             {/* 4. Specular White Recovery */}
              <div style={{ 
-                ...alphaMaskStyles, 
-                backgroundImage: `url(${resSrc})`,
+                ...maskStyles, 
+                backgroundImage: `url(${imageSource})`,
                 backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
                 mixBlendMode: 'screen', 
-                opacity: 0.8, 
-                filter: 'grayscale(1) contrast(5) brightness(0.95)', 
+                opacity: 0.75, 
+                filter: 'grayscale(1) contrast(4) brightness(0.95)', 
                 zIndex: 6 
              }} />
           </div>
