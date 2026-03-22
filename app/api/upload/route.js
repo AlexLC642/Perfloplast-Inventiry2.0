@@ -44,7 +44,16 @@ export async function POST(request) {
     } catch (cloudErr) {
       console.warn('--- Cloudinary Bypass/Fail ---', cloudErr.message);
       
-      // 2. ABSOLUTE LOCAL FALLBACK
+      // 2. CONDITIONAL LOCAL FALLBACK (Disabled on Vercel/Production)
+      const isVercel = process.env.VERCEL || process.env.NEXT_PUBLIC_VERCEL_URL;
+      
+      if (isVercel) {
+        return NextResponse.json({ 
+          error: 'Cloudinary no disponible. Verifica tus credenciales en Vercel.',
+          detail: cloudErr.message
+        }, { status: 503 });
+      }
+
       const uploadDir = path.join(process.cwd(), 'public', 'uploads');
       try { await fs.mkdir(uploadDir, { recursive: true }); } catch (e) {}
 

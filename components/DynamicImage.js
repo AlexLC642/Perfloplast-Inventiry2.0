@@ -87,23 +87,20 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
 
   return (
     <div 
-      className="studio-staging-v7.5" 
+      className="studio-staging-v7.5-stable" 
       style={{ 
         position: 'relative', 
         width: '100%', 
         height: '100%', 
         overflow: 'hidden', 
-        background: resolvedScene ? `url(${resolvedScene})` : 'transparent',
+        backgroundImage: resolvedScene ? `url(${resolvedScene})` : 'none',
+        backgroundColor: resolvedScene ? 'transparent' : 'none',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         borderRadius: 'inherit'
       }}
     >
-      {/* 
-          SVG FILTER: Smart Background Eraser (v7.5)
-          ID: Unique per component to prevent rendering bugs in product grids.
-          Matrix Values: Highly aggressive (-1.5) to catch shadows and off-white.
-      */}
+      {/* SVG FILTER: Smart Background Eraser (v7.5) */}
       <svg style={{ position: 'absolute', width: 0, height: 0 }}>
         <filter id={filterId} colorInterpolationFilters="sRGB">
           <feColorMatrix type="matrix" values="
@@ -118,7 +115,6 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
       <div style={{
         ...containerMaskStyles,
         filter: !resolvedMask ? `url(#${filterId})` : 'none',
-        // Support for Marble/Light backgrounds: Multiply blend mode
         mixBlendMode: (resolvedScene && !resolvedMask) ? 'multiply' : 'normal'
       }}>
         {/* 1. ORIGINAL BASE IMAGE */}
@@ -133,7 +129,7 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
           }} 
         />
 
-        {/* 2. DYNAMIC COLORING STACK */}
+        {/* 2. DYNAMIC COLORING STACK (v7.5 Stable) */}
         {!isDefaultColor && (
           <>
             {/* A. Neutralization pass */}
@@ -167,7 +163,7 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
               zIndex: 4,
             }} />
             
-            {/* D. Specular Reflection Recovery (Masked to src) */}
+            {/* D. Specular Reflection Recovery */}
             <div style={{ 
               position: 'absolute', inset: 0, 
               backgroundImage: `url(${resolvedSrc})`,
