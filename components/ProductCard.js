@@ -98,8 +98,8 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
         minHeight: isLightboxView ? '500px' : 'auto'
       }}>
         {/* Company Branding Watermark (Top-Left) */}
-        <div style={{ position: 'absolute', top: '32px', left: '32px', zIndex: 30, opacity: 0.35, pointerEvents: 'none' }}>
-          <Logo size={18} color="#0047AB" />
+        <div style={{ position: 'absolute', top: '32px', left: '32px', zIndex: 30, opacity: 0.25, pointerEvents: 'none' }}>
+          <Logo size={16} color="#0047AB" />
         </div>
 
         {/* Studio Floor Line (Subtle grounding) */}
@@ -131,7 +131,7 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
           position: 'relative',
           width: '100%',
           height: '100%',
-          padding: isLightboxView ? '64px' : '0', // Add "air" around the product in detail view
+          padding: isLightboxView ? '80px' : '0', // Increased air around the product
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
