@@ -163,7 +163,7 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
               zIndex: 4,
             }} />
             
-            {/* D. Specular Reflection Recovery */}
+            {/* D. Specular Reflection Recovery (Final Gloss & Lid Protection) */}
             <div style={{ 
               position: 'absolute', inset: 0, 
               backgroundImage: `url(${resolvedSrc})`,
@@ -171,8 +171,8 @@ export default function DynamicImage({ src, maskSrc, color, transform = { scale:
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
               mixBlendMode: 'screen', 
-              opacity: 0.3,
-              filter: 'grayscale(1) contrast(5) brightness(0.6)',
+              opacity: 0.55, // Increased for better white-lid preservation
+              filter: 'grayscale(1) contrast(5) brightness(0.8)',
               zIndex: 5
             }} />
           </>

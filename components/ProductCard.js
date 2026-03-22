@@ -88,12 +88,14 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
       <div style={{ 
         position: 'relative', 
         width: '100%', 
-        aspectRatio: '16/11', 
+        aspectRatio: isLightboxView ? 'unset' : '16/11', 
+        flex: isLightboxView ? 1 : 'none',
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
         background: isLightboxView ? 'transparent' : `radial-gradient(circle at 50% 50%, ${selectedColor.hex}15 0%, transparent 70%)`,
-        transition: 'background 0.8s ease'
+        transition: 'background 0.8s ease',
+        minHeight: isLightboxView ? '500px' : 'auto'
       }}>
         {/* Company Branding Watermark (Top-Left) */}
         <div style={{ position: 'absolute', top: '20px', left: '24px', zIndex: 30, opacity: 0.5, pointerEvents: 'none' }}>

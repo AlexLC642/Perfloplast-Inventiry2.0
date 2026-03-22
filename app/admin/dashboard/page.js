@@ -83,40 +83,65 @@ export default function AdminDashboard({ params, searchParams }) {
   const generateAutoMask = async (sourceFile, setTargetMask) => {
     if (!sourceFile) return;
     const img = new Image();
-    img.src = URL.createObjectURL(sourceFile);
+    const url = URL.createObjectURL(sourceFile);
+    img.src = url;
     await new Promise(resolve => img.onload = resolve);
     
     const canvas = document.createElement('canvas');
-    canvas.width = img.width;
-    canvas.height = img.height;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0);
+    const tempCanvas = document.createElement('canvas');
+    canvas.width = tempCanvas.width = img.width;
+    canvas.height = tempCanvas.height = img.height;
     
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const ctx = canvas.getContext('2d');
+    const tctx = tempCanvas.getContext('2d');
+    
+    // 1. Draw original to temp
+    tctx.drawImage(img, 0, 0);
+    const imageData = tctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
     
+    // 2. Sample Background Color (Average of 4 corners)
+    const getPixel = (x, y) => {
+      const i = (y * canvas.width + x) * 4;
+      return [data[i], data[i+1], data[i+2]];
+    };
+    const c1 = getPixel(2, 2);
+    const c2 = getPixel(canvas.width - 3, 2);
+    const c3 = getPixel(2, canvas.height - 3);
+    const c4 = getPixel(canvas.width - 3, canvas.height - 3);
+    
+    const bg = [
+      (c1[0] + c2[0] + c3[0] + c4[0]) / 4,
+      (c1[1] + c2[1] + c3[1] + c4[1]) / 4,
+      (c1[2] + c2[2] + c3[2] + c4[2]) / 4
+    ];
+
+    // 3. Process Mask (Euclidean Distance Removal)
+    const threshold = 40; // Sensitivity
     for (let i = 0; i < data.length; i += 4) {
-      const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
-      if (a < 10) continue; 
-      
-      // ZERO-BLEED NEUTRAL DETECTION: Precise separation of Lid vs Body
-      const max = Math.max(r, g, b);
-      const min = Math.min(r, g, b);
-      const diff = max - min; // Represents how "Colorfull" the pixel is
-      
-      // Neutral check: White lids/labels have low RGB difference.
-      // Colored plastic has high difference (e.g., Red or Blue dominant).
-      if (diff < 50 && max > 125) { 
-        data[i] = 0; data[i+1] = 0; data[i+2] = 0; data[i+3] = 0; // Transparent (Protect)
+      const r = data[i], g = data[i+1], b = data[i+2];
+      const dist = Math.sqrt(
+        Math.pow(r - bg[0], 2) + 
+        Math.pow(g - bg[1], 2) + 
+        Math.pow(b - bg[2], 2)
+      );
+
+      if (dist < threshold) {
+        data[i] = 0; data[i+1] = 0; data[i+2] = 0; data[i+3] = 0; // Transparent
       } else {
-        data[i] = 255; data[i+1] = 255; data[i+2] = 255; data[i+3] = 255; // Opaque (Color)
+        data[i] = 255; data[i+1] = 255; data[i+2] = 255; data[i+3] = 255; // Opaque
       }
     }
     
-    ctx.putImageData(imageData, 0, 0);
+    // 4. Soft-Edge Pass (Feathering)
+    tctx.putImageData(imageData, 0, 0);
+    ctx.filter = 'blur(1.5px)'; // Soft feathering for professional blending
+    ctx.drawImage(tempCanvas, 0, 0);
+    
     canvas.toBlob((blob) => {
-      const maskFile = new File([blob], "auto_mask_v3.png", { type: "image/png" });
+      const maskFile = new File([blob], "auto_mask_v3_premium.png", { type: "image/png" });
       setTargetMask(maskFile);
+      URL.revokeObjectURL(url);
     }, 'image/png');
   };
 
