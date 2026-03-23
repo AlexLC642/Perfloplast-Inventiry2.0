@@ -271,6 +271,13 @@ export default function AdminDashboard({ params, searchParams }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // 1. Mandatory Fields Validation
+    if (!name.trim() || !price) {
+      alert('⚠️ CAMPOS VACÍOS: Debes asignar un nombre y un precio al producto.');
+      return;
+    }
+
     setSaving(true);
     try {
       // 1. Upload Main Image
@@ -383,10 +390,19 @@ export default function AdminDashboard({ params, searchParams }) {
   const handleSettingsSubmit = async (e) => {
     if (e) e.preventDefault();
     console.log('🔄 Click detectado en Guardar Escenario...');
+    const isDev = window.location.hostname === 'localhost';
+    console.log(`--- [${isDev ? 'DEV' : 'PROD'}] Guardado v7.22.2 ---`);
+    
+    // 1. Mandatory Validation
+    if (!sceneFile && !settings?.productSceneBackground) {
+      alert('⚠️ ESCENARIO VACÍO: Debes seleccionar una imagen de fondo antes de guardar.');
+      setSavingSettings(false);
+      return;
+    }
+
     setSavingSettings(true);
     
     try {
-      console.log('--- Iniciando Proceso de Guardado v7.22 ---');
       let sceneUrl = settings?.productSceneBackground || '';
       
       // 1. UPLOAD IMAGE
