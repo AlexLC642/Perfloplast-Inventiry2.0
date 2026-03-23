@@ -45,12 +45,14 @@ export async function POST(request) {
       console.warn('--- Cloudinary Bypass/Fail ---', cloudErr.message);
       
       // 2. CONDITIONAL LOCAL FALLBACK (Disabled on Vercel/Production)
-      const isVercel = process.env.VERCEL || process.env.NEXT_PUBLIC_VERCEL_URL;
+      const isVercel = process.env.VERCEL || process.env.NEXT_PUBLIC_VERCEL_URL || process.env.NODE_ENV === 'production';
       
       if (isVercel) {
+        console.error('Cloudinary Upload Failed in Production:', cloudErr);
         return NextResponse.json({ 
-          error: 'CONFIGURACIÓN REQUERIDA: Cloudinary no está configurado en Vercel. Asegúrate de añadir la variable de entorno CLOUDINARY_URL.',
-          detail: cloudErr.message
+          error: 'ERROR DE CONFIGURACIÓN: Cloudinary no ha podido procesar la imagen.',
+          detail: cloudErr.message,
+          instruction: 'Asegúrate de que CLOUDINARY_URL o las variables (CLOUD_NAME, API_KEY, API_SECRET) estén configuradas en el panel de Vercel.'
         }, { status: 503 });
       }
 

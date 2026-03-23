@@ -72,11 +72,12 @@ export default function FidelityImage({ src, maskSrc, color, transform = { scale
       }}
     >
       {/* 1. OPTIONAL SCENE OVERRIDE */}
-      {(sceneSource && !sceneSource.includes('uploads')) && (
+      {sceneSource && (
         <div style={{
           position: 'absolute', inset: 0,
           backgroundImage: `url(${sceneSource})`,
           backgroundSize: 'cover', backgroundPosition: 'center',
+          mixBlendMode: 'normal',
           zIndex: 1
         }} />
       )}
