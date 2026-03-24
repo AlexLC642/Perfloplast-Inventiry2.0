@@ -68,7 +68,8 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
     overflow: 'hidden',
     cursor: 'pointer',
     position: 'relative',
-    zIndex: 1
+    zIndex: 1,
+    minHeight: '220px' // Ensure a minimum height for mobile density
   };
 
   return (
@@ -143,15 +144,16 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
             maskSrc={selectedType?.maskImage || product.maskImage}
             transform={activeTransform || selectedType?.imageTransform || product.imageTransform}
             sceneSrc={product.sceneBackground || sceneSrc}
+            isLightboxView={isLightboxView}
           />
         </div>
         
         {/* Decorative elements only in grid view */}
         {!isLightboxView && (
-          <div style={{ position: 'absolute', bottom: '22px', left: '24px', right: '24px', zIndex: 10 }}>
+          <div style={{ position: 'absolute', bottom: '12px', left: '16px', right: '16px', zIndex: 10 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-              <div style={{ maxWidth: '70%' }}>
-                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#1a1a1b', letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</h3>
+              <div style={{ maxWidth: '65%' }}>
+                <h3 style={{ margin: 0, fontSize: 'clamp(14px, 4vw, 17px)', fontWeight: '800', color: '#1a1a1b', letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</h3>
                 
                 {/* Variant Indicators */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
@@ -170,7 +172,7 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
                   )}
                 </div>
               </div>
-              <div style={{ background: 'linear-gradient(135deg, #c5a059 0%, #a38241 100%)', padding: '6px 14px', borderRadius: '12px', color: 'white', fontWeight: '900', fontSize: '15px', boxShadow: '0 8px 16px rgba(197, 160, 89, 0.2)', marginBottom: '4px' }}>
+              <div style={{ background: 'linear-gradient(135deg, #c5a059 0%, #a38241 100%)', padding: '4px 10px', borderRadius: '10px', color: 'white', fontWeight: '900', fontSize: '13px', boxShadow: '0 8px 16px rgba(197, 160, 89, 0.2)', marginBottom: '2px' }}>
                 Q{Number(product.price || 0).toFixed(2)}
               </div>
             </div>

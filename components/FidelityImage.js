@@ -5,7 +5,7 @@ import { useState, useEffect, useMemo, useId } from 'react';
  * FIDELITY ENGINE v7.20 - "CLEAN SLATE" 🚀
  * TOTAL REWRITE to break HMR cache collisions and fix "filterId" duplicate errors.
  */
-export default function FidelityImage({ src, maskSrc, color, transform = { scale: 1, x: 0, y: 0 }, sceneSrc = '' }) {
+export default function FidelityImage({ src, maskSrc, color, transform = { scale: 1, x: 0, y: 0 }, sceneSrc = '', isLightboxView = false }) {
   useEffect(() => { console.log('🚀 FidelityEngine v7.22: Ready'); }, []);
   // 1. UNIQUE IDENTIFIERS (Standardized via React useId)
   const smartEraserId = useId().replace(/:/g, ''); // SVG-safe unique ID
@@ -66,19 +66,20 @@ export default function FidelityImage({ src, maskSrc, color, transform = { scale
       className="fidelity-v7.21-invulnerable" 
       key={imageSource} 
       style={{ 
-        position: 'relative', width: '100%', height: '100%', overflow: 'hidden', 
-        borderRadius: 'inherit',
-        background: "#f1f5f9 url('/images/backgrounds/marble-bg.png') center/cover no-repeat" 
+        position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'hidden', 
+        borderRadius: isLightboxView ? '40px' : 'inherit',
+        background: sceneSource ? 'none' : "#f1f5f9 url('/images/backgrounds/marble-bg.png') center/cover no-repeat" 
       }}
     >
       {/* 1. OPTIONAL SCENE OVERRIDE */}
       {sceneSource && (
         <div style={{
-          position: 'absolute', inset: 0,
+          position: 'absolute', inset: '-1px', // Slight negative inset to prevent sub-pixel gaps
           backgroundImage: `url(${sceneSource})`,
           backgroundSize: 'cover', backgroundPosition: 'center',
           mixBlendMode: 'normal',
-          zIndex: 1
+          zIndex: 1,
+          borderRadius: 'inherit'
         }} />
       )}
 
