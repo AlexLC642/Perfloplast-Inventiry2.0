@@ -4,6 +4,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import FidelityImage from './FidelityImage';
 import Logo from './Logo';
 
+// Hook for responsive detection
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  return isMobile;
+}
+
 export default function ProductCard({ product, onClick, isLightboxView = false, activeTransform = null, sceneSrc = '' }) {
   // Memoize types and colors for performance
   const availableTypes = useMemo(() => {
@@ -53,9 +65,11 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
     });
   }, [product.id, availableTypes, availableColors]);
 
+  const isMobile = useIsMobile();
+
   const cardStyles = isLightboxView ? {
-    background: '#fcfcfc', // Off-white for better white-lid contrast
-    borderRadius: '40px',
+    background: '#fcfcfc',
+    borderRadius: isMobile ? '32px' : '40px',
     boxShadow: '0 40px 100px rgba(0,0,0,0.18)',
     cursor: 'default',
     width: '100%',
@@ -64,12 +78,12 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
   } : {
     background: '#ffffff',
     border: '1px solid rgba(0, 0, 0, 0.08)',
-    borderRadius: '40px',
+    borderRadius: isMobile ? '24px' : '40px',
     overflow: 'hidden',
     cursor: 'pointer',
     position: 'relative',
     zIndex: 1,
-    minHeight: '220px' // Ensure a minimum height for mobile density
+    minHeight: isMobile ? '160px' : '220px'
   };
 
   return (
@@ -99,9 +113,11 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
         minHeight: isLightboxView ? '500px' : 'auto'
       }}>
         {/* Company Branding Watermark (Top-Left) */}
-        <div style={{ position: 'absolute', top: '32px', left: '32px', zIndex: 30, opacity: 0.25, pointerEvents: 'none' }}>
-          <Logo size={16} color="#0047AB" />
-        </div>
+        {(!isMobile || isLightboxView) && (
+          <div style={{ position: 'absolute', top: isMobile ? '20px' : '32px', left: isMobile ? '20px' : '32px', zIndex: 30, opacity: 0.25, pointerEvents: 'none' }}>
+            <Logo size={isMobile ? 12 : 16} color="#0047AB" />
+          </div>
+        )}
 
         {/* Studio Floor Line (Subtle grounding) */}
         <div style={{
@@ -132,7 +148,7 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
           position: 'relative',
           width: '100%',
           height: '100%',
-          padding: isLightboxView ? '80px' : '0', // Increased air around the product
+          padding: isLightboxView ? (isMobile ? '30px' : '80px') : '0',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

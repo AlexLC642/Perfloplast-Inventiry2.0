@@ -130,7 +130,7 @@ export default function Home() {
         </motion.a>
       </header>
 
-      <section style={{ marginTop: '60px' }}>
+      <section className="main-catalog-section">
         {/* Search Bar */}
         <div className="search-container">
           <div className="search-icon">
@@ -231,7 +231,7 @@ export default function Home() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '40px'
+              padding: 'clamp(8px, 2vw, 40px)'
             }}
           >
             <motion.div

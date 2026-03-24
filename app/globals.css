@@ -29,6 +29,13 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+@media (max-width: 640px) {
+  body {
+    background-size: 150% auto;
+    background-attachment: scroll; /* Better performance on mobile */
+  }
+}
+
 .container {
   max-width: 1440px;
   margin: 0 auto;
@@ -100,8 +107,18 @@ body {
 .search-container {
   position: relative;
   max-width: 500px;
-  margin: 0 auto 48px;
+  margin: 0 auto 32px; /* Reduced bottom margin */
   z-index: 10;
+}
+
+.main-catalog-section {
+  margin-top: 60px;
+}
+
+@media (max-width: 640px) {
+  .main-catalog-section {
+    margin-top: 24px;
+  }
 }
 
 .search-input {
@@ -171,6 +188,12 @@ body {
 /* Lightbox Specifics */
 .lightbox-overlay {
   padding: 40px;
+}
+
+@media (max-width: 640px) {
+  .lightbox-overlay {
+    padding: 8px; /* High utilization on mobile */
+  }
 }
 
 .lightbox-modal {
@@ -253,7 +276,7 @@ body {
   }
 
   .lightbox-details-inner {
-    padding: 32px 24px 60px; /* Extra bottom padding for mobile scroll */
+    padding: 24px 20px 60px; /* Reduced side padding */
   }
 
   .lightbox-nav {
@@ -264,8 +287,8 @@ body {
     transform: none !important;
   }
   
-  .lightbox-nav[title*="Anterior"] { left: 20px !important; }
-  .lightbox-nav[title*="Siguiente"] { right: 20px !important; }
+  .lightbox-nav[title*="Anterior"] { left: 8px !important; } /* Closer to edge on mobile */
+  .lightbox-nav[title*="Siguiente"] { right: 8px !important; }
 
   .lightbox-overlay {
     padding: 10px;
