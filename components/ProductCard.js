@@ -97,20 +97,23 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       style={{
         ...cardStyles,
-        height: isLightboxView ? '100%' : 'auto'
+        height: isLightboxView ? '100%' : 'auto',
+        display: 'flex',
+        flexDirection: 'column'
       }}
     >
       <div style={{ 
         position: 'relative', 
         width: '100%', 
-        aspectRatio: isLightboxView ? 'unset' : '16/11', 
+        aspectRatio: isLightboxView ? 'unset' : (isMobile ? '1/1' : '16/11'), 
         flex: isLightboxView ? 1 : 'none',
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
         background: isLightboxView ? 'transparent' : `radial-gradient(circle at 50% 50%, ${selectedColor.hex}15 0%, transparent 70%)`,
         transition: 'background 0.8s ease',
-        minHeight: isLightboxView ? '500px' : 'auto'
+        minHeight: isLightboxView ? (isMobile ? '300px' : '500px') : 'auto',
+        overflow: 'hidden'
       }}>
         {/* Company Branding Watermark (Top-Left) */}
         {(!isMobile || isLightboxView) && (
@@ -145,10 +148,9 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
         }} />
 
         <div style={{
-          position: 'relative',
-          width: '100%',
-          height: '100%',
-          padding: isLightboxView ? (isMobile ? '30px' : '80px') : '0',
+          position: 'absolute',
+          inset: 0,
+          padding: isLightboxView ? (isMobile ? '40px' : '80px') : '10px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -164,33 +166,35 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
           />
         </div>
         
-        {/* Decorative elements only in grid view */}
         {!isLightboxView && (
-          <div style={{ position: 'absolute', bottom: '12px', left: '16px', right: '16px', zIndex: 10 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-              <div style={{ maxWidth: '65%' }}>
-                <h3 style={{ margin: 0, fontSize: 'clamp(14px, 4vw, 17px)', fontWeight: '800', color: '#1a1a1b', letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</h3>
-                
-                {/* Variant Indicators */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
-                  {availableColors.length > 1 && (
-                    <div style={{ display: 'flex', gap: '4px' }}>
-                      {availableColors.slice(0, 3).map((c, i) => (
-                        <div key={i} style={{ width: '8px', height: '8px', borderRadius: '50%', background: c.hex, border: '1px solid rgba(0,0,0,0.1)' }} />
-                      ))}
-                      {availableColors.length > 3 && <span style={{ fontSize: '10px', fontWeight: '800', color: '#94a3b8' }}>+</span>}
-                    </div>
-                  )}
-                  {availableTypes.length > 1 && (
-                    <div style={{ background: '#f1f5f9', padding: '2px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      {availableTypes.length} Modelos
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div style={{ background: 'linear-gradient(135deg, #c5a059 0%, #a38241 100%)', padding: '4px 10px', borderRadius: '10px', color: 'white', fontWeight: '900', fontSize: '13px', boxShadow: '0 8px 16px rgba(197, 160, 89, 0.2)', marginBottom: '2px' }}>
+          <div style={{ 
+            padding: isMobile ? '12px 14px 14px' : '16px 24px 24px', 
+            background: 'white',
+            borderTop: '1px solid rgba(0,0,0,0.03)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: isMobile ? '4px' : '8px'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+              <h3 style={{ margin: 0, fontSize: isMobile ? '14px' : '17px', fontWeight: '800', color: '#1a1a1b', letterSpacing: '-0.02em', flex: 1 }}>{product.name}</h3>
+              <div style={{ background: 'linear-gradient(135deg, #c5a059 0%, #a38241 100%)', padding: '2px 8px', borderRadius: '8px', color: 'white', fontWeight: '900', fontSize: isMobile ? '11px' : '13px', boxShadow: '0 4px 10px rgba(197, 160, 89, 0.2)', flexShrink: 0 }}>
                 Q{Number(product.price || 0).toFixed(2)}
               </div>
+            </div>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {availableColors.length > 1 && (
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  {availableColors.slice(0, 3).map((c, i) => (
+                    <div key={i} style={{ width: '6px', height: '6px', borderRadius: '50%', background: c.hex, border: '1px solid rgba(0,0,0,0.1)' }} />
+                  ))}
+                </div>
+              )}
+              {availableTypes.length > 1 && (
+                <div style={{ background: '#f8fafc', padding: '1px 6px', borderRadius: '4px', fontSize: '9px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  {availableTypes.length} Modelos
+                </div>
+              )}
             </div>
           </div>
         )}

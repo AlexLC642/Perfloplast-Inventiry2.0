@@ -31,8 +31,8 @@ body {
 
 @media (max-width: 640px) {
   body {
-    background-size: 150% auto;
-    background-attachment: scroll; /* Better performance on mobile */
+    background-size: 200% auto; /* Larger tiling for mobile texture */
+    background-attachment: scroll; 
   }
 }
 
@@ -187,12 +187,12 @@ body {
 
 /* Lightbox Specifics */
 .lightbox-overlay {
-  padding: 40px;
+  padding: 8px; /* High utilization on mobile by default */
 }
 
-@media (max-width: 640px) {
+@media (min-width: 641px) {
   .lightbox-overlay {
-    padding: 8px; /* High utilization on mobile */
+    padding: 40px;
   }
 }
 
@@ -264,8 +264,8 @@ body {
 
   /* Ensure the image area takes reasonable space on mobile */
   .product-card.in-lightbox > div:first-child {
-    aspect-ratio: 1/1;
-    min-height: 350px;
+    aspect-ratio: auto; /* Allow content to dictate height */
+    min-height: 45vh; /* Take about half the screen on mobile */
     background: transparent !important;
   }
 
