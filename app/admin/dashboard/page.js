@@ -287,6 +287,13 @@ export default function AdminDashboard({ params, searchParams }) {
         const formData = new FormData();
         formData.append('file', processedFile);
         const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
+        if (!uploadRes.ok) {
+          const upErr = await uploadRes.json();
+          const errorMsg = upErr.instruction 
+            ? `⚠️ ERROR: ${upErr.error}\n\nDETALLE: ${upErr.detail}\n\nINSTRUCCIÓN: ${upErr.instruction}`
+            : upErr.error || 'Error al subir la imagen principal';
+          throw new Error(errorMsg);
+        }
         const uploadData = await uploadRes.json();
         imageUrl = uploadData.url;
       }
@@ -297,6 +304,13 @@ export default function AdminDashboard({ params, searchParams }) {
         const formData = new FormData();
         formData.append('file', maskFile);
         const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
+        if (!uploadRes.ok) {
+          const upErr = await uploadRes.json();
+          const errorMsg = upErr.instruction 
+            ? `⚠️ ERROR DE MÁSCARA: ${upErr.error}\n\nDETALLE: ${upErr.detail}\n\nINSTRUCCIÓN: ${upErr.instruction}`
+            : upErr.error || 'Error al subir la máscara';
+          throw new Error(errorMsg);
+        }
         const uploadData = await uploadRes.json();
         maskUrl = uploadData.url;
       }
@@ -307,6 +321,13 @@ export default function AdminDashboard({ params, searchParams }) {
         const formData = new FormData();
         formData.append('file', productSceneFile);
         const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
+        if (!uploadRes.ok) {
+          const upErr = await uploadRes.json();
+          const errorMsg = upErr.instruction 
+            ? `⚠️ ERROR DE ESCENA: ${upErr.error}\n\nDETALLE: ${upErr.detail}\n\nINSTRUCCIÓN: ${upErr.instruction}`
+            : upErr.error || 'Error al subir el fondo específico';
+          throw new Error(errorMsg);
+        }
         const uploadData = await uploadRes.json();
         productSceneUrl = uploadData.url;
       }
@@ -320,7 +341,12 @@ export default function AdminDashboard({ params, searchParams }) {
             const formData = new FormData();
             formData.append('file', processedFile);
             const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
-            if (!uploadRes.ok) throw new Error('Upload failed');
+            if (!uploadRes.ok) {
+              const upErr = await uploadRes.json();
+              throw new Error(upErr.instruction 
+                ? `${upErr.error}: ${upErr.detail}` 
+                : (upErr.error || 'Upload failed'));
+            }
             const uploadData = await uploadRes.json();
             typeImageUrl = uploadData.url;
           } catch (error) {
@@ -334,7 +360,12 @@ export default function AdminDashboard({ params, searchParams }) {
             const formData = new FormData();
             formData.append('file', t.maskFile);
             const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
-            if (!uploadRes.ok) throw new Error('Mask upload failed');
+            if (!uploadRes.ok) {
+              const upErr = await uploadRes.json();
+              throw new Error(upErr.instruction 
+                ? `${upErr.error}: ${upErr.detail}` 
+                : (upErr.error || 'Mask upload failed'));
+            }
             const uploadData = await uploadRes.json();
             typeMaskUrl = uploadData.url;
           } catch (error) {
@@ -374,14 +405,19 @@ export default function AdminDashboard({ params, searchParams }) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Error en el servidor');
+        const errorMsg = errorData.instruction 
+          ? `⚠️ ERROR: ${errorData.error}\n\nDETALLE: ${errorData.detail}\n\nINSTRUCCIÓN: ${errorData.instruction}`
+          : errorData.error || 'Error en el servidor al guardar el producto';
+        throw new Error(errorMsg);
       }
 
       setShowForm(false);
       setName(''); setPrice(''); setFile(null); setColors([]); setTypes([]);
       fetchProducts();
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      console.error('Final Submit Error:', err);
+      const finalMsg = err.message.includes('⚠️') ? err.message : `⚠️ ERROR: ${err.message}`;
+      alert(finalMsg);
     } finally {
       setSaving(false);
     }
@@ -413,7 +449,10 @@ export default function AdminDashboard({ params, searchParams }) {
         
         if (!uploadRes.ok) {
           const upErr = await uploadRes.json();
-          throw new Error(upErr.error || 'Error al subir la imagen');
+          const errorMsg = upErr.instruction 
+            ? `⚠️ ERROR: ${upErr.error}\n\nDETALLE: ${upErr.detail}\n\nINSTRUCCIÓN: ${upErr.instruction}`
+            : upErr.error || 'Error al subir el escenario';
+          throw new Error(errorMsg);
         }
         const uploadData = await uploadRes.json();
         sceneUrl = uploadData.url;
@@ -438,11 +477,16 @@ export default function AdminDashboard({ params, searchParams }) {
         fetchProducts();
       } else {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Error al guardar los ajustes');
+        const errorMsg = errorData.instruction 
+          ? `⚠️ ERROR: ${errorData.error}\n\nDETALLE: ${errorData.detail}\n\nINSTRUCCIÓN: ${errorData.instruction}`
+          : errorData.error || 'Error al guardar los ajustes';
+        throw new Error(errorMsg);
       }
     } catch (err) {
       console.error('Settings Error:', err);
-      alert(`⚠️ ERROR: ${err.message}`);
+      // If the error message already has emoji/prefix, don't duplicate it
+      const finalMsg = err.message.includes('⚠️') ? err.message : `⚠️ ERROR: ${err.message}`;
+      alert(finalMsg);
     } finally {
       setSavingSettings(false);
     }
