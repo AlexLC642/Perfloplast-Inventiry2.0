@@ -105,7 +105,8 @@ export default function FidelityImage({ src, maskSrc, color, transform = { scale
             style={{ 
               ...baseStyles, 
               zIndex: 1, 
-              filter: !maskSource ? `url(#${smartEraserId}) contrast(1.1) brightness(1.02)` : 'contrast(1.1) brightness(1.02)' 
+              filter: 'contrast(1.1) brightness(1.02)',
+              opacity: !maskSource ? 1 : 1
             }} 
           />
         )}
@@ -120,17 +121,17 @@ export default function FidelityImage({ src, maskSrc, color, transform = { scale
                 onError={() => setHasError(true)}
                 style={{ 
                   ...maskStyles, 
-                  filter: !maskSource ? `url(#${smartEraserId}) grayscale(1) brightness(1.05) contrast(1.1)` : 'grayscale(1) brightness(1.05) contrast(1.1)', 
+                  filter: 'grayscale(1) brightness(1.05) contrast(1.1)', 
                   opacity: 1, 
                   zIndex: 3 
                 }} 
              />
              
              {/* 2. Color Burn/Hue */}
-             <div style={{ ...maskStyles, backgroundColor: color, mixBlendMode: 'color', opacity: 0.9, zIndex: 4 }} />
+             <div style={{ ...maskStyles, backgroundColor: color, mixBlendMode: maskSource ? 'color' : 'multiply', opacity: maskSource ? 0.9 : 0.6, zIndex: 4 }} />
              
              {/* 3. Soft Volume */}
-             <div style={{ ...maskStyles, backgroundColor: color, mixBlendMode: 'soft-light', opacity: 0.4, zIndex: 5 }} />
+             <div style={{ ...maskStyles, backgroundColor: color, mixBlendMode: 'soft-light', opacity: maskSource ? 0.4 : 0.2, zIndex: 5 }} />
 
              {/* 4. Specular White Recovery */}
              <div style={{ 
