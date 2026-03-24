@@ -128,10 +128,10 @@ export default function FidelityImage({ src, maskSrc, color, transform = { scale
              />
              
              {/* 2. Color Burn/Hue */}
-             <div style={{ ...maskStyles, backgroundColor: color, mixBlendMode: 'color', opacity: 0.9, zIndex: 4 }} />
+             <div style={{ ...maskStyles, backgroundColor: color, mixBlendMode: 'color', opacity: maskSource ? 0.9 : 0.82, zIndex: 4 }} />
              
              {/* 3. Soft Volume */}
-             <div style={{ ...maskStyles, backgroundColor: color, mixBlendMode: 'soft-light', opacity: 0.4, zIndex: 5 }} />
+             <div style={{ ...maskStyles, backgroundColor: color, mixBlendMode: 'soft-light', opacity: maskSource ? 0.4 : 0.25, zIndex: 5 }} />
 
              {/* 4. Specular White Recovery */}
              <div style={{ 
@@ -139,8 +139,8 @@ export default function FidelityImage({ src, maskSrc, color, transform = { scale
                 backgroundImage: `url(${imageSource})`,
                 backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
                 mixBlendMode: 'screen', 
-                opacity: 0.75, 
-                filter: 'grayscale(1) contrast(4) brightness(0.95)', 
+                opacity: maskSource ? 0.75 : 0.45, 
+                filter: maskSource ? 'grayscale(1) contrast(4) brightness(0.95)' : 'grayscale(1) contrast(2.5) brightness(0.98)', 
                 zIndex: 6 
              }} />
           </div>
