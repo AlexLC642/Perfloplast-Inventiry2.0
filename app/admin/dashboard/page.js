@@ -6,6 +6,7 @@ import FidelityImage from '../../../components/FidelityImage';
 export default function AdminDashboard({ params, searchParams }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   
@@ -56,6 +57,10 @@ export default function AdminDashboard({ params, searchParams }) {
   useEffect(() => {
     fetchProducts();
     fetchSettings();
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const fetchSettings = async () => {
@@ -567,10 +572,16 @@ export default function AdminDashboard({ params, searchParams }) {
         <header style={{ 
           display: 'flex', 
           flexDirection: 'column',
-          gap: '32px',
+          gap: isMobile ? '32px' : '48px',
           marginBottom: '48px'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            justifyContent: 'space-between', 
+            alignItems: isMobile ? 'flex-start' : 'center', 
+            gap: isMobile ? '32px' : '0'
+          }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
               <motion.div 
                 initial={{ rotate: -10 }}
@@ -591,64 +602,72 @@ export default function AdminDashboard({ params, searchParams }) {
                   <rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>
                 </svg>
               </motion.div>
-              <div className="header-text">
+              <div>
                 <h1 style={{ 
-                  fontFamily: 'var(--font-display)',
                   margin: 0, 
-                  fontSize: '32px', 
-                  fontWeight: '800', 
+                  fontSize: isMobile ? '32px' : '48px', 
+                  fontWeight: '900', 
+                  fontFamily: 'var(--font-display)', 
                   letterSpacing: '-0.03em', 
-                  color: '#1a1a1b' 
-                }}>Gestión de Inventario</h1>
-                <p style={{ margin: 0, opacity: 0.8, fontSize: '14px', color: '#c5a059', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Operaciones Premium</p>
+                  color: '#0f172a' 
+                }}>Inventario</h1>
+                <p style={{ margin: '4px 0 0 0', opacity: 0.8, fontSize: '12px', color: '#c5a059', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Gestión Premium</p>
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '16px' }}>
+            <div style={{ 
+              display: 'flex', 
+              gap: '12px',
+              width: isMobile ? '100%' : 'auto'
+            }}>
               <motion.button
-                whileHover={{ scale: 1.02, y: -2 }}
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setShowSettings(true)}
                 style={{ 
-                  background: 'rgba(255, 255, 255, 0.8)', 
-                  color: '#1e293b', 
+                  flex: isMobile ? 1 : 'none',
+                  background: 'white', 
+                  color: '#475569', 
                   border: '1px solid #e2e8f0', 
-                  padding: '12px 24px', 
+                  padding: '12px 20px', 
                   borderRadius: '16px', 
                   fontWeight: '700', 
                   cursor: 'pointer', 
-                  boxShadow: '0 10px 20px rgba(0,0,0,0.05)', 
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.03)', 
                   display: 'flex', 
                   alignItems: 'center', 
+                  justifyContent: 'center',
                   gap: '8px',
-                  fontSize: '15px'
+                  fontSize: '14px'
                 }}
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-                Ajustes de Escena
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                {isMobile ? 'Ajustes' : 'Ajustes de Escena'}
               </motion.button>
 
               <motion.button
-                whileHover={{ scale: 1.02, y: -2 }}
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => openForm()}
                 style={{ 
-                  background: 'linear-gradient(135deg, #c5a059 0%, #a38241 100%)', 
+                  flex: isMobile ? 1 : 'none',
+                  background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', 
                   color: 'white', 
                   border: 'none', 
                   padding: '12px 28px', 
                   borderRadius: '16px', 
-                  fontWeight: '700', 
+                  fontWeight: '800', 
                   cursor: 'pointer', 
-                  boxShadow: '0 15px 30px -8px rgba(197, 160, 89, 0.4)', 
+                  boxShadow: '0 10px 20px rgba(15, 23, 42, 0.2)', 
                   display: 'flex', 
                   alignItems: 'center', 
+                  justifyContent: 'center',
                   gap: '8px',
-                  fontSize: '15px'
+                  fontSize: '14px'
                 }}
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Nuevo Producto
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                {isMobile ? 'Nuevo' : 'Nuevo Producto'}
               </motion.button>
             </div>
           </div>
@@ -656,47 +675,84 @@ export default function AdminDashboard({ params, searchParams }) {
           {/* Stats Summary Bar */}
           <div style={{ 
             display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', 
-            gap: '24px' 
+            gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(240px, 1fr))', 
+            gap: isMobile ? '16px' : '24px' 
           }}>
             {[
-              { label: 'Total Productos', value: products.length, icon: '📦', color: '#c5a059' },
-              { label: 'Con Colores', value: products.filter(p => p.colors?.length > 0).length, icon: '🎨', color: '#c5a059' },
-              { label: 'Con Modelos', value: products.filter(p => p.types?.length > 0).length, icon: '📐', color: '#c5a059' },
-              { label: 'Estado', value: 'Operativo', icon: '✨', color: '#2ecc71' }
+              { 
+                label: 'Catálogo Total', 
+                value: products.length, 
+                icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>, 
+                color: '#0ea5e9',
+                bg: 'rgba(14, 165, 233, 0.1)'
+              },
+              { 
+                label: 'Variedad de Color', 
+                value: products.reduce((acc, p) => acc + (p.colors?.length || 0), 0), 
+                icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.6-.7 1.6-1.6 0-.4-.2-.8-.4-1.1s-.4-.7-.4-1.1c0-.9.7-1.6 1.6-1.6H17c2.8 0 5-2.2 5-5 0-5.5-4.5-10-10-10z"/></svg>, 
+                color: '#f59e0b',
+                bg: 'rgba(245, 158, 11, 0.1)'
+              },
+              { 
+                label: 'Modelos Registrados', 
+                value: products.reduce((acc, p) => acc + (p.types?.length || 0), 0), 
+                icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a2 2 0 0 1-2.83-2.83l-3.94 3.6Z"/><path d="m3.1 20.9 4.83-4.83a.5.5 0 0 0 0-.7l-1.06-1.06a.5.5 0 0 1 0-.7l2.47-2.47a2 2 0 0 1 2.83 0l1.59 1.59a2 2 0 0 1 0 2.83l-2.47 2.47a.5.5 0 0 1-.7 0l-1.06-1.06a.5.5 0 0 0-.7 0L3.1 20.9a2 2 0 1 0 2.8 2.8l4.83-4.83"/><path d="m15 15 6 6"/><path d="m21 15-6 6"/></svg>, 
+                color: '#8b5cf6',
+                bg: 'rgba(139, 92, 246, 0.1)'
+              },
+              { 
+                label: 'Estado Sistema', 
+                value: 'Operativo', 
+                icon: <div style={{ position: 'relative', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                         <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }} transition={{ repeat: Infinity, duration: 2 }} style={{ position: 'absolute', width: '12px', height: '12px', background: '#10b981', borderRadius: '50%' }} />
+                         <div style={{ width: '10px', height: '10px', background: '#10b981', borderRadius: '50%', zIndex: 1 }} />
+                      </div>, 
+                color: '#10b981',
+                bg: 'rgba(16, 185, 129, 0.1)'
+              }
             ].map((stat, i) => (
               <motion.div 
                 key={i}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
                 style={{ 
-                  background: 'rgba(255, 255, 255, 0.7)', 
-                  backdropFilter: 'blur(30px)', 
+                  background: 'rgba(255, 255, 255, 0.8)', 
+                  backdropFilter: 'blur(40px)', 
                   padding: '24px', 
-                  borderRadius: '24px', 
-                  border: '1px solid rgba(197, 160, 89, 0.15)',
+                  borderRadius: '28px', 
+                  border: '1px solid rgba(255, 255, 255, 0.5)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '20px',
-                  boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)'
+                  boxShadow: '0 10px 40px -10px rgba(0, 0, 0, 0.05)',
+                  position: 'relative',
+                  overflow: 'hidden'
                 }}
               >
+                {/* Background Accent */}
+                <div style={{ position: 'absolute', top: '-10%', right: '-5%', width: '80px', height: '80px', background: stat.bg, borderRadius: '50%', filter: 'blur(30px)', opacity: 0.6, zIndex: 0 }} />
+                
                 <div style={{ 
-                  width: '48px', 
-                  height: '48px', 
-                  borderRadius: '14px', 
-                  background: 'rgba(197, 160, 89, 0.1)', 
+                  width: '56px', 
+                  height: '56px', 
+                  borderRadius: '16px', 
+                  background: stat.bg, 
+                  color: stat.color,
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center',
-                  fontSize: '24px'
+                  position: 'relative',
+                  zIndex: 1
                 }}>
                   {stat.icon}
                 </div>
-                <div>
-                  <div style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{stat.label}</div>
-                  <div style={{ fontSize: '22px', fontWeight: '800', color: '#1a1a1b', letterSpacing: '-0.02em' }}>{stat.value}</div>
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <div style={{ fontSize: '11px', fontWeight: '900', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>{stat.label}</div>
+                  <div style={{ fontSize: '24px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.02em', display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                    {stat.value}
+                    {i < 3 && <span style={{ fontSize: '12px', fontWeight: '700', color: '#cbd5e1' }}>unid.</span>}
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -706,8 +762,8 @@ export default function AdminDashboard({ params, searchParams }) {
         {/* Product Grid */}
         <section style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', 
-          gap: '32px' 
+          gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(340px, 1fr))', 
+          gap: isMobile ? '16px' : '32px' 
         }}>
           {loading ? (
             <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '100px 0', opacity: 0.5, fontFamily: 'var(--font-display)', fontWeight: '700' }}>
@@ -834,47 +890,80 @@ export default function AdminDashboard({ params, searchParams }) {
         {/* Product Modal Form */}
         <AnimatePresence>
           {showForm && (
-            <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+            <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: isMobile ? '0' : '20px' }}>
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 30 }} 
-                style={{ background: 'white', borderRadius: '40px', maxWidth: '1240px', width: '100%', maxHeight: '92vh', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.8)', boxShadow: '0 40px 80px -15px rgba(15, 23, 42, 0.3)', display: 'flex', flexDirection: 'column' }}
+                style={{ 
+                  background: 'white', 
+                  borderRadius: isMobile ? '0' : '40px', 
+                  maxWidth: '1240px', 
+                  width: '100%', 
+                  height: isMobile ? '100%' : 'auto',
+                  maxHeight: isMobile ? '100%' : '92vh', 
+                  overflow: 'hidden', 
+                  border: '1px solid rgba(255,255,255,0.8)', 
+                  boxShadow: '0 40px 80px -15px rgba(15, 23, 42, 0.3)', 
+                  display: 'flex', 
+                  flexDirection: 'column' 
+                }}
               >
                 {/* Modal Header */}
-                <div style={{ padding: '32px 48px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc' }}>
+                <div style={{ 
+                  padding: isMobile ? '20px' : '32px 48px', 
+                  borderBottom: '1px solid #f1f5f9', 
+                  display: 'flex', 
+                  flexDirection: isMobile ? 'column' : 'row',
+                  justifyContent: 'space-between', 
+                  alignItems: isMobile ? 'flex-start' : 'center', 
+                  gap: isMobile ? '20px' : '0',
+                  background: '#f8fafc' 
+                }}>
                   <div>
-                    <h3 style={{ fontSize: '24px', fontWeight: '900', color: '#0f172a', margin: 0, letterSpacing: '-0.04em' }}>
+                    <h3 style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: '900', color: '#0f172a', margin: 0, letterSpacing: '-0.04em' }}>
                       {editingProduct ? 'Editar Producto' : 'Nuevo Producto'}
                     </h3>
-                    <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '13px' }}>Refactorización Premium — Configuración por etapas</p>
+                    {!isMobile && <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '13px' }}>Refactorización Premium — Configuración por etapas</p>}
                   </div>
-                  <div style={{ display: 'flex', gap: '12px' }}>
-                    <button type="button" onClick={() => setShowForm(false)} style={{ background: 'white', border: '1px solid #e2e8f0', padding: '10px 20px', borderRadius: '14px', fontSize: '14px', fontWeight: '700', color: '#64748b', cursor: 'pointer' }}>Cancelar</button>
-                    <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSubmit} disabled={saving} style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '14px', fontSize: '14px', fontWeight: '800', cursor: 'pointer', boxShadow: '0 10px 20px rgba(15, 23, 42, 0.2)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      {saving ? 'Guardando...' : 'Publicar Cambios'}
+                  <div style={{ display: 'flex', gap: '12px', width: isMobile ? '100%' : 'auto' }}>
+                    <button type="button" onClick={() => setShowForm(false)} style={{ flex: 1, background: 'white', border: '1px solid #e2e8f0', padding: '10px 16px', borderRadius: '14px', fontSize: '13px', fontWeight: '700', color: '#64748b', cursor: 'pointer' }}>Cerrar</button>
+                    <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSubmit} disabled={saving} style={{ flex: 1, background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '14px', fontSize: '13px', fontWeight: '800', cursor: 'pointer', boxShadow: '0 10px 20px rgba(15, 23, 42, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                      {saving ? '...' : 'Publicar'}
                     </motion.button>
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr 380px', flex: 1, overflow: 'hidden' }}>
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: isMobile ? '1fr' : '240px 1fr 380px', 
+                  flex: 1, 
+                  overflowY: isMobile ? 'auto' : 'hidden' 
+                }}>
                   {/* Left Sidebar: Tabs */}
-                  <div style={{ background: '#f8fafc', borderRight: '1px solid #f1f5f9', padding: '32px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ 
+                    background: '#f8fafc', 
+                    borderRight: isMobile ? 'none' : '1px solid #f1f5f9', 
+                    borderBottom: isMobile ? '1px solid #f1f5f9' : 'none',
+                    padding: isMobile ? '12px' : '32px 16px', 
+                    display: 'flex', 
+                    flexDirection: isMobile ? 'row' : 'column', 
+                    gap: '8px',
+                    overflowX: isMobile ? 'auto' : 'visible',
+                    whiteSpace: 'nowrap'
+                  }}>
                     {[
-                      { id: 'general', label: 'Información General', icon: '📄' },
-                      { id: 'colors', label: 'Paleta de Colores', icon: '🎨' },
-                      { id: 'types', label: 'Modelos y Variantes', icon: '📦' }
+                      { id: 'general', label: 'Info', fullLabel: 'Información General', icon: '📄' },
+                      { id: 'colors', label: 'Colores', fullLabel: 'Paleta de Colores', icon: '🎨' },
+                      { id: 'types', label: 'Modelos', fullLabel: 'Modelos y Variantes', icon: '📦' }
                     ].map(tab => (
-                      <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 20px', borderRadius: '14px', border: 'none', background: activeTab === tab.id ? 'white' : 'transparent', color: activeTab === tab.id ? '#1e293b' : '#64748b', fontSize: '14px', fontWeight: '800', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s', boxShadow: activeTab === tab.id ? '0 4px 12px rgba(0,0,0,0.05)' : 'none' }}>
-                        <span style={{ fontSize: '18px' }}>{tab.icon}</span>
-                        {tab.label}
+                      <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: isMobile ? '10px 16px' : '14px 20px', borderRadius: '14px', border: 'none', background: activeTab === tab.id ? 'white' : 'transparent', color: activeTab === tab.id ? '#1e293b' : '#64748b', fontSize: '13px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s', boxShadow: activeTab === tab.id ? '0 4px 12px rgba(0,0,0,0.05)' : 'none' }}>
+                        <span>{tab.icon}</span>
+                        {isMobile ? tab.label : tab.fullLabel}
                       </button>
                     ))}
-                    <div style={{ marginTop: 'auto', padding: '20px', background: 'rgba(197, 160, 89, 0.05)', borderRadius: '20px', border: '1px solid rgba(197, 160, 89, 0.1)' }}>
-                      <p style={{ margin: 0, fontSize: '11px', color: '#a38241', fontWeight: '700', textAlign: 'center' }}>Calidad de Catálogo Perflo-Plast</p>
-                    </div>
                   </div>
 
                   {/* Middle Area: Active Tab Content */}
-                  <div style={{ padding: '48px', overflowY: 'auto', background: 'white' }}>
+                  <div style={{ padding: isMobile ? '24px' : '48px', overflowY: isMobile ? 'visible' : 'auto', background: 'white' }}>
                     <AnimatePresence mode="wait">
                       {activeTab === 'general' && (
                         <motion.div key="general" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
@@ -1134,27 +1223,38 @@ export default function AdminDashboard({ params, searchParams }) {
                   </div>
 
                   {/* Right Sidebar: Live Preview */}
-                  <div style={{ background: '#f8fafc', borderLeft: '1px solid #f1f5f9', padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px', overflowY: 'auto', maxHeight: '100%' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <div style={{ 
+                    background: '#f8fafc', 
+                    borderLeft: isMobile ? 'none' : '1px solid #f1f5f9', 
+                    borderTop: isMobile ? '1px solid #f1f5f9' : 'none',
+                    padding: isMobile ? '24px' : '32px', 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: '24px', 
+                    overflowY: isMobile ? 'visible' : 'auto'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: isMobile ? 'flex-start' : 'center', gap: '8px', marginBottom: '8px' }}>
                       <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 10px #22c55e80' }} />
                       <h4 style={{ margin: 0, fontSize: '13px', fontWeight: '900', color: '#1e293b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Studio Preview Live</h4>
                     </div>
                     
-                    <div style={{ width: '100%', aspectRatio: '16/11', flexShrink: 0, minHeight: '220px', background: "#f8fafc url('/images/backgrounds/marble-bg.png') center/cover no-repeat", borderRadius: '32px', border: '1px solid #e2e8f0', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ width: '100%', aspectRatio: isMobile ? '1/1' : '16/11', flexShrink: 0, minHeight: '220px', background: "#f8fafc url('/images/backgrounds/marble-bg.png') center/cover no-repeat", borderRadius: '32px', border: '1px solid #e2e8f0', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       {/* Studio Floor Line (Sync with ProductCard) */}
                       <div style={{ position: 'absolute', bottom: '22%', width: '70%', height: '1px', background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.05) 50%, transparent 100%)', zIndex: 0 }} />
 
                       {/* Contact Shadow (Sync with ProductCard) */}
                       <div style={{ position: 'absolute', bottom: '22%', width: '45%', height: '14px', background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, transparent 80%)', filter: 'blur(8px)', borderRadius: '50%', zIndex: 1, opacity: 0.9, transform: 'scaleY(0.7)' }} />
 
-                      <FidelityImage 
-                        src={getActiveSettings().image} 
-                        maskSrc={getActiveSettings().maskImage || (getActiveSettings().isMain ? editingProduct?.maskImage : types[adjustTarget]?.maskImage)}
-                        color={colors.length > 0 ? colors[0].hex : (editingProduct?.colors?.[0]?.hex || '#d32f2f')} 
-                        baseHue={getActiveSettings().baseHue}
-                        transform={getActiveSettings().imageTransform}
-                        sceneSrc={productSceneFile || (editingProduct?.sceneBackground || (sceneFile || settings.productSceneBackground))}
-                      />
+                      <div style={{ transform: isMobile ? 'scale(0.8)' : 'none' }}>
+                        <FidelityImage 
+                          src={getActiveSettings().image} 
+                          maskSrc={getActiveSettings().maskImage || (getActiveSettings().isMain ? editingProduct?.maskImage : types[adjustTarget]?.maskImage)}
+                          color={colors.length > 0 ? colors[0].hex : (editingProduct?.colors?.[0]?.hex || '#d32f2f')} 
+                          baseHue={getActiveSettings().baseHue}
+                          transform={getActiveSettings().imageTransform}
+                          sceneSrc={productSceneFile || (editingProduct?.sceneBackground || (sceneFile || settings.productSceneBackground))}
+                        />
+                      </div>
                       <div style={{ position: 'absolute', bottom: '12px', left: '12px', right: '12px', display: 'flex', justifyContent: 'center', zIndex: 10 }}>
                          <div style={{ background: 'rgba(255, 255, 255, 0.9)', color: '#1e293b', padding: '4px 12px', borderRadius: '12px', fontSize: '9px', fontWeight: '900', border: '1px solid #e2e8f0', backdropFilter: 'blur(4px)' }}>
                            {getActiveSettings().isMain ? 'VISTA PRINCIPAL' : `MODELO: ${types[adjustTarget]?.name.toUpperCase()}`}
@@ -1162,61 +1262,42 @@ export default function AdminDashboard({ params, searchParams }) {
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr', gap: '16px' }}>
                        {/* Universal Reset */}
-                       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}>
-                         <button 
-                           onClick={() => updateActiveSettings({ imageTransform: { scale: 1, x: 0, y: 0 } })} 
-                           style={{ background: '#fef2f2', border: '1px solid #fee2e2', color: '#ef4444', padding: '10px 20px', borderRadius: '14px', fontSize: '11px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s', width: '100%', textTransform: 'uppercase', letterSpacing: '0.05em' }}
-                         >
-                           🔄 REESTABLECER TODO (CENTRAR)
-                         </button>
-                       </div>
+                       <button 
+                         onClick={() => updateActiveSettings({ imageTransform: { scale: 1, x: 0, y: 0 } })} 
+                         style={{ background: '#fef2f2', border: '1px solid #fee2e2', color: '#ef4444', padding: '12px 20px', borderRadius: '16px', fontSize: '11px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s', width: '100%', textTransform: 'uppercase', letterSpacing: '0.05em' }}
+                       >
+                         🔄 REESTABLECER AJUSTES
+                       </button>
+
                        {/* Control Card: Scale */}
                        <div style={{ background: 'white', padding: '20px', borderRadius: '24px', border: '1px solid #f1f5f9', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                           <span style={{ fontSize: '11px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Escala del Producto</span>
-                           <button onClick={() => updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, scale: 1} })} style={{ background: 'none', border: 'none', color: '#c5a059', fontSize: '10px', fontWeight: '800', cursor: 'pointer' }}>Reset (1x)</button>
+                           <span style={{ fontSize: '11px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Escala</span>
+                           <span style={{ fontSize: '12px', fontWeight: '900', color: '#c5a059' }}>{getActiveSettings().imageTransform.scale}x</span>
                          </div>
-                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                           <button onClick={() => updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, scale: Math.max(0.1, Math.round((getActiveSettings().imageTransform.scale - 0.05) * 100) / 100)} })} style={{ width: '36px', height: '36px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#1e293b', fontWeight: '900', cursor: 'pointer' }}>−</button>
-                           <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
-                             <input type="range" min="0.1" max="3" step="0.01" value={getActiveSettings().imageTransform.scale} onChange={(e) => updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, scale: parseFloat(e.target.value)} })} style={{ width: '100%', accentColor: '#c5a059', height: '6px', cursor: 'pointer' }} />
-                           </div>
-                           <button onClick={() => updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, scale: Math.min(3, Math.round((getActiveSettings().imageTransform.scale + 0.05) * 100) / 100)} })} style={{ width: '36px', height: '36px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#1e293b', fontWeight: '900', cursor: 'pointer' }}>+</button>
+                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                           <input type="range" min="0.1" max="3" step="0.01" value={getActiveSettings().imageTransform.scale} onChange={(e) => updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, scale: parseFloat(e.target.value)} })} style={{ width: '100%', accentColor: '#c5a059', height: '6px', cursor: 'pointer' }} />
                          </div>
-                         <div style={{ textAlign: 'center', marginTop: '8px', fontSize: '12px', fontWeight: '900', color: '#c5a059' }}>{getActiveSettings().imageTransform.scale}x</div>
                        </div>
                        
-                       {/* Control Card: Position X */}
-                       <div style={{ background: 'white', padding: '20px', borderRadius: '24px', border: '1px solid #f1f5f9', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                           <span style={{ fontSize: '11px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Desplazamiento Horizontal (X %)</span>
-                           <button onClick={() => updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, x: 0} })} style={{ background: 'none', border: 'none', color: '#c5a059', fontSize: '10px', fontWeight: '800', cursor: 'pointer' }}>Centrar</button>
+                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                         {/* Control Card: X */}
+                         <div style={{ background: 'white', padding: '20px', borderRadius: '24px', border: '1px solid #f1f5f9' }}>
+                           <span style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', display: 'block', marginBottom: '12px' }}>EJE X</span>
+                           <input type="range" min="-100" max="100" value={getActiveSettings().imageTransform.x} onChange={(e) => updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, x: parseInt(e.target.value)} })} style={{ width: '100%', accentColor: '#c5a059', height: '4px' }} />
                          </div>
-                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                           <button onClick={() => updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, x: getActiveSettings().imageTransform.x - 1} })} style={{ width: '36px', height: '36px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#1e293b', fontWeight: '900', cursor: 'pointer' }}>‹</button>
-                           <input type="range" min="-100" max="100" value={getActiveSettings().imageTransform.x} onChange={(e) => updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, x: parseInt(e.target.value)} })} style={{ flex: 1, accentColor: '#c5a059', height: '6px' }} />
-                           <button onClick={() => updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, x: getActiveSettings().imageTransform.x + 1} })} style={{ width: '36px', height: '36px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#1e293b', fontWeight: '900', cursor: 'pointer' }}>›</button>
-                         </div>
-                       </div>
-
-                       {/* Control Card: Position Y */}
-                       <div style={{ background: 'white', padding: '20px', borderRadius: '24px', border: '1px solid #f1f5f9', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                           <span style={{ fontSize: '11px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Desplazamiento Vertical (Y %)</span>
-                           <button onClick={() => updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, y: 0} })} style={{ background: 'none', border: 'none', color: '#c5a059', fontSize: '10px', fontWeight: '800', cursor: 'pointer' }}>Centrar</button>
-                         </div>
-                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                           <button onClick={() => updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, y: getActiveSettings().imageTransform.y + 1} })} style={{ width: '36px', height: '36px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#1e293b', fontWeight: '900', cursor: 'pointer' }}>⌵</button>
-                           <input type="range" min="-100" max="100" value={getActiveSettings().imageTransform.y} onChange={(e) => updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, y: parseInt(e.target.value)} })} style={{ flex: 1, accentColor: '#c5a059', height: '6px' }} />
-                           <button onClick={() => updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, y: getActiveSettings().imageTransform.y - 1} })} style={{ width: '36px', height: '36px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#1e293b', fontWeight: '900', cursor: 'pointer' }}>⌃</button>
+                         {/* Control Card: Y */}
+                         <div style={{ background: 'white', padding: '20px', borderRadius: '24px', border: '1px solid #f1f5f9' }}>
+                           <span style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', display: 'block', marginBottom: '12px' }}>EJE Y</span>
+                           <input type="range" min="-100" max="100" value={getActiveSettings().imageTransform.y} onChange={(e) => updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, y: parseInt(e.target.value)} })} style={{ width: '100%', accentColor: '#c5a059', height: '4px' }} />
                          </div>
                        </div>
                     </div>
 
-                    <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8', textAlign: 'center', lineHeight: '1.6' }}>
-                      Cualquier ajuste de zoom o posición se aplica individualmente al modelo seleccionado.
+                    <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8', textAlign: 'center', lineHeight: '1.6', opacity: isMobile ? 0.7 : 1 }}>
+                      Los ajustes se guardan por modelo.
                     </p>
                   </div>
                 </div>
@@ -1260,17 +1341,30 @@ export default function AdminDashboard({ params, searchParams }) {
         {/* Global Settings Modal */}
         <AnimatePresence>
           {showSettings && (
-            <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1200, padding: '20px' }}>
+            <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: isMobile ? '0' : '20px' }}>
               <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} 
-                style={{ background: 'white', borderRadius: '32px', maxWidth: '600px', width: '100%', padding: '40px', boxShadow: '0 40px 80px rgba(0,0,0,0.1)' }}
+                initial={{ opacity: 0, scale: 0.95, y: 30 }} 
+                animate={{ opacity: 1, scale: 1, y: 0 }} 
+                exit={{ opacity: 0, scale: 0.9 }} 
+                style={{ 
+                  background: 'white', 
+                  borderRadius: isMobile ? '0' : '32px', 
+                  maxWidth: '700px', 
+                  width: '100%', 
+                  height: isMobile ? '100%' : 'auto',
+                  maxHeight: isMobile ? '100%' : '90vh',
+                  padding: isMobile ? '24px' : '40px', 
+                  boxShadow: '0 30px 60px rgba(0,0,0,0.2)', 
+                  position: 'relative',
+                  overflowY: 'auto'
+                }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
                   <div>
-                    <h3 style={{ fontSize: '24px', fontWeight: '900', color: '#0f172a', margin: 0 }}>Ajustes de Escena</h3>
-                    <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '14px' }}>Configura el ambiente global de tus productos.</p>
+                    <h3 style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: '900', color: '#0f172a', margin: 0 }}>Escenario Global</h3>
+                    <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '13px' }}>Ambiente para todos los productos.</p>
                   </div>
-                  <button onClick={() => setShowSettings(false)} style={{ border: 'none', background: '#f1f5f9', width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer', color: '#64748b', fontSize: '20px' }}>×</button>
+                  <button onClick={() => setShowSettings(false)} style={{ border: 'none', background: '#f1f5f9', width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer', color: '#64748b', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
