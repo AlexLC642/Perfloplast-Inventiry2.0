@@ -963,12 +963,12 @@ export default function AdminDashboard({ params, searchParams }) {
                   </div>
 
                   {/* Middle Area: Active Tab Content */}
-                  <div style={{ padding: isMobile ? '24px' : '48px', overflowY: isMobile ? 'visible' : 'auto', background: 'white' }}>
+                  <div style={{ padding: isMobile ? '16px' : '48px', overflowY: isMobile ? 'visible' : 'auto', background: 'white' }}>
                     <AnimatePresence mode="wait">
                       {activeTab === 'general' && (
                         <motion.div key="general" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                           <h4 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: '#1e293b' }}>Configuración General</h4>
-                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '16px' : '24px' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                               <label style={{ fontSize: '13px', fontWeight: '700', color: '#475569' }}>Nombre del Producto</label>
                               <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej: Pichel de 2 Litros" style={{ background: '#f1f5f9', border: '1px solid #e2e8f0', padding: '16px', borderRadius: '16px', fontSize: '15px', fontWeight: '500' }} />
@@ -979,7 +979,7 @@ export default function AdminDashboard({ params, searchParams }) {
                             </div>
                           </div>
                           
-                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '16px' : '24px' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                               <label style={{ fontSize: '13px', fontWeight: '700', color: '#475569' }}>Imagen Representativa (PNG)</label>
                               <div style={{ position: 'relative', background: '#f8fafc', border: '2px dashed #cbd5e1', borderRadius: '24px', padding: '20px', textAlign: 'center', minHeight: '140px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
@@ -1123,7 +1123,7 @@ export default function AdminDashboard({ params, searchParams }) {
                           <button type="button" onClick={addType} style={{ padding: '0 32px', background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', color: 'white', border: 'none', borderRadius: '20px', fontWeight: '800', cursor: 'pointer', boxShadow: '0 10px 20px rgba(15, 23, 42, 0.15)', transition: 'all 0.3s ease' }}>Añadir Modelo</button>
                         </div>
                         
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '16px' : '24px' }}>
                           {/* Model Photo Upload */}
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             <label style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Foto del Modelo</label>
