@@ -32,33 +32,33 @@ export const generateCatalogPdf = async (products) => {
     </div>
   `;
 
-  // 3. Build the Product Grid/List
+  // 3. Build the Product Grid
   const list = document.createElement('div');
-  list.style.display = 'flex';
-  list.style.flexDirection = 'column';
-  list.style.gap = '30px';
+  list.style.display = 'grid';
+  list.style.gridTemplateColumns = 'repeat(2, 1fr)';
+  list.style.gap = '20px';
 
   for (const product of products) {
     const item = document.createElement('div');
     item.style.display = 'flex';
-    item.style.gap = '30px';
+    item.style.flexDirection = 'column';
+    item.style.gap = '15px';
     item.style.padding = '20px';
     item.style.background = '#f8fafc';
     item.style.borderRadius = '20px';
     item.style.border = '1px solid #e2e8f0';
     item.style.pageBreakInside = 'avoid';
 
-    // Image Area (Capture the FidelityImage or just the base image for PDF speed/reliability)
-    // For PDF, we'll use the base image to ensure it loads synchronously and clearly.
+    // Image Area
     const imageArea = `
-      <div style="width: 150px; height: 150px; background: white; border-radius: 12px; padding: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
-        <img src="${product.image}" style="width: 100%; height: 100%; object-fit: contain;" crossorigin="anonymous" />
+      <div style="width: 100%; height: 160px; background: white; border-radius: 12px; padding: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); overflow: hidden;">
+        <img src="${product.image}" style="max-width: 100%; max-height: 100%; object-fit: contain;" crossorigin="anonymous" />
       </div>
     `;
 
     // Colors Area
     const colorSwatches = (product.colors || []).map(c => `
-      <div style="width: 12px; height: 12px; border-radius: 50%; background: ${c.hex}; border: 1px solid rgba(0,0,0,0.1);"></div>
+      <div style="width: 10px; height: 10px; border-radius: 50%; background: ${c.hex}; border: 1px solid rgba(0,0,0,0.1);"></div>
     `).join('');
 
     // Types Area
@@ -66,23 +66,23 @@ export const generateCatalogPdf = async (products) => {
 
     item.innerHTML = `
       ${imageArea}
-      <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-          <h2 style="margin: 0; font-size: 20px; font-weight: 800; color: #1e293b;">${product.name}</h2>
-          <div style="font-size: 24px; font-weight: 900; color: #c5a059;">
-            <span style="font-size: 14px; vertical-align: super; margin-right: 2px;">Q</span>${Number(product.price || 0).toFixed(2)}
+      <div style="display: flex; flex-direction: column; flex: 1;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+          <h2 style="margin: 0; font-size: 16px; font-weight: 800; color: #1e293b; line-height: 1.2;">${product.name}</h2>
+          <div style="font-size: 18px; font-weight: 900; color: #c5a059; flex-shrink: 0;">
+            <span style="font-size: 11px; vertical-align: super; margin-right: 1px;">Q</span>${Number(product.price || 0).toFixed(2)}
           </div>
         </div>
         
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-          <div style="display: flex; gap: 4px;">${colorSwatches}</div>
-          <span style="font-size: 11px; color: #94a3b8; font-weight: 600;">Disponibilidad de Color</span>
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+          <div style="display: flex; gap: 3px;">${colorSwatches}</div>
+          <span style="font-size: 9px; color: #94a3b8; font-weight: 700;">Colores</span>
         </div>
 
         ${typesList ? `
-          <div style="display: flex; align-items: center; gap: 8px;">
-             <span style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Modelos:</span>
-             <span style="font-size: 12px; color: #1e293b; font-weight: 600;">${typesList}</span>
+          <div style="margin-top: auto;">
+             <span style="font-size: 8px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 2px;">Modelos:</span>
+             <span style="font-size: 11px; color: #1e293b; font-weight: 600; line-height: 1.2;">${typesList}</span>
           </div>
         ` : ''}
       </div>

@@ -121,24 +121,25 @@ export default function Home() {
             onClick={handleDownloadPdf}
             disabled={isGeneratingPdf}
             title="Descargar Catálogo PDF"
-            whileHover={{ scale: 1.1, color: '#c5a059' }}
+            whileHover={{ scale: 1.2, color: '#a38241' }}
             whileTap={{ scale: 0.9 }}
             style={{
               background: 'none',
               border: 'none',
-              color: isGeneratingPdf ? '#cbd5e1' : '#64748b',
+              color: isGeneratingPdf ? '#cbd5e1' : '#c5a059',
               padding: '12px',
               cursor: isGeneratingPdf ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              transition: 'all 0.3s ease'
+              transition: 'all 0.3s ease',
+              marginRight: '8px'
             }}
           >
             {isGeneratingPdf ? (
-              <div style={{ width: '24px', height: '24px', border: '3px solid #e2e8f0', borderTop: '3px solid #c5a059', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+              <div style={{ width: '28px', height: '28px', border: '3px solid #e2e8f0', borderTop: '3px solid #c5a059', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
             ) : (
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>
               </svg>
             )}
