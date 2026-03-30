@@ -605,13 +605,13 @@ export default function AdminDashboard({ params, searchParams }) {
               <div>
                 <h1 style={{ 
                   margin: 0, 
-                  fontSize: isMobile ? '32px' : '48px', 
+                  fontSize: isMobile ? '28px' : '48px', 
                   fontWeight: '900', 
                   fontFamily: 'var(--font-display)', 
                   letterSpacing: '-0.03em', 
                   color: '#0f172a' 
                 }}>Inventario</h1>
-                <p style={{ margin: '4px 0 0 0', opacity: 0.8, fontSize: '12px', color: '#c5a059', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Gestión Premium</p>
+                <p style={{ margin: '4px 0 0 0', opacity: 0.8, fontSize: '10px', color: '#c5a059', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Gestión Premium</p>
               </div>
             </div>
 
@@ -719,13 +719,13 @@ export default function AdminDashboard({ params, searchParams }) {
                 style={{ 
                   background: 'rgba(255, 255, 255, 0.8)', 
                   backdropFilter: 'blur(40px)', 
-                  padding: '24px', 
-                  borderRadius: '28px', 
+                  padding: isMobile ? '16px' : '24px', 
+                  borderRadius: isMobile ? '20px' : '28px', 
                   border: '1px solid rgba(255, 255, 255, 0.5)',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '20px',
-                  boxShadow: '0 10px 40px -10px rgba(0, 0, 0, 0.05)',
+                  gap: isMobile ? '12px' : '20px',
+                  boxShadow: '0 8px 30px -10px rgba(0, 0, 0, 0.05)',
                   position: 'relative',
                   overflow: 'hidden'
                 }}
@@ -734,24 +734,28 @@ export default function AdminDashboard({ params, searchParams }) {
                 <div style={{ position: 'absolute', top: '-10%', right: '-5%', width: '80px', height: '80px', background: stat.bg, borderRadius: '50%', filter: 'blur(30px)', opacity: 0.6, zIndex: 0 }} />
                 
                 <div style={{ 
-                  width: '56px', 
-                  height: '56px', 
-                  borderRadius: '16px', 
+                  width: isMobile ? '40px' : '56px', 
+                  height: isMobile ? '40px' : '56px', 
+                  borderRadius: isMobile ? '12px' : '16px', 
                   background: stat.bg, 
                   color: stat.color,
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center',
                   position: 'relative',
-                  zIndex: 1
+                  zIndex: 1,
+                  flexShrink: 0
                 }}>
-                  {stat.icon}
+                  {/* Scale icons for mobile */}
+                  <div style={{ transform: isMobile ? 'scale(0.8)' : 'none' }}>
+                    {stat.icon}
+                  </div>
                 </div>
-                <div style={{ position: 'relative', zIndex: 1 }}>
-                  <div style={{ fontSize: '11px', fontWeight: '900', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>{stat.label}</div>
-                  <div style={{ fontSize: '24px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.02em', display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                <div style={{ position: 'relative', zIndex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: isMobile ? '9px' : '11px', fontWeight: '900', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{stat.label}</div>
+                  <div style={{ fontSize: isMobile ? '18px' : '24px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.02em', display: 'flex', alignItems: 'baseline', gap: '4px' }}>
                     {stat.value}
-                    {i < 3 && <span style={{ fontSize: '12px', fontWeight: '700', color: '#cbd5e1' }}>unid.</span>}
+                    {i < 3 && <span style={{ fontSize: isMobile ? '9px' : '12px', fontWeight: '700', color: '#cbd5e1' }}>ud.</span>}
                   </div>
                 </div>
               </motion.div>
@@ -785,8 +789,8 @@ export default function AdminDashboard({ params, searchParams }) {
                     background: 'rgba(255, 255, 255, 0.8)', 
                     backdropFilter: 'blur(30px)', 
                     WebkitBackdropFilter: 'blur(30px)',
-                    borderRadius: '32px', 
-                    padding: '24px',
+                    borderRadius: isMobile ? '24px' : '32px', 
+                    padding: isMobile ? '14px' : '24px',
                     border: '1px solid rgba(197, 160, 89, 0.1)',
                     boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.05)',
                     display: 'flex',
@@ -798,12 +802,12 @@ export default function AdminDashboard({ params, searchParams }) {
                 >
                     <div style={{ 
                       width: '100%', 
-                      aspectRatio: '16/10',
-                      borderRadius: '20px',
+                      aspectRatio: isMobile ? '1/1' : '16/10',
+                      borderRadius: isMobile ? '16px' : '20px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      marginBottom: '24px',
+                      marginBottom: isMobile ? '12px' : '24px',
                       position: 'relative',
                       overflow: 'hidden',
                       border: '1px solid rgba(0,0,0,0.05)',
@@ -813,72 +817,78 @@ export default function AdminDashboard({ params, searchParams }) {
                         src={product.image} 
                         maskSrc={product.maskImage}
                         color="#ffffff"
-                        transform={product.imageTransform}
+                        transform={{
+                          ...product.imageTransform,
+                          scale: isMobile ? (product.imageTransform?.scale || 1) * 0.9 : (product.imageTransform?.scale || 1)
+                        }}
                         sceneSrc={product.sceneBackground || settings.productSceneBackground}
                       />
-                      <div style={{ position: 'absolute', top: '16px', right: '16px', display: 'flex', gap: '8px', zIndex: 50 }}>
+                      <div style={{ position: 'absolute', top: isMobile ? '8px' : '16px', right: isMobile ? '8px' : '16px', display: 'flex', gap: isMobile ? '6px' : '8px', zIndex: 50 }}>
                       <motion.button 
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => openForm(product)} 
-                        style={{ background: 'white', border: 'none', width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 10px 20px rgba(0,0,0,0.08)', color: '#c5a059' }}
+                        style={{ background: 'white', border: 'none', width: isMobile ? '32px' : '40px', height: isMobile ? '32px' : '40px', borderRadius: isMobile ? '10px' : '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 8px 16px rgba(0,0,0,0.08)', color: '#c5a059' }}
                       >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        <svg width={isMobile ? "16" : "20"} height={isMobile ? "16" : "20"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                       </motion.button>
                       <motion.button 
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => confirmDelete(product.id)} 
-                        style={{ background: '#fef2f2', border: 'none', width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 10px 20px rgba(239, 68, 68, 0.15)', color: '#ef4444' }}
+                        style={{ background: '#fef2f2', border: 'none', width: isMobile ? '32px' : '40px', height: isMobile ? '32px' : '40px', borderRadius: isMobile ? '10px' : '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 8px 16px rgba(239, 68, 68, 0.15)', color: '#ef4444' }}
                       >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                        <svg width={isMobile ? "16" : "20"} height={isMobile ? "16" : "20"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                       </motion.button>
                     </div>
                   </div>
 
                   <div style={{ padding: '0 4px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                      <h4 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#1a1a1b', fontFamily: 'var(--font-display)' }}>{product.name}</h4>
+                    <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', marginBottom: isMobile ? '8px' : '16px', gap: isMobile ? '4px' : '0' }}>
+                      <h4 style={{ margin: 0, fontSize: isMobile ? '15px' : '20px', fontWeight: '800', color: '#1a1a1b', fontFamily: 'var(--font-display)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>{product.name}</h4>
                       <div style={{ 
                         background: 'linear-gradient(135deg, #c5a059 0%, #a38241 100%)', 
-                        padding: '6px 14px', 
-                        borderRadius: '12px', 
+                        padding: isMobile ? '2px 8px' : '6px 14px', 
+                        borderRadius: isMobile ? '6px' : '12px', 
                         color: 'white', 
-                        fontWeight: '800', 
-                        fontSize: '16px',
-                        boxShadow: '0 8px 16px -4px rgba(197, 160, 89, 0.3)'
+                        fontWeight: '900', 
+                        fontSize: isMobile ? '12px' : '16px',
+                        boxShadow: '0 4px 10px -2px rgba(197, 160, 89, 0.3)'
                       }}>
-                        <span style={{ fontSize: '11px', opacity: 0.8, marginRight: '2px' }}>Q</span>{product.price}
+                        <span style={{ fontSize: isMobile ? '9px' : '11px', opacity: 0.8, marginRight: '2px' }}>Q</span>{product.price}
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '12px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '12px' : '20px', marginTop: isMobile ? '4px' : '12px' }}>
                       <div>
-                        <div style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.1em', marginBottom: '10px' }}>Variantes de Color</div>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                          {product.colors?.map((c, i) => (
-                            <div key={i} title={c.name} style={{ width: '14px', height: '14px', borderRadius: '50%', background: c.hex, border: '2px solid white', boxShadow: '0 0 0 1px rgba(0,0,0,0.1)' }} />
+                        <div style={{ fontSize: isMobile ? '8px' : '10px', fontWeight: '800', textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.05em', marginBottom: isMobile ? '4px' : '10px' }}>Variantes</div>
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                          {product.colors?.slice(0, isMobile ? 4 : undefined).map((c, i) => (
+                            <div key={i} title={c.name} style={{ width: isMobile ? '10px' : '14px', height: isMobile ? '10px' : '14px', borderRadius: '50%', background: c.hex, border: '1px solid white', boxShadow: '0 0 0 1px rgba(0,0,0,0.1)' }} />
                           ))}
-                          {(!product.colors || product.colors.length === 0) && <span style={{ fontSize: '11px', color: '#94a3b8', fontStyle: 'italic' }}>Sin colores</span>}
+                          {product.colors?.length > (isMobile ? 4 : 999) && <span style={{ fontSize: '9px', fontWeight: '700', color: '#94a3b8' }}>+{product.colors.length - 4}</span>}
+                          {(!product.colors || product.colors.length === 0) && <span style={{ fontSize: '10px', color: '#94a3b8', fontStyle: 'italic' }}>Sin colores</span>}
                         </div>
                       </div>
-                      <div>
-                        <div style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.1em', marginBottom: '10px' }}>Modelos / Tipos</div>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                          {product.types?.map((t, i) => (
-                            <span key={i} style={{ 
-                              fontSize: '11px', 
-                              fontWeight: '700', 
-                              padding: '4px 12px', 
-                              borderRadius: '8px', 
-                              background: 'rgba(197, 160, 89, 0.1)', 
-                              color: '#a38241',
-                              border: '1px solid rgba(197, 160, 89, 0.15)'
-                            }}>{typeof t === 'string' ? t : (t?.name || "Modelo")}</span>
-                          ))}
-                          {(!product.types || product.types.length === 0) && <span style={{ fontSize: '11px', color: '#94a3b8', fontStyle: 'italic' }}>Sin modelos</span>}
+                      {!isMobile && (
+                        <div>
+                          <div style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.1em', marginBottom: '10px' }}>Modelos / Tipos</div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                            {product.types?.map((t, i) => (
+                              <span key={i} style={{ 
+                                fontSize: '11px', 
+                                fontWeight: '700', 
+                                padding: '4px 12px', 
+                                borderRadius: '8px', 
+                                background: 'rgba(197, 160, 89, 0.1)', 
+                                color: '#a38241',
+                                border: '1px solid rgba(197, 160, 89, 0.15)'
+                              }}>{typeof t === 'string' ? t : (t?.name || "Modelo")}</span>
+                            ))}
+                            {(!product.types || product.types.length === 0) && <span style={{ fontSize: '11px', color: '#94a3b8', fontStyle: 'italic' }}>Sin modelos</span>}
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -909,24 +919,27 @@ export default function AdminDashboard({ params, searchParams }) {
               >
                 {/* Modal Header */}
                 <div style={{ 
-                  padding: isMobile ? '20px' : '32px 48px', 
+                  padding: isMobile ? '16px 20px' : '32px 48px', 
                   borderBottom: '1px solid #f1f5f9', 
                   display: 'flex', 
-                  flexDirection: isMobile ? 'column' : 'row',
+                  flexDirection: isMobile ? 'row' : 'row',
                   justifyContent: 'space-between', 
-                  alignItems: isMobile ? 'flex-start' : 'center', 
-                  gap: isMobile ? '20px' : '0',
-                  background: '#f8fafc' 
+                  alignItems: 'center', 
+                  gap: '12px',
+                  background: '#f8fafc',
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 20
                 }}>
-                  <div>
-                    <h3 style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: '900', color: '#0f172a', margin: 0, letterSpacing: '-0.04em' }}>
+                  <div style={{ minWidth: 0 }}>
+                    <h3 style={{ fontSize: isMobile ? '16px' : '24px', fontWeight: '900', color: '#0f172a', margin: 0, letterSpacing: '-0.04em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {editingProduct ? 'Editar Producto' : 'Nuevo Producto'}
                     </h3>
                     {!isMobile && <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '13px' }}>Refactorización Premium — Configuración por etapas</p>}
                   </div>
-                  <div style={{ display: 'flex', gap: '12px', width: isMobile ? '100%' : 'auto' }}>
-                    <button type="button" onClick={() => setShowForm(false)} style={{ flex: 1, background: 'white', border: '1px solid #e2e8f0', padding: '10px 16px', borderRadius: '14px', fontSize: '13px', fontWeight: '700', color: '#64748b', cursor: 'pointer' }}>Cerrar</button>
-                    <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSubmit} disabled={saving} style={{ flex: 1, background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '14px', fontSize: '13px', fontWeight: '800', cursor: 'pointer', boxShadow: '0 10px 20px rgba(15, 23, 42, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                    <button type="button" onClick={() => setShowForm(false)} style={{ background: 'white', border: '1px solid #e2e8f0', padding: isMobile ? '8px 12px' : '10px 16px', borderRadius: '12px', fontSize: isMobile ? '11px' : '13px', fontWeight: '700', color: '#64748b', cursor: 'pointer' }}>Cerrar</button>
+                    <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSubmit} disabled={saving} style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', color: 'white', border: 'none', padding: isMobile ? '8px 16px' : '10px 24px', borderRadius: '12px', fontSize: isMobile ? '11px' : '13px', fontWeight: '800', cursor: 'pointer', boxShadow: '0 8px 16px rgba(15, 23, 42, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                       {saving ? '...' : 'Publicar'}
                     </motion.button>
                   </div>
@@ -943,20 +956,40 @@ export default function AdminDashboard({ params, searchParams }) {
                     background: '#f8fafc', 
                     borderRight: isMobile ? 'none' : '1px solid #f1f5f9', 
                     borderBottom: isMobile ? '1px solid #f1f5f9' : 'none',
-                    padding: isMobile ? '12px' : '32px 16px', 
+                    padding: isMobile ? '8px' : '32px 16px', 
                     display: 'flex', 
                     flexDirection: isMobile ? 'row' : 'column', 
-                    gap: '8px',
+                    gap: isMobile ? '4px' : '8px',
                     overflowX: isMobile ? 'auto' : 'visible',
-                    whiteSpace: 'nowrap'
+                    whiteSpace: 'nowrap',
+                    position: isMobile ? 'sticky' : 'static',
+                    top: isMobile ? '60px' : 'auto',
+                    zIndex: 10,
+                    scrollbarWidth: 'none'
                   }}>
                     {[
                       { id: 'general', label: 'Info', fullLabel: 'Información General', icon: '📄' },
                       { id: 'colors', label: 'Colores', fullLabel: 'Paleta de Colores', icon: '🎨' },
                       { id: 'types', label: 'Modelos', fullLabel: 'Modelos y Variantes', icon: '📦' }
                     ].map(tab => (
-                      <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: isMobile ? '10px 16px' : '14px 20px', borderRadius: '14px', border: 'none', background: activeTab === tab.id ? 'white' : 'transparent', color: activeTab === tab.id ? '#1e293b' : '#64748b', fontSize: '13px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s', boxShadow: activeTab === tab.id ? '0 4px 12px rgba(0,0,0,0.05)' : 'none' }}>
-                        <span>{tab.icon}</span>
+                      <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: isMobile ? 'center' : 'flex-start',
+                        gap: '8px', 
+                        padding: isMobile ? '10px 12px' : '14px 20px', 
+                        borderRadius: isMobile ? '10px' : '14px', 
+                        border: 'none', 
+                        background: activeTab === tab.id ? 'white' : 'transparent', 
+                        color: activeTab === tab.id ? '#1e293b' : '#64748b', 
+                        fontSize: isMobile ? '12px' : '13px', 
+                        fontWeight: '800', 
+                        cursor: 'pointer', 
+                        transition: 'all 0.2s', 
+                        boxShadow: activeTab === tab.id ? '0 4px 8px rgba(0,0,0,0.05)' : 'none',
+                        flex: isMobile ? 1 : 'none'
+                      }}>
+                        <span style={{ fontSize: isMobile ? '16px' : 'inherit' }}>{tab.icon}</span>
                         {isMobile ? tab.label : tab.fullLabel}
                       </button>
                     ))}
@@ -992,10 +1025,10 @@ export default function AdminDashboard({ params, searchParams }) {
                                   }} 
                                   style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} 
                                 />
-                                <div style={{ width: '40px', height: '40px', background: 'white', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c5a059', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-                                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                <div style={{ width: isMobile ? '32px' : '40px', height: isMobile ? '32px' : '40px', background: 'white', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c5a059', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                                  <svg width={isMobile ? "16" : "20"} height={isMobile ? "16" : "20"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                 </div>
-                                <span style={{ fontSize: '12px', fontWeight: '700', color: '#1e293b', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                <span style={{ fontSize: isMobile ? '11px' : '12px', fontWeight: '700', color: '#1e293b', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                   {file ? file.name : (editingProduct?.image ? editingProduct.image.split('/').pop() : 'Subir Imagen')}
                                 </span>
                                 {(file || editingProduct?.image) && (
@@ -1003,7 +1036,7 @@ export default function AdminDashboard({ params, searchParams }) {
                                     e.stopPropagation(); 
                                     if (file) setFile(null); 
                                     else setEditingProduct({...editingProduct, image: null});
-                                  }} style={{ position: 'absolute', top: '10px', right: '10px', background: '#fee2e2', color: '#ef4444', border: 'none', padding: '4px 8px', borderRadius: '8px', fontSize: '10px', fontWeight: '800', cursor: 'pointer', zIndex: 20 }}>Eliminar</button>
+                                  }} style={{ position: 'absolute', top: '12px', right: '12px', background: '#fee2e2', color: '#ef4444', border: 'none', padding: '8px 12px', borderRadius: '10px', fontSize: '11px', fontWeight: '800', cursor: 'pointer', zIndex: 20, boxShadow: '0 4px 12px rgba(239, 68, 68, 0.1)' }}>Eliminar</button>
                                 )}
                               </div>
                             </div>
@@ -1019,10 +1052,10 @@ export default function AdminDashboard({ params, searchParams }) {
                                     }} 
                                     style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} 
                                   />
-                                  <div style={{ width: '40px', height: '40px', background: 'white', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                  <div style={{ width: isMobile ? '32px' : '40px', height: isMobile ? '32px' : '40px', background: 'white', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                                    <svg width={isMobile ? "16" : "20"} height={isMobile ? "16" : "20"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                                   </div>
-                                  <span style={{ fontSize: '12px', fontWeight: '700', color: '#1e293b', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  <span style={{ fontSize: isMobile ? '11px' : '12px', fontWeight: '700', color: '#1e293b', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                     {maskFile ? maskFile.name : (editingProduct?.maskImage ? editingProduct.maskImage.split('/').pop() : 'Subir Máscara')}
                                   </span>
                                   {(maskFile || editingProduct?.maskImage) && (
@@ -1030,7 +1063,7 @@ export default function AdminDashboard({ params, searchParams }) {
                                       e.stopPropagation(); 
                                       if (maskFile) setMaskFile(null); 
                                       else setEditingProduct({...editingProduct, maskImage: null});
-                                    }} style={{ position: 'absolute', top: '10px', right: '10px', background: '#fee2e2', color: '#ef4444', border: 'none', padding: '4px 8px', borderRadius: '8px', fontSize: '10px', fontWeight: '800', cursor: 'pointer', zIndex: 20 }}>Eliminar</button>
+                                    }} style={{ position: 'absolute', top: '12px', right: '12px', background: '#fee2e2', color: '#ef4444', border: 'none', padding: '8px 12px', borderRadius: '10px', fontSize: '11px', fontWeight: '800', cursor: 'pointer', zIndex: 20, boxShadow: '0 4px 12px rgba(239, 68, 68, 0.1)' }}>Eliminar</button>
                                   )}
                                 </div>
                                 {file && !maskFile && (
@@ -1057,18 +1090,18 @@ export default function AdminDashboard({ params, searchParams }) {
                                   }} 
                                   style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} 
                                 />
-                                <div style={{ width: '40px', height: '40px', background: 'rgba(197, 160, 89, 0.1)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c5a059' }}>
-                                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                <div style={{ width: isMobile ? '32px' : '40px', height: isMobile ? '32px' : '40px', background: 'rgba(197, 160, 89, 0.1)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c5a059' }}>
+                                  <svg width={isMobile ? "16" : "20"} height={isMobile ? "16" : "20"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                                 </div>
-                                <span style={{ fontSize: '12px', fontWeight: '700', color: '#1e293b' }}>
-                                  {productSceneFile ? productSceneFile.name : (editingProduct?.sceneBackground ? 'Cambiar fondo específico' : 'Subir fondo para este producto')}
+                                <span style={{ fontSize: isMobile ? '11px' : '12px', fontWeight: '700', color: '#1e293b' }}>
+                                  {productSceneFile ? productSceneFile.name : (editingProduct?.sceneBackground ? 'Cambiar escenario' : 'Subir fondo específico')}
                                 </span>
                                 {(productSceneFile || editingProduct?.sceneBackground) && (
                                   <button type="button" onClick={(e) => { 
                                     e.stopPropagation(); 
                                     if (productSceneFile) setProductSceneFile(null); 
                                     else setEditingProduct({...editingProduct, sceneBackground: null});
-                                  }} style={{ position: 'absolute', top: '10px', right: '10px', background: '#fee2e2', color: '#ef4444', border: 'none', padding: '4px 8px', borderRadius: '8px', fontSize: '10px', fontWeight: '800', cursor: 'pointer', zIndex: 20 }}>Quitar</button>
+                                  }} style={{ position: 'absolute', top: '12px', right: '12px', background: '#fee2e2', color: '#ef4444', border: 'none', padding: '8px 12px', borderRadius: '10px', fontSize: '11px', fontWeight: '800', cursor: 'pointer', zIndex: 20, boxShadow: '0 4px 12px rgba(239, 68, 68, 0.1)' }}>Quitar</button>
                                 )}
                               </div>
                             </div>
@@ -1190,28 +1223,37 @@ export default function AdminDashboard({ params, searchParams }) {
                                 <p style={{ margin: 0, fontSize: '14px', color: '#94a3b8', fontStyle: 'italic' }}>No has añadido modelos aún.</p>
                               </div>
                             ) : types.map((t, i) => (
-                              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '20px', padding: '20px', background: adjustTarget === i ? '#f0f9ff' : 'white', borderRadius: '24px', border: adjustTarget === i ? '2px solid #0ea5e9' : '1px solid #f1f5f9', boxShadow: adjustTarget === i ? '0 10px 20px rgba(14, 165, 233, 0.1)' : '0 4px 12px rgba(0,0,0,0.02)', transition: 'all 0.2s ease' }}>
-                                <div style={{ width: '64px', height: '64px', background: 'white', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '1px solid #f1f5f9' }}>
+                              <div key={i} style={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: isMobile ? '12px' : '20px', 
+                                padding: isMobile ? '12px' : '20px', 
+                                background: adjustTarget === i ? '#f0f9ff' : 'white', 
+                                borderRadius: isMobile ? '16px' : '24px', 
+                                border: adjustTarget === i ? '2px solid #0ea5e9' : '1px solid #f1f5f9', 
+                                boxShadow: adjustTarget === i ? '0 8px 10px -5px rgba(14, 165, 233, 0.1)' : '0 4px 12px rgba(0,0,0,0.02)'
+                              }}>
+                                <div style={{ width: isMobile ? '48px' : '64px', height: isMobile ? '48px' : '64px', background: 'white', borderRadius: isMobile ? '10px' : '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '1px solid #f1f5f9', flexShrink: 0 }}>
                                   {(t.file || t.image) ? (
                                     <img src={t.file ? URL.createObjectURL(t.file) : t.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                                   ) : (
-                                    <div style={{ opacity: 0.2 }}>📦</div>
+                                    <div style={{ opacity: 0.2, fontSize: isMobile ? '16px' : '24px' }}>📦</div>
                                   )}
                                 </div>
-                                <div style={{ flex: 1 }}>
-                                  <p style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#1e293b' }}>{t.name}</p>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <p style={{ margin: 0, fontSize: isMobile ? '13px' : '15px', fontWeight: '800', color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.name}</p>
                                   <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                                    <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '6px', background: (t.maskFile || t.maskImage) ? '#dcfce7' : '#f1f5f9', color: (t.maskFile || t.maskImage) ? '#166534' : '#64748b' }}>
-                                      {(t.maskFile || t.maskImage) ? 'MÁSCARA ACTIVA' : 'SIN MÁSCARA'}
+                                    <span style={{ fontSize: '9px', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', background: (t.maskFile || t.maskImage) ? '#dcfce7' : '#f1f5f9', color: (t.maskFile || t.maskImage) ? '#166534' : '#64748b' }}>
+                                      {(t.maskFile || t.maskImage) ? 'MÁSCARA' : 'SIN MÁSCARA'}
                                     </span>
                                   </div>
                                 </div>
-                                <div style={{ display: 'flex', gap: '8px' }}>
-                                  <button type="button" onClick={() => setAdjustTarget(i)} style={{ padding: '10px 18px', borderRadius: '12px', background: adjustTarget === i ? '#0ea5e9' : 'white', color: adjustTarget === i ? 'white' : '#0ea5e9', border: '1px solid #0ea5e9', fontSize: '12px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s' }}>
+                                <div style={{ display: 'flex', gap: '6px' }}>
+                                  <button type="button" onClick={() => setAdjustTarget(i)} style={{ padding: isMobile ? '8px 12px' : '10px 18px', borderRadius: '10px', background: adjustTarget === i ? '#0ea5e9' : 'white', color: adjustTarget === i ? 'white' : '#0ea5e9', border: '1px solid #0ea5e9', fontSize: isMobile ? '11px' : '12px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s' }}>
                                     Ajustar
                                   </button>
-                                  <button type="button" onClick={() => setTypes(types.filter((_, idx) => idx !== i))} style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#fef2f2', border: 'none', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}>
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                                  <button type="button" onClick={() => setTypes(types.filter((_, idx) => idx !== i))} style={{ width: isMobile ? '32px' : '40px', height: isMobile ? '32px' : '40px', borderRadius: '10px', background: '#fef2f2', border: 'none', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                                    <svg width={isMobile ? "14" : "18"} height={isMobile ? "14" : "18"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                                   </button>
                                 </div>
                               </div>
@@ -1238,14 +1280,14 @@ export default function AdminDashboard({ params, searchParams }) {
                       <h4 style={{ margin: 0, fontSize: '13px', fontWeight: '900', color: '#1e293b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Studio Preview Live</h4>
                     </div>
                     
-                    <div style={{ width: '100%', aspectRatio: isMobile ? '1/1' : '16/11', flexShrink: 0, minHeight: '220px', background: "#f8fafc url('/images/backgrounds/marble-bg.png') center/cover no-repeat", borderRadius: '32px', border: '1px solid #e2e8f0', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ width: '100%', aspectRatio: isMobile ? '16/10' : '16/11', flexShrink: 0, minHeight: isMobile ? '180px' : '220px', background: "#f8fafc url('/images/backgrounds/marble-bg.png') center/cover no-repeat", borderRadius: '32px', border: '1px solid #e2e8f0', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       {/* Studio Floor Line (Sync with ProductCard) */}
                       <div style={{ position: 'absolute', bottom: '22%', width: '70%', height: '1px', background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.05) 50%, transparent 100%)', zIndex: 0 }} />
 
                       {/* Contact Shadow (Sync with ProductCard) */}
                       <div style={{ position: 'absolute', bottom: '22%', width: '45%', height: '14px', background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, transparent 80%)', filter: 'blur(8px)', borderRadius: '50%', zIndex: 1, opacity: 0.9, transform: 'scaleY(0.7)' }} />
 
-                      <div style={{ transform: isMobile ? 'scale(0.8)' : 'none' }}>
+                      <div style={{ transform: isMobile ? 'scale(0.7)' : 'none' }}>
                         <FidelityImage 
                           src={getActiveSettings().image} 
                           maskSrc={getActiveSettings().maskImage || (getActiveSettings().isMain ? editingProduct?.maskImage : types[adjustTarget]?.maskImage)}

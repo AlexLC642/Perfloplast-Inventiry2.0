@@ -4,10 +4,10 @@ import Link from 'next/link';
 export default function AdminNavbar() {
   return (
     <nav style={{ 
-      padding: '16px 48px', 
-      background: 'rgba(255, 255, 255, 0.8)',
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
+      padding: '16px 20px', 
+      background: 'rgba(255, 255, 255, 0.9)',
+      backdropFilter: 'blur(24px)',
+      WebkitBackdropFilter: 'blur(24px)',
       borderBottom: '1px solid rgba(197, 160, 89, 0.15)', 
       display: 'flex', 
       justifyContent: 'space-between', 
@@ -15,44 +15,50 @@ export default function AdminNavbar() {
       position: 'sticky',
       top: 0,
       zIndex: 100,
-      boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+      boxShadow: '0 4px 25px rgba(0,0,0,0.05)',
+      flexWrap: 'wrap',
+      gap: '12px'
     }}>
       <div style={{ 
         fontFamily: 'var(--font-display)',
-        fontSize: '14px', 
-        fontWeight: '800', 
-        letterSpacing: '0.15em', 
-        color: '#1a1a1b' 
+        fontSize: '12px', 
+        fontWeight: '900', 
+        letterSpacing: '0.12em', 
+        color: '#1a1a1b',
+        whiteSpace: 'nowrap'
       }}>
         PERFLO-PLAST <span style={{ color: '#c5a059' }}>ADMIN</span>
       </div>
-      <div style={{ display: 'flex', gap: '32px', fontSize: '13px', alignItems: 'center' }}>
-        <Link href="/" style={{ color: '#64748b', textDecoration: 'none', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ver Catálogo</Link>
+      <div style={{ display: 'flex', gap: '16px', fontSize: '11px', alignItems: 'center' }}>
+        <Link href="/" style={{ color: '#64748b', textDecoration: 'none', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Ver Catálogo</Link>
         <button 
           onClick={() => window.location.href = '/admin/login'} 
           style={{ 
-            background: 'rgba(197, 160, 89, 0.1)', 
-            border: '1px solid rgba(197, 160, 89, 0.2)', 
-            color: '#a38241', 
+            background: 'linear-gradient(135deg, rgba(197, 160, 89, 0.1) 0%, rgba(197, 160, 89, 0.2) 100%)', 
+            border: '1px solid rgba(197, 160, 89, 0.25)', 
+            color: '#8e6d2c', 
             cursor: 'pointer',
-            padding: '10px 20px',
-            borderRadius: '12px',
-            fontWeight: '700',
-            fontSize: '11px',
+            padding: '8px 16px',
+            borderRadius: '10px',
+            fontWeight: '900',
+            fontSize: '10px',
             textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            transition: 'all 0.3s ease'
+            letterSpacing: '0.08em',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            boxShadow: '0 2px 8px rgba(197, 160, 89, 0.1)'
           }}
           onMouseOver={(e) => {
-            e.target.style.background = '#c5a059';
-            e.target.style.color = 'white';
+            e.currentTarget.style.background = '#c5a059';
+            e.currentTarget.style.color = 'white';
+            e.currentTarget.style.transform = 'translateY(-1px)';
           }}
           onMouseOut={(e) => {
-            e.target.style.background = 'rgba(197, 160, 89, 0.1)';
-            e.target.style.color = '#a38241';
+            e.currentTarget.style.background = 'linear-gradient(135deg, rgba(197, 160, 89, 0.1) 0%, rgba(197, 160, 89, 0.2) 100%)';
+            e.currentTarget.style.color = '#8e6d2c';
+            e.currentTarget.style.transform = 'translateY(0)';
           }}
         >
-          Cerrar Sesión
+          Salir
         </button>
       </div>
     </nav>
