@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FidelityImage from '../../../components/FidelityImage';
+import Logo from '../../../components/Logo';
 
 export default function AdminDashboard({ params, searchParams }) {
   const [products, setProducts] = useState([]);
