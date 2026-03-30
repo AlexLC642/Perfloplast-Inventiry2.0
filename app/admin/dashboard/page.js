@@ -1357,7 +1357,7 @@ export default function AdminDashboard({ params, searchParams }) {
                         <FidelityImage 
                           src={getActiveSettings().image} 
                           maskSrc={getActiveSettings().maskImage || (getActiveSettings().isMain ? editingProduct?.maskImage : types[adjustTarget]?.maskImage)}
-                          color={colors.length > 0 ? colors[0].hex : (editingProduct?.colors?.[0]?.hex || '#d32f2f')} 
+                          color={colors.length > 0 ? colors[0].hex : (editingProduct?.colors?.[0]?.hex || 'transparent')} 
                           baseHue={getActiveSettings().baseHue}
                           transform={getActiveSettings().imageTransform}
                           sceneSrc={productSceneFile || (editingProduct?.sceneBackground || (sceneFile || settings.productSceneBackground))}
