@@ -1219,7 +1219,7 @@ export default function AdminDashboard({ params, searchParams }) {
                                     }} 
                                     style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} 
                                   />
-                                  {tempColorFile ? (
+                                  {tempColorFile && tempColorFile instanceof Blob ? (
                                     <img src={URL.createObjectURL(tempColorFile)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                   ) : (
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
@@ -1252,11 +1252,11 @@ export default function AdminDashboard({ params, searchParams }) {
                                 {/* Color-Specific Image Thumbnail */}
                                 { (c.file || c.image) && (
                                   <div style={{ width: '24px', height: '24px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
-                                    <img src={c.file ? URL.createObjectURL(c.file) : c.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                    <img src={c.file && c.file instanceof Blob ? URL.createObjectURL(c.file) : c.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                                   </div>
                                 )}
-                                <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: c.hex, border: '1px solid rgba(0,0,0,0.1)' }} />
-                                {c.name}
+                                <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: typeof c === 'object' ? c.hex : c, border: '1px solid rgba(0,0,0,0.1)' }} />
+                                {typeof c === 'object' ? c.name : ''}
                                 <button type="button" onClick={() => setColors(colors.filter((_, idx) => idx !== i))} style={{ border: 'none', background: 'none', color: '#f87171', fontSize: '18px', cursor: 'pointer', marginLeft: '4px' }}>×</button>
                               </div>
                             )) : <p style={{ margin: 0, fontSize: '14px', color: '#92400e', fontStyle: 'italic' }}>No has añadido colores aún.</p>}
@@ -1412,9 +1412,9 @@ export default function AdminDashboard({ params, searchParams }) {
 
                       <div style={{ transform: isMobile ? 'scale(0.7)' : 'none' }}>
                         <FidelityImage 
-                          src={(colors.length > 0 && (colors[0].file || colors[0].image)) || getActiveSettings().image} 
-                          maskSrc={(colors.length > 0 && (colors[0].file || colors[0].image)) ? null : (getActiveSettings().maskImage || (getActiveSettings().isMain ? editingProduct?.maskImage : types[adjustTarget]?.maskImage))}
-                          color={(colors.length > 0 && (colors[0].file || colors[0].image)) ? 'transparent' : (colors.length > 0 ? colors[0].hex : (editingProduct?.colors?.[0]?.hex || 'transparent'))} 
+                          src={(colors.length > 0 && typeof colors[0] === 'object' && (colors[0].file || colors[0].image)) || getActiveSettings().image} 
+                          maskSrc={(colors.length > 0 && typeof colors[0] === 'object' && (colors[0].file || colors[0].image)) ? null : (getActiveSettings().maskImage || (getActiveSettings().isMain ? editingProduct?.maskImage : types[adjustTarget]?.maskImage))}
+                          color={(colors.length > 0 && typeof colors[0] === 'object' && (colors[0].file || colors[0].image)) ? 'transparent' : (colors.length > 0 ? (typeof colors[0] === 'object' ? colors[0].hex : colors[0]) : (editingProduct?.colors?.[0]?.hex || editingProduct?.colors?.[0] || 'transparent'))} 
                           baseHue={getActiveSettings().baseHue}
                           transform={getActiveSettings().imageTransform}
                           sceneSrc={productSceneFile || (editingProduct?.sceneBackground || (sceneFile || settings.productSceneBackground))}
