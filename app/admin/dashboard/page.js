@@ -953,62 +953,68 @@ export default function AdminDashboard({ params, searchParams }) {
                 }}>
                   {/* Left Sidebar: Tabs */}
                   <div style={{ 
-                    background: '#f8fafc', 
+                    background: '#ffffff', 
                     borderRight: isMobile ? 'none' : '1px solid #f1f5f9', 
-                    borderBottom: isMobile ? '1px solid #f1f5f9' : 'none',
-                    padding: isMobile ? '8px' : '32px 16px', 
+                    borderBottom: '1px solid #e2e8f0',
+                    padding: isMobile ? '12px 16px' : '32px 16px', 
                     display: 'flex', 
                     flexDirection: isMobile ? 'row' : 'column', 
-                    gap: isMobile ? '4px' : '8px',
+                    gap: isMobile ? '8px' : '8px',
                     overflowX: isMobile ? 'auto' : 'visible',
                     whiteSpace: 'nowrap',
                     position: isMobile ? 'sticky' : 'static',
-                    top: isMobile ? '60px' : 'auto',
-                    zIndex: 10,
-                    scrollbarWidth: 'none'
+                    top: isMobile ? '0' : 'auto', // Sticks to the top of its scroll container (which is below the modal header)
+                    zIndex: 30,
+                    scrollbarWidth: 'none',
+                    boxShadow: isMobile ? '0 4px 12px rgba(0,0,0,0.03)' : 'none',
+                    msOverflowStyle: 'none'
                   }}>
+                    <style dangerouslySetInnerHTML={{ __html: `
+                      div::-webkit-scrollbar { display: none; }
+                    `}} />
                     {[
-                      { id: 'general', label: 'Info', fullLabel: 'Información General', icon: '📄' },
-                      { id: 'colors', label: 'Colores', fullLabel: 'Paleta de Colores', icon: '🎨' },
-                      { id: 'types', label: 'Modelos', fullLabel: 'Modelos y Variantes', icon: '📦' }
+                      { id: 'general', label: 'Información', icon: '📄' },
+                      { id: 'colors', label: 'Colores', icon: '🎨' },
+                      { id: 'types', label: 'Modelos', icon: '📦' }
                     ].map(tab => (
                       <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ 
                         display: 'flex', 
                         alignItems: 'center', 
-                        justifyContent: isMobile ? 'center' : 'flex-start',
-                        gap: '8px', 
-                        padding: isMobile ? '10px 12px' : '14px 20px', 
-                        borderRadius: isMobile ? '10px' : '14px', 
-                        border: 'none', 
-                        background: activeTab === tab.id ? 'white' : 'transparent', 
-                        color: activeTab === tab.id ? '#1e293b' : '#64748b', 
-                        fontSize: isMobile ? '12px' : '13px', 
+                        justifyContent: 'center',
+                        gap: '10px', 
+                        padding: isMobile ? '12px 20px' : '14px 20px', 
+                        borderRadius: isMobile ? '12px' : '14px', 
+                        border: activeTab === tab.id ? '1px solid rgba(197, 160, 89, 0.2)' : '1px solid transparent', 
+                        background: activeTab === tab.id ? 'rgba(197, 160, 89, 0.05)' : 'transparent', 
+                        color: activeTab === tab.id ? '#c5a059' : '#64748b', 
+                        fontSize: isMobile ? '13px' : '13px', 
                         fontWeight: '800', 
                         cursor: 'pointer', 
-                        transition: 'all 0.2s', 
-                        boxShadow: activeTab === tab.id ? '0 4px 8px rgba(0,0,0,0.05)' : 'none',
-                        flex: isMobile ? 1 : 'none'
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)', 
+                        boxShadow: activeTab === tab.id ? '0 4px 10px rgba(197, 160, 89, 0.08)' : 'none',
+                        flex: isMobile ? '0 0 auto' : 'none',
+                        minWidth: isMobile ? '130px' : 'auto'
                       }}>
-                        <span style={{ fontSize: isMobile ? '16px' : 'inherit' }}>{tab.icon}</span>
-                        {isMobile ? tab.label : tab.fullLabel}
+                        <span style={{ fontSize: '18px', filter: activeTab === tab.id ? 'none' : 'grayscale(1)' }}>{tab.icon}</span>
+                        {tab.label}
                       </button>
                     ))}
                   </div>
 
                   {/* Middle Area: Active Tab Content */}
-                  <div style={{ padding: isMobile ? '16px' : '48px', overflowY: isMobile ? 'visible' : 'auto', background: 'white' }}>
+                  <div style={{ padding: isMobile ? '20px' : '48px', overflowY: isMobile ? 'visible' : 'auto', background: 'white' }}>
                     <AnimatePresence mode="wait">
                       {activeTab === 'general' && (
-                        <motion.div key="general" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                          <h4 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: '#1e293b' }}>Configuración General</h4>
+                        <motion.div key="general" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '24px' : '32px' }}>
+                          <h4 style={{ margin: 0, fontSize: isMobile ? '16px' : '18px', fontWeight: '900', color: '#1e293b', letterSpacing: '-0.02em' }}>Configuración General</h4>
                           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '16px' : '24px' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                              <label style={{ fontSize: '13px', fontWeight: '700', color: '#475569' }}>Nombre del Producto</label>
-                              <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej: Pichel de 2 Litros" style={{ background: '#f1f5f9', border: '1px solid #e2e8f0', padding: '16px', borderRadius: '16px', fontSize: '15px', fontWeight: '500' }} />
+                              <label style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Nombre del Producto</label>
+                              <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre del producto..." style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '16px', borderRadius: '14px', fontSize: '15px', fontWeight: '600', color: '#0f172a' }} />
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                              <label style={{ fontSize: '13px', fontWeight: '700', color: '#475569' }}>Precio Base (Q)</label>
-                              <input type="text" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="0.00" style={{ background: '#f1f5f9', border: '1px solid #e2e8f0', padding: '16px', borderRadius: '16px', fontSize: '15px', fontWeight: '700' }} />
+                              <label style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Precio Base (Q)</label>
+                              <input type="text" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="0.00" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '16px', borderRadius: '14px', fontSize: '15px', fontWeight: '800', color: '#c5a059' }} />
                             </div>
                           </div>
                           
