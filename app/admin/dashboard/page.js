@@ -1353,7 +1353,7 @@ export default function AdminDashboard({ params, searchParams }) {
                               }}>
                                 <div style={{ width: isMobile ? '48px' : '64px', height: isMobile ? '48px' : '64px', background: 'white', borderRadius: isMobile ? '10px' : '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '1px solid #f1f5f9', flexShrink: 0 }}>
                                   {(t.file || t.image) ? (
-                                    <img src={t.file ? URL.createObjectURL(t.file) : t.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                    <img src={t.file && t.file instanceof Blob ? URL.createObjectURL(t.file) : t.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                                   ) : (
                                     <div style={{ opacity: 0.2, fontSize: isMobile ? '16px' : '24px' }}>📦</div>
                                   )}
@@ -1411,12 +1411,24 @@ export default function AdminDashboard({ params, searchParams }) {
                       <div style={{ position: 'absolute', bottom: '22%', width: '45%', height: '14px', background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, transparent 80%)', filter: 'blur(8px)', borderRadius: '50%', zIndex: 1, opacity: 0.9, transform: 'scaleY(0.7)' }} />
 
                       <div style={{ transform: isMobile ? 'scale(0.7)' : 'none' }}>
+                        {/* More defensive preview logic to prevent crashes */}
                         <FidelityImage 
-                          src={(colors.length > 0 && typeof colors[0] === 'object' && (colors[0].file || colors[0].image)) || getActiveSettings().image} 
-                          maskSrc={(colors.length > 0 && typeof colors[0] === 'object' && (colors[0].file || colors[0].image)) ? null : (getActiveSettings().maskImage || (getActiveSettings().isMain ? editingProduct?.maskImage : types[adjustTarget]?.maskImage))}
-                          color={(colors.length > 0 && typeof colors[0] === 'object' && (colors[0].file || colors[0].image)) ? 'transparent' : (colors.length > 0 ? (typeof colors[0] === 'object' ? colors[0].hex : colors[0]) : (editingProduct?.colors?.[0]?.hex || editingProduct?.colors?.[0] || 'transparent'))} 
-                          baseHue={getActiveSettings().baseHue}
-                          transform={getActiveSettings().imageTransform}
+                          src={
+                            (colors && colors.length > 0 && typeof colors[0] === 'object' && (colors[0].file || colors[0].image)) 
+                            || (getActiveSettings ? getActiveSettings().image : '/images/chair.png')
+                          } 
+                          maskSrc={
+                            (colors && colors.length > 0 && typeof colors[0] === 'object' && (colors[0].file || colors[0].image)) 
+                            ? null 
+                            : (getActiveSettings ? getActiveSettings().maskImage : null)
+                          }
+                          color={
+                            (colors && colors.length > 0 && typeof colors[0] === 'object' && (colors[0].file || colors[0].image)) 
+                            ? 'transparent' 
+                            : (colors && colors.length > 0 ? (typeof colors[0] === 'object' ? colors[0].hex : colors[0]) : (editingProduct?.colors?.[0]?.hex || editingProduct?.colors?.[0] || 'transparent'))
+                          } 
+                          baseHue={getActiveSettings ? getActiveSettings().baseHue : 0}
+                          transform={getActiveSettings ? getActiveSettings().imageTransform : { scale: 1, x: 0, y: 0 }}
                           sceneSrc={productSceneFile || (editingProduct?.sceneBackground || (sceneFile || settings.productSceneBackground))}
                         />
                       </div>

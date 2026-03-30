@@ -34,8 +34,9 @@ export default function FidelityImage({ src, maskSrc, color, transform = { scale
     };
   }, [src, maskSrc, sceneSrc]);
 
-  // 2. RENDERING LOGIC
-  const isNeutral = !color || color.toLowerCase() === '#ffffff' || color.toLowerCase() === 'transparent';
+  // 2. RENDERING LOGIC - Ultra-defensive color check
+  const safeColor = (typeof color === 'string') ? color : (color?.hex || 'transparent');
+  const isNeutral = !safeColor || safeColor.toLowerCase() === '#ffffff' || safeColor.toLowerCase() === 'transparent';
   
   const baseStyles = {
     position: 'absolute', inset: 0, width: '100%', height: '100%',
@@ -128,10 +129,10 @@ export default function FidelityImage({ src, maskSrc, color, transform = { scale
              />
              
              {/* 2. Color Burn/Hue */}
-             <div style={{ ...maskStyles, backgroundColor: color, mixBlendMode: 'color', opacity: maskSource ? 0.9 : 0.82, zIndex: 4 }} />
+             <div style={{ ...maskStyles, backgroundColor: safeColor, mixBlendMode: 'color', opacity: maskSource ? 0.9 : 0.82, zIndex: 4 }} />
              
              {/* 3. Soft Volume */}
-             <div style={{ ...maskStyles, backgroundColor: color, mixBlendMode: 'soft-light', opacity: maskSource ? 0.4 : 0.25, zIndex: 5 }} />
+             <div style={{ ...maskStyles, backgroundColor: safeColor, mixBlendMode: 'soft-light', opacity: maskSource ? 0.4 : 0.25, zIndex: 5 }} />
 
              {/* 4. Specular White Recovery */}
              <div style={{ 
