@@ -24,6 +24,7 @@ export default function AdminDashboard({ params, searchParams }) {
   // Temp Color Fields
   const [tempColorName, setTempColorName] = useState('');
   const [tempColorHex, setTempColorHex] = useState('#000000');
+  const [tempColorFile, setTempColorFile] = useState(null);
   const [productSceneFile, setProductSceneFile] = useState(null);
   const [tempType, setTempType] = useState('');
   const [tempTypeFile, setTempTypeFile] = useState(null);
@@ -201,6 +202,7 @@ export default function AdminDashboard({ params, searchParams }) {
       setName(product.name);
       setPrice(product.price);
       setColors(product.colors || []);
+      setTempColorFile(null); // Clear color file on open
       const formattedTypes = (product.types || []).map(t => ({
         name: typeof t === 'string' ? t : (t.name || ''),
         image: typeof t === 'string' ? (product.image || '') : (t.image || ''),
@@ -359,7 +361,24 @@ export default function AdminDashboard({ params, searchParams }) {
         productSceneUrl = uploadData.url;
       }
 
-      // 3. Upload Type Images and save their individual settings
+      // 3. Upload Color-Specific Images
+      const finalColors = await Promise.all(colors.map(async (c) => {
+        if (!c.file) return c; // Existing or hex-only
+        try {
+          const processedFile = await processImage(c.file);
+          const formData = new FormData();
+          formData.append('file', processedFile);
+          const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
+          if (!uploadRes.ok) throw new Error('Error al subir foto de color');
+          const data = await uploadRes.json();
+          return { name: c.name, hex: c.hex, image: data.url };
+        } catch (e) {
+          console.error(e);
+          return c;
+        }
+      }));
+
+      // 4. Upload Type Images and save their individual settings
       const finalTypes = await Promise.all(types.map(async (t) => {
         let typeImageUrl = t.image || imageUrl;
         if (t.file) {
@@ -414,7 +433,7 @@ export default function AdminDashboard({ params, searchParams }) {
         price, 
         image: imageUrl, 
         maskImage: maskUrl,
-        colors, 
+        colors: finalColors, 
         types: finalTypes,
         baseHue,
         imageTransform,
@@ -525,10 +544,12 @@ export default function AdminDashboard({ params, searchParams }) {
       const newColor = { 
         id: Date.now(), 
         name: tempColorName, 
-        hex: tempColorHex 
+        hex: tempColorHex,
+        file: tempColorFile // Add the file object
       };
       setColors([...colors, newColor]);
       setTempColorName('');
+      setTempColorFile(null); // Reset file
       // Set to a different random color for next add to encourage changes
       const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
       setTempColorHex(randomColor);
@@ -1179,11 +1200,36 @@ export default function AdminDashboard({ params, searchParams }) {
                           <h4 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: '#1e293b' }}>Paleta de Colores</h4>
                           
                           <div style={{ background: '#f8fafc', padding: '24px', borderRadius: '24px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                            <div style={{ display: 'flex', gap: '12px' }}>
-                              <input type="text" placeholder="Nombre (Ej: Azul Real)" value={tempColorName} onChange={(e) => setTempColorName(e.target.value)} style={{ flex: 1, padding: '14px', borderRadius: '14px', border: '1px solid #cbd5e1', fontSize: '14px' }} />
-                              <div style={{ width: '48px', height: '48px', borderRadius: '14px', overflow: 'hidden', border: '2px solid #cbd5e1', position: 'relative' }}>
-                                <input type="color" value={tempColorHex} onChange={(e) => setTempColorHex(e.target.value)} style={{ position: 'absolute', inset: '-5px', width: '150%', height: '150%', border: 'none', cursor: 'pointer' }} />
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
+                              <input type="text" placeholder="Nombre (Ej: Azul Real)" value={tempColorName} onChange={(e) => setTempColorName(e.target.value)} style={{ flex: 1, minWidth: '180px', padding: '14px', borderRadius: '14px', border: '1px solid #cbd5e1', fontSize: '14px' }} />
+                              
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ width: '48px', height: '48px', borderRadius: '14px', overflow: 'hidden', border: '2px solid #cbd5e1', position: 'relative' }}>
+                                  <input type="color" value={tempColorHex} onChange={(e) => setTempColorHex(e.target.value)} style={{ position: 'absolute', inset: '-5px', width: '150%', height: '150%', border: 'none', cursor: 'pointer' }} />
+                                </div>
+
+                                {/* New Color Image Upload Button */}
+                                <div style={{ position: 'relative', width: '48px', height: '48px', borderRadius: '14px', border: '2px dashed #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: tempColorFile ? '#f0f9ff' : 'white', overflow: 'hidden' }}>
+                                  <input 
+                                    type="file" 
+                                    accept="image/*" 
+                                    onChange={(e) => {
+                                      const f = e.target.files[0];
+                                      if (validateFile(f)) setTempColorFile(f);
+                                    }} 
+                                    style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} 
+                                  />
+                                  {tempColorFile ? (
+                                    <img src={URL.createObjectURL(tempColorFile)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                  ) : (
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                  )}
+                                  {tempColorFile && (
+                                    <button type="button" onClick={(e) => { e.stopPropagation(); setTempColorFile(null); }} style={{ position: 'absolute', top: 0, right: 0, background: '#ef4444', color: 'white', border: 'none', width: '16px', height: '16px', borderRadius: '50%', fontSize: '10px', cursor: 'pointer', zIndex: 20 }}>×</button>
+                                  )}
+                                </div>
                               </div>
+
                               <button type="button" onClick={addColor} style={{ width: '48px', height: '48px', background: '#c5a059', color: 'white', border: 'none', borderRadius: '14px', cursor: 'pointer', fontSize: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
                             </div>
                             
@@ -1203,7 +1249,13 @@ export default function AdminDashboard({ params, searchParams }) {
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', padding: '24px', background: '#fffbeb', borderRadius: '24px', border: '1px solid #fde68a' }}>
                             {colors.length > 0 ? colors.map((c, i) => (
                               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'white', padding: '10px 16px', borderRadius: '14px', border: '1px solid #fef3c7', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', fontSize: '13px', fontWeight: '800' }}>
-                                <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: c.hex }} />
+                                {/* Color-Specific Image Thumbnail */}
+                                { (c.file || c.image) && (
+                                  <div style={{ width: '24px', height: '24px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                                    <img src={c.file ? URL.createObjectURL(c.file) : c.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                  </div>
+                                )}
+                                <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: c.hex, border: '1px solid rgba(0,0,0,0.1)' }} />
                                 {c.name}
                                 <button type="button" onClick={() => setColors(colors.filter((_, idx) => idx !== i))} style={{ border: 'none', background: 'none', color: '#f87171', fontSize: '18px', cursor: 'pointer', marginLeft: '4px' }}>×</button>
                               </div>
@@ -1360,9 +1412,9 @@ export default function AdminDashboard({ params, searchParams }) {
 
                       <div style={{ transform: isMobile ? 'scale(0.7)' : 'none' }}>
                         <FidelityImage 
-                          src={getActiveSettings().image} 
-                          maskSrc={getActiveSettings().maskImage || (getActiveSettings().isMain ? editingProduct?.maskImage : types[adjustTarget]?.maskImage)}
-                          color={colors.length > 0 ? colors[0].hex : (editingProduct?.colors?.[0]?.hex || 'transparent')} 
+                          src={(colors.length > 0 && (colors[0].file || colors[0].image)) || getActiveSettings().image} 
+                          maskSrc={(colors.length > 0 && (colors[0].file || colors[0].image)) ? null : (getActiveSettings().maskImage || (getActiveSettings().isMain ? editingProduct?.maskImage : types[adjustTarget]?.maskImage))}
+                          color={(colors.length > 0 && (colors[0].file || colors[0].image)) ? 'transparent' : (colors.length > 0 ? colors[0].hex : (editingProduct?.colors?.[0]?.hex || 'transparent'))} 
                           baseHue={getActiveSettings().baseHue}
                           transform={getActiveSettings().imageTransform}
                           sceneSrc={productSceneFile || (editingProduct?.sceneBackground || (sceneFile || settings.productSceneBackground))}

@@ -156,10 +156,10 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
           justifyContent: 'center',
         }}>
           <FidelityImage 
-            key={selectedType?.name || 'original'}
-            color={selectedColor?.hex || '#ffffff'} 
-            src={selectedType?.image || product.image} 
-            maskSrc={selectedType?.maskImage || product.maskImage}
+            key={`${selectedType?.name || 'original'}-${selectedColor?.name || 'color'}`}
+            color={selectedColor?.image ? 'transparent' : (selectedColor?.hex || '#ffffff')} 
+            src={selectedColor?.image || selectedType?.image || product.image} 
+            maskSrc={selectedColor?.image ? null : (selectedType?.maskImage || product.maskImage)}
             transform={activeTransform || selectedType?.imageTransform || product.imageTransform}
             sceneSrc={product.sceneBackground || sceneSrc}
             isLightboxView={isLightboxView}
