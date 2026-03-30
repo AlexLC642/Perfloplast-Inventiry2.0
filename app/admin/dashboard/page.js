@@ -1246,11 +1246,12 @@ export default function AdminDashboard({ params, searchParams }) {
                             </div>
                           </div>
 
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', padding: '24px', background: '#fffbeb', borderRadius: '24px', border: '1px solid #fde68a' }}>
-                            {colors.length > 0 ? colors.map((c, i) => (
+                            {colors.length > 0 ? colors.map((c, i) => {
+                              if (!c) return null;
+                              return (
                               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'white', padding: '10px 16px', borderRadius: '14px', border: '1px solid #fef3c7', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', fontSize: '13px', fontWeight: '800' }}>
                                 {/* Color-Specific Image Thumbnail */}
-                                { (c.file || c.image) && (
+                                { (typeof c === 'object' && (c.file || c.image)) && (
                                   <div style={{ width: '24px', height: '24px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
                                     <img src={c.file && c.file instanceof Blob ? URL.createObjectURL(c.file) : c.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                                   </div>
@@ -1259,8 +1260,7 @@ export default function AdminDashboard({ params, searchParams }) {
                                 {typeof c === 'object' ? c.name : ''}
                                 <button type="button" onClick={() => setColors(colors.filter((_, idx) => idx !== i))} style={{ border: 'none', background: 'none', color: '#f87171', fontSize: '18px', cursor: 'pointer', marginLeft: '4px' }}>×</button>
                               </div>
-                            )) : <p style={{ margin: 0, fontSize: '14px', color: '#92400e', fontStyle: 'italic' }}>No has añadido colores aún.</p>}
-                          </div>
+                            )}) : <p style={{ margin: 0, fontSize: '14px', color: '#92400e', fontStyle: 'italic' }}>No has añadido colores aún.</p>}
                         </motion.div>
                       )}
 
@@ -1425,7 +1425,7 @@ export default function AdminDashboard({ params, searchParams }) {
                           color={
                             (colors && colors.length > 0 && typeof colors[0] === 'object' && (colors[0].file || colors[0].image)) 
                             ? 'transparent' 
-                            : (colors && colors.length > 0 ? (typeof colors[0] === 'object' ? colors[0].hex : colors[0]) : (editingProduct?.colors?.[0]?.hex || editingProduct?.colors?.[0] || 'transparent'))
+                            : (colors && colors.length > 0 ? (typeof colors[0] === 'object' ? (colors[0].hex || 'transparent') : colors[0]) : (editingProduct?.colors?.[0]?.hex || editingProduct?.colors?.[0] || 'transparent'))
                           } 
                           baseHue={getActiveSettings ? getActiveSettings().baseHue : 0}
                           transform={getActiveSettings ? getActiveSettings().imageTransform : { scale: 1, x: 0, y: 0 }}
@@ -1434,7 +1434,7 @@ export default function AdminDashboard({ params, searchParams }) {
                       </div>
                       <div style={{ position: 'absolute', bottom: '12px', left: '12px', right: '12px', display: 'flex', justifyContent: 'center', zIndex: 10 }}>
                          <div style={{ background: 'rgba(255, 255, 255, 0.9)', color: '#1e293b', padding: '4px 12px', borderRadius: '12px', fontSize: '9px', fontWeight: '900', border: '1px solid #e2e8f0', backdropFilter: 'blur(4px)' }}>
-                           {getActiveSettings().isMain ? 'VISTA PRINCIPAL' : `MODELO: ${types[adjustTarget]?.name.toUpperCase()}`}
+                           {getActiveSettings().isMain ? 'VISTA PRINCIPAL' : `MODELO: ${(types[adjustTarget]?.name || 'N/A').toUpperCase()}`}
                          </div>
                       </div>
                     </div>
