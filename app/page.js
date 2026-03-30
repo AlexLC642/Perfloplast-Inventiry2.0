@@ -112,7 +112,7 @@ export default function Home() {
     <main className="container" style={{ paddingBottom: '100px', position: 'relative' }}>
       <header className="catalog-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <Logo size={56} />
+          <Logo size={80} />
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

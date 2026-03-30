@@ -298,7 +298,7 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
 
             <div style={{ paddingTop: '40px', marginTop: '40px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                <div style={{ color: '#cbd5e1', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Ref: {product.id.slice(0, 8)}</div>
-               <Logo size={32} color="#cbd5e1" />
+               <Logo size={48} color="#cbd5e1" />
             </div>
           </div>
         </div>
