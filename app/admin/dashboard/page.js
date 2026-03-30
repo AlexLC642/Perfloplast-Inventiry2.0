@@ -944,6 +944,57 @@ export default function AdminDashboard({ params, searchParams }) {
                     </motion.button>
                   </div>
                 </div>
+ 
+                {/* Mobile Navigation Tabs (Guaranteed Visibility) */}
+                {isMobile && (
+                  <div style={{ 
+                    background: '#ffffff', 
+                    borderBottom: '1px solid #e2e8f0',
+                    padding: '10px 16px', 
+                    display: 'flex', 
+                    gap: '12px',
+                    overflowX: 'auto',
+                    whiteSpace: 'nowrap',
+                    zIndex: 50,
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+                    flexShrink: 0
+                  }}>
+                    <style dangerouslySetInnerHTML={{ __html: `
+                      .no-scrollbar::-webkit-scrollbar { display: none; }
+                      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+                    `}} />
+                    {[
+                      { id: 'general', label: 'Información', icon: '📄' },
+                      { id: 'colors', label: 'Colores', icon: '🎨' },
+                      { id: 'types', label: 'Modelos', icon: '📦' }
+                    ].map(tab => (
+                      <button 
+                        key={tab.id} 
+                        onClick={() => setActiveTab(tab.id)} 
+                        className="no-scrollbar"
+                        style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '8px', 
+                          padding: '10px 16px', 
+                          borderRadius: '12px', 
+                          border: activeTab === tab.id ? '1px solid #c5a059' : '1px solid #f1f5f9', 
+                          background: activeTab === tab.id ? 'rgba(197, 160, 89, 0.05)' : 'white', 
+                          color: activeTab === tab.id ? '#c5a059' : '#64748b', 
+                          fontSize: '13px', 
+                          fontWeight: '800', 
+                          cursor: 'pointer', 
+                          flex: '0 0 auto',
+                          transition: 'all 0.2s ease',
+                          boxShadow: activeTab === tab.id ? '0 4px 10px rgba(197, 160, 89, 0.1)' : 'none'
+                        }}
+                      >
+                        <span style={{ fontSize: '16px' }}>{tab.icon}</span>
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
 
                 <div style={{ 
                   display: 'grid', 
@@ -951,55 +1002,42 @@ export default function AdminDashboard({ params, searchParams }) {
                   flex: 1, 
                   overflowY: isMobile ? 'auto' : 'hidden' 
                 }}>
-                  {/* Left Sidebar: Tabs */}
-                  <div style={{ 
-                    background: '#ffffff', 
-                    borderRight: isMobile ? 'none' : '1px solid #f1f5f9', 
-                    borderBottom: '1px solid #e2e8f0',
-                    padding: isMobile ? '12px 16px' : '32px 16px', 
-                    display: 'flex', 
-                    flexDirection: isMobile ? 'row' : 'column', 
-                    gap: isMobile ? '8px' : '8px',
-                    overflowX: isMobile ? 'auto' : 'visible',
-                    whiteSpace: 'nowrap',
-                    position: isMobile ? 'sticky' : 'static',
-                    top: isMobile ? '0' : 'auto', // Sticks to the top of its scroll container (which is below the modal header)
-                    zIndex: 30,
-                    scrollbarWidth: 'none',
-                    boxShadow: isMobile ? '0 4px 12px rgba(0,0,0,0.03)' : 'none',
-                    msOverflowStyle: 'none'
-                  }}>
-                    <style dangerouslySetInnerHTML={{ __html: `
-                      div::-webkit-scrollbar { display: none; }
-                    `}} />
-                    {[
-                      { id: 'general', label: 'Información', icon: '📄' },
-                      { id: 'colors', label: 'Colores', icon: '🎨' },
-                      { id: 'types', label: 'Modelos', icon: '📦' }
-                    ].map(tab => (
-                      <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center',
-                        gap: '10px', 
-                        padding: isMobile ? '12px 20px' : '14px 20px', 
-                        borderRadius: isMobile ? '12px' : '14px', 
-                        border: activeTab === tab.id ? '1px solid rgba(197, 160, 89, 0.2)' : '1px solid transparent', 
-                        background: activeTab === tab.id ? 'rgba(197, 160, 89, 0.05)' : 'transparent', 
-                        color: activeTab === tab.id ? '#c5a059' : '#64748b', 
-                        fontSize: isMobile ? '13px' : '13px', 
-                        fontWeight: '800', 
-                        cursor: 'pointer', 
-                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)', 
-                        boxShadow: activeTab === tab.id ? '0 4px 10px rgba(197, 160, 89, 0.08)' : 'none',
-                        flex: isMobile ? '0 0 auto' : 'none',
-                        minWidth: isMobile ? '130px' : 'auto'
-                      }}>
-                        <span style={{ fontSize: '18px', filter: activeTab === tab.id ? 'none' : 'grayscale(1)' }}>{tab.icon}</span>
-                        {tab.label}
-                      </button>
-                    ))}
-                  </div>
+                  {/* Desktop Sidebar: Tabs (Hidden on mobile) */}
+                  {!isMobile && (
+                    <div style={{ 
+                      background: '#f8fafc', 
+                      borderRight: '1px solid #f1f5f9', 
+                      padding: '32px 16px', 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      gap: '8px'
+                    }}>
+                      {[
+                        { id: 'general', label: 'Información General', icon: '📄' },
+                        { id: 'colors', label: 'Paleta de Colores', icon: '🎨' },
+                        { id: 'types', label: 'Modelos y Variantes', icon: '📦' }
+                      ].map(tab => (
+                        <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '12px', 
+                          padding: '14px 20px', 
+                          borderRadius: '14px', 
+                          border: 'none', 
+                          background: activeTab === tab.id ? 'white' : 'transparent', 
+                          color: activeTab === tab.id ? '#1e293b' : '#64748b', 
+                          fontSize: '13px', 
+                          fontWeight: '800', 
+                          cursor: 'pointer', 
+                          transition: 'all 0.2s', 
+                          boxShadow: activeTab === tab.id ? '0 4px 12px rgba(0,0,0,0.05)' : 'none'
+                        }}>
+                          <span style={{ fontSize: '18px' }}>{tab.icon}</span>
+                          {tab.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
                   {/* Middle Area: Active Tab Content */}
                   <div style={{ padding: isMobile ? '20px' : '48px', overflowY: isMobile ? 'visible' : 'auto', background: 'white' }}>
