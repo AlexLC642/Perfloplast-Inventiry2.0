@@ -95,10 +95,10 @@ export default function AdminDashboard({ params, searchParams }) {
       return false;
     }
 
-    // 2. Size Validation (5MB)
-    const maxSize = 5 * 1024 * 1024;
+    // 2. Size Validation (4MB limit for Vercel/Next.js stability)
+    const maxSize = 4.5 * 1024 * 1024; 
     if (file.size > maxSize) {
-      alert('⚠️ El archivo es muy pesado. El límite es de 5MB para mantener la velocidad del catálogo.');
+      alert(`⚠️ ARCHIVO MUY PESADO (${(file.size / (1024 * 1024)).toFixed(2)}MB)\n\nEl límite permitido es de 4.5MB por imagen. Por favor reduce el tamaño antes de subir.`);
       return false;
     }
 
@@ -251,12 +251,27 @@ export default function AdminDashboard({ params, searchParams }) {
       reader.onload = (e) => {
         const img = new Image();
         img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+          
+          // Resizing Logic: Max 1920px to stay within Vercel limits
+          const maxDim = 1920;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
           const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
+          canvas.width = width;
+          canvas.height = height;
           const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0);
-          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, width, height);
+          const imageData = ctx.getImageData(0, 0, width, height);
           const data = imageData.data;
           const threshold = 240; 
           for (let i = 0; i < data.length; i += 4) {
@@ -292,8 +307,13 @@ export default function AdminDashboard({ params, searchParams }) {
         const formData = new FormData();
         formData.append('file', processedFile);
         const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
+        
         if (!uploadRes.ok) {
-          const upErr = await uploadRes.json();
+          if (uploadRes.status === 413) {
+            throw new Error('⚠️ IMAGEN DEMASIADO GRANDE: El archivo excede el límite permitido por el servidor (4.5MB).');
+          }
+          let upErr;
+          try { upErr = await uploadRes.json(); } catch(e) { upErr = { error: 'Error inesperado en el servidor' }; }
           const errorMsg = upErr.instruction 
             ? `⚠️ ERROR: ${upErr.error}\n\nDETALLE: ${upErr.detail}\n\nINSTRUCCIÓN: ${upErr.instruction}`
             : upErr.error || 'Error al subir la imagen principal';
@@ -310,7 +330,9 @@ export default function AdminDashboard({ params, searchParams }) {
         formData.append('file', maskFile);
         const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
         if (!uploadRes.ok) {
-          const upErr = await uploadRes.json();
+          if (uploadRes.status === 413) throw new Error('⚠️ MÁSCARA DEMASIADO GRANDE: El archivo excede el límite (4.5MB).');
+          let upErr;
+          try { upErr = await uploadRes.json(); } catch(e) { upErr = { error: 'Error en servidor' }; }
           const errorMsg = upErr.instruction 
             ? `⚠️ ERROR DE MÁSCARA: ${upErr.error}\n\nDETALLE: ${upErr.detail}\n\nINSTRUCCIÓN: ${upErr.instruction}`
             : upErr.error || 'Error al subir la máscara';
@@ -1057,8 +1079,8 @@ export default function AdminDashboard({ params, searchParams }) {
                           </div>
                           
                           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '16px' : '24px' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                              <label style={{ fontSize: '13px', fontWeight: '700', color: '#475569' }}>Imagen Representativa (PNG)</label>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                              <label style={{ fontSize: '13px', fontWeight: '700', color: '#475569' }}>Imagen Representativa (PNG) — <span style={{ color: '#c5a059' }}>Máx 4.5MB</span></label>
                               <div style={{ position: 'relative', background: '#f8fafc', border: '2px dashed #cbd5e1', borderRadius: '24px', padding: '20px', textAlign: 'center', minHeight: '140px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                 <input 
                                   type="file" 
@@ -1121,8 +1143,8 @@ export default function AdminDashboard({ params, searchParams }) {
                             {/* Per-Product Scene Background Override */}
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '24px', background: '#f8fafc', borderRadius: '24px', border: '1px solid #e2e8f0', marginTop: '16px' }}>
                               <div>
-                                  <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: '#1e293b' }}>Escenario Personalizado (Opcional)</h4>
-                                  <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '12px' }}>Si subes una imagen aquí, este producto ignorará el fondo global.</p>
+                                  <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: '#1e293b' }}>Escenario Personalizado — <span style={{ color: '#c5a059' }}>Máx 4.5MB</span></h4>
+                                  <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '12px' }}>Imagen de fondo específica para este producto.</p>
                               </div>
                               <div style={{ position: 'relative', background: 'white', border: '2px dashed #cbd5e1', borderRadius: '20px', padding: '24px', textAlign: 'center', minHeight: '120px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                 <input 

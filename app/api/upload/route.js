@@ -12,6 +12,16 @@ export async function POST(request) {
       return NextResponse.json({ error: 'No se subió ningún archivo' }, { status: 400 });
     }
 
+    // 0. CHECK SIZE BEFORE PROCESSING (4.5MB limit for Vercel/Next.js)
+    const MAX_SIZE = 4.5 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      return NextResponse.json({ 
+        error: 'ARCHIVO DEMASIADO GRANDE', 
+        detail: `El archivo pesa ${(file.size / (1024 * 1024)).toFixed(2)}MB.`,
+        instruction: 'El límite máximo permitido es de 4.5MB. Por favor, reduce la resolución o calidad de la imagen.'
+      }, { status: 413 });
+    }
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
