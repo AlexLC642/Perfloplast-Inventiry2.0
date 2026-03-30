@@ -1346,7 +1346,12 @@ export default function AdminDashboard({ params, searchParams }) {
                       <h4 style={{ margin: 0, fontSize: '13px', fontWeight: '900', color: '#1e293b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Studio Preview Live</h4>
                     </div>
                     
-                    <div style={{ width: '100%', aspectRatio: isMobile ? '16/10' : '16/11', flexShrink: 0, minHeight: isMobile ? '180px' : '220px', background: "#f8fafc url('/images/backgrounds/marble-bg.png') center/cover no-repeat", borderRadius: '32px', border: '1px solid #e2e8f0', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ width: '100%', aspectRatio: isMobile ? '16/10' : '16/11', flexShrink: 0, minHeight: isMobile ? '180px' : '220px', background: "#f1f5f9 url('/images/backgrounds/marble-bg.png') center/cover no-repeat", borderRadius: '32px', border: '1px solid #e2e8f0', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {/* Watermark Logo (Sync with ProductCard) */}
+                      <div style={{ position: 'absolute', top: isMobile ? '16px' : '24px', left: isMobile ? '16px' : '24px', zIndex: 5, opacity: 0.15, pointerEvents: 'none' }}>
+                        <Logo size={isMobile ? 22 : 28} color="#0047AB" showIcon={false} />
+                      </div>
+
                       {/* Studio Floor Line (Sync with ProductCard) */}
                       <div style={{ position: 'absolute', bottom: '22%', width: '70%', height: '1px', background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.05) 50%, transparent 100%)', zIndex: 0 }} />
 

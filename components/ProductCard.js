@@ -117,8 +117,8 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
       }}>
         {/* Company Branding Watermark (Top-Left) */}
         {(!isMobile || isLightboxView) && (
-          <div style={{ position: 'absolute', top: isMobile ? '20px' : '32px', left: isMobile ? '20px' : '32px', zIndex: 30, opacity: 0.25, pointerEvents: 'none' }}>
-            <Logo size={isMobile ? 12 : 16} color="#0047AB" />
+          <div style={{ position: 'absolute', top: isMobile ? '20px' : '32px', left: isMobile ? '20px' : '32px', zIndex: 30, opacity: 0.15, pointerEvents: 'none' }}>
+            <Logo size={isMobile ? 22 : 28} color="#0047AB" showIcon={false} />
           </div>
         )}
 

@@ -1,6 +1,6 @@
 'use client';
 
-export default function Logo({ size = 56, color = '#0047AB' }) {
+export default function Logo({ size = 56, color = '#0047AB', showIcon = true }) {
   // size represents the height of the icon; total width is proportional
   return (
     <div 
@@ -8,42 +8,44 @@ export default function Logo({ size = 56, color = '#0047AB' }) {
       style={{ 
         display: 'flex', 
         alignItems: 'center', 
-        gap: `${size * 0.3}px`, 
+        gap: showIcon ? `${size * 0.3}px` : '0', 
         cursor: 'pointer',
         userSelect: 'none'
       }}
     >
-      <svg 
-        width={size} 
-        height={size} 
-        viewBox="0 0 100 100" 
-        fill="none" 
-        xmlns="http://www.w3.org/2000/svg"
-        style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.12))' }}
-      >
-        {/* The "P" Symbol - Realistic 3-Block Design */}
-        {/* 1. Main Vertical Pillar (Primary Blue) */}
-        <path 
-          d="M18 10V90H42V10H18Z" 
-          fill={color} 
-        />
-        {/* 2. Top Curved Segment (Darker depth) */}
-        <path 
-          d="M42 10V48H66C80 48 91 37 91 23.5C91 10 80 0 66 0H42V10Z" 
-          fill="#002D72" 
-        />
-        {/* 3. Glossy Surface / Highlight Block (Subtle Teal contrast) */}
-        <path 
-          d="M42 10H70C74 10 77 13 77 17C77 21 74 24 70 24H42V10Z" 
-          fill="white" 
-          opacity="0.15"
-        />
-        <path 
-          d="M42 12H58C62 12 65 15 65 19C65 23 62 26 58 26H42V12Z" 
-          fill="white" 
-          opacity="0.1"
-        />
-      </svg>
+      {showIcon && (
+        <svg 
+          width={size} 
+          height={size} 
+          viewBox="0 0 100 100" 
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.12))' }}
+        >
+          {/* The "P" Symbol - Realistic 3-Block Design */}
+          {/* 1. Main Vertical Pillar (Primary Blue) */}
+          <path 
+            d="M18 10V90H42V10H18Z" 
+            fill={color} 
+          />
+          {/* 2. Top Curved Segment (Darker depth) */}
+          <path 
+            d="M42 10V48H66C80 48 91 37 91 23.5C91 10 80 0 66 0H42V10Z" 
+            fill="#002D72" 
+          />
+          {/* 3. Glossy Surface / Highlight Block (Subtle Teal contrast) */}
+          <path 
+            d="M42 10H70C74 10 77 13 77 17C77 21 74 24 70 24H42V10Z" 
+            fill="white" 
+            opacity="0.15"
+          />
+          <path 
+            d="M42 12H58C62 12 65 15 65 19C65 23 62 26 58 26H42V12Z" 
+            fill="white" 
+            opacity="0.1"
+          />
+        </svg>
+      )}
       
       <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1, gap: '2px' }}>
         <span style={{ 
