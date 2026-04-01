@@ -35,6 +35,7 @@ export default function AdminDashboard({ params, searchParams }) {
   const [activeTab, setActiveTab] = useState('general'); // 'general', 'colors', 'types'
   const [showConfirm, setShowConfirm] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+  const [editingColorIndex, setEditingColorIndex] = useState(null); // Track which color is being edited
   
   // Global Settings State
   const [settings, setSettings] = useState({ productSceneBackground: '' });
@@ -541,20 +542,45 @@ export default function AdminDashboard({ params, searchParams }) {
 
   const addColor = () => {
     if (tempColorName && tempColorHex) {
-      // Use name + hex + timestamp for uniqueness
-      const newColor = { 
-        id: Date.now(), 
-        name: tempColorName, 
-        hex: tempColorHex,
-        file: tempColorFile // Add the file object
-      };
-      setColors([...colors, newColor]);
+      if (editingColorIndex !== null) {
+        // Update existing color
+        const newColors = [...colors];
+        const existingColor = newColors[editingColorIndex];
+        
+        newColors[editingColorIndex] = {
+          ...existingColor,
+          name: tempColorName,
+          hex: tempColorHex,
+          // If tempColorFile is 'clear', we remove it. Otherwise keep existing or use new.
+          file: tempColorFile === 'clear' ? null : (tempColorFile || existingColor.file),
+          image: tempColorFile === 'clear' ? null : (tempColorFile ? null : existingColor.image)
+        };
+        setColors(newColors);
+        setEditingColorIndex(null);
+      } else {
+        // Add new color
+        const newColor = { 
+          id: Date.now(), 
+          name: tempColorName, 
+          hex: tempColorHex,
+          file: tempColorFile && tempColorFile !== 'clear' ? tempColorFile : null
+        };
+        setColors([...colors, newColor]);
+      }
+      
       setTempColorName('');
-      setTempColorFile(null); // Reset file
-      // Set to a different random color for next add to encourage changes
+      setTempColorFile(null);
+      // Reset color to a random one to prompt variety
       const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
       setTempColorHex(randomColor);
     }
+  };
+
+  const cancelColorEdit = () => {
+    setEditingColorIndex(null);
+    setTempColorName('');
+    setTempColorFile(null);
+    setTempColorHex('#000000');
   };
 
   const addType = () => {
@@ -1210,7 +1236,7 @@ export default function AdminDashboard({ params, searchParams }) {
                                 </div>
 
                                 {/* New Color Image Upload Button */}
-                                <div style={{ position: 'relative', width: '48px', height: '48px', borderRadius: '14px', border: '2px dashed #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: tempColorFile ? '#f0f9ff' : 'white', overflow: 'hidden' }}>
+                                <div style={{ position: 'relative', width: '48px', height: '48px', borderRadius: '14px', border: '2px dashed #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: (tempColorFile || (editingColorIndex !== null && colors[editingColorIndex]?.image)) ? '#f0f9ff' : 'white', overflow: 'hidden', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)' }}>
                                   <input 
                                     type="file" 
                                     accept="image/*" 
@@ -1222,16 +1248,35 @@ export default function AdminDashboard({ params, searchParams }) {
                                   />
                                   {tempColorFile && tempColorFile instanceof Blob ? (
                                     <img src={URL.createObjectURL(tempColorFile)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                  ) : (editingColorIndex !== null && colors[editingColorIndex]?.image && tempColorFile !== 'clear') ? (
+                                    <img src={colors[editingColorIndex].image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                   ) : (
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                                   )}
-                                  {tempColorFile && (
-                                    <button type="button" onClick={(e) => { e.stopPropagation(); setTempColorFile(null); }} style={{ position: 'absolute', top: 0, right: 0, background: '#ef4444', color: 'white', border: 'none', width: '16px', height: '16px', borderRadius: '50%', fontSize: '10px', cursor: 'pointer', zIndex: 20 }}>×</button>
+                                  {(tempColorFile || (editingColorIndex !== null && colors[editingColorIndex]?.image && tempColorFile !== 'clear')) && (
+                                    <button 
+                                      type="button" 
+                                      onClick={(e) => { 
+                                        e.stopPropagation(); 
+                                        setTempColorFile('clear'); 
+                                      }} 
+                                      title="Quitar textura"
+                                      style={{ position: 'absolute', top: 0, right: 0, background: '#ef4444', color: 'white', border: 'none', width: '20px', height: '20px', borderRadius: '0 0 0 8px', fontSize: '14px', cursor: 'pointer', zIndex: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900' }}
+                                    >
+                                      ×
+                                    </button>
                                   )}
                                 </div>
                               </div>
 
-                              <button type="button" onClick={addColor} style={{ width: '48px', height: '48px', background: '#c5a059', color: 'white', border: 'none', borderRadius: '14px', cursor: 'pointer', fontSize: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+                              {editingColorIndex !== null ? (
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                  <button type="button" onClick={addColor} style={{ height: '48px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '14px', cursor: 'pointer', padding: '0 16px', fontWeight: '800', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✓ ACTUALIZAR</button>
+                                  <button type="button" onClick={cancelColorEdit} style={{ width: '48px', height: '48px', background: '#f1f5f9', color: '#64748b', border: 'none', borderRadius: '14px', cursor: 'pointer', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                                </div>
+                              ) : (
+                                <button type="button" onClick={addColor} style={{ width: '48px', height: '48px', background: '#c5a059', color: 'white', border: 'none', borderRadius: '14px', cursor: 'pointer', fontSize: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+                              )}
                             </div>
                             
                             <div>
@@ -1247,21 +1292,47 @@ export default function AdminDashboard({ params, searchParams }) {
                             </div>
                           </div>
 
-                            {colors.length > 0 ? colors.map((c, i) => {
-                              if (!c) return null;
-                              return (
-                              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'white', padding: '10px 16px', borderRadius: '14px', border: '1px solid #fef3c7', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', fontSize: '13px', fontWeight: '800' }}>
-                                {/* Color-Specific Image Thumbnail */}
-                                { (typeof c === 'object' && (c.file || c.image)) && (
-                                  <div style={{ width: '24px', height: '24px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
-                                    <img src={c.file && c.file instanceof Blob ? URL.createObjectURL(c.file) : c.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                                  </div>
-                                )}
-                                <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: typeof c === 'object' ? c.hex : c, border: '1px solid rgba(0,0,0,0.1)' }} />
-                                {typeof c === 'object' ? c.name : ''}
-                                <button type="button" onClick={() => setColors(colors.filter((_, idx) => idx !== i))} style={{ border: 'none', background: 'none', color: '#f87171', fontSize: '18px', cursor: 'pointer', marginLeft: '4px' }}>×</button>
-                              </div>
-                            )}) : <p style={{ margin: 0, fontSize: '14px', color: '#92400e', fontStyle: 'italic' }}>No has añadido colores aún.</p>}
+                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', padding: '24px', background: '#fffbeb', borderRadius: '24px', border: '1px solid #fde68a' }}>
+                               {colors.length > 0 ? colors.map((c, i) => {
+                                 if (!c) return null;
+                                 const isEditing = editingColorIndex === i;
+                                 return (
+                                 <div 
+                                   key={i} 
+                                   onClick={() => {
+                                     setEditingColorIndex(i);
+                                     setTempColorName(c.name);
+                                     setTempColorHex(c.hex);
+                                     setTempColorFile(null); // Clear temp file, it will use existing image/file
+                                   }}
+                                   style={{ 
+                                     display: 'flex', 
+                                     alignItems: 'center', 
+                                     gap: '10px', 
+                                     background: isEditing ? '#fff7ed' : 'white', 
+                                     padding: '10px 16px', 
+                                     borderRadius: '14px', 
+                                     border: isEditing ? '2px solid #fbbf24' : '1px solid #fef3c7', 
+                                     boxShadow: isEditing ? '0 8px 24px rgba(251, 191, 36, 0.2)' : '0 4px 12px rgba(0,0,0,0.03)', 
+                                     fontSize: '13px', 
+                                     fontWeight: '800',
+                                     cursor: 'pointer',
+                                     transition: 'all 0.2s ease',
+                                     transform: isEditing ? 'scale(1.02)' : 'scale(1)'
+                                   }}
+                                 >
+                                   {/* Color-Specific Image Thumbnail */}
+                                   { (typeof c === 'object' && (c.file || c.image)) && (
+                                     <div style={{ width: '24px', height: '24px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                                       <img src={c.file && c.file instanceof Blob ? URL.createObjectURL(c.file) : c.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                     </div>
+                                   )}
+                                   <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: typeof c === 'object' ? c.hex : c, border: '1px solid rgba(0,0,0,0.1)' }} />
+                                   <span style={{ color: isEditing ? '#92400e' : '#1e293b' }}>{typeof c === 'object' ? c.name : ''}</span>
+                                   <button type="button" onClick={(e) => { e.stopPropagation(); setColors(colors.filter((_, idx) => idx !== i)); if(isEditing) cancelColorEdit(); }} style={{ border: 'none', background: 'none', color: '#f87171', fontSize: '18px', cursor: 'pointer', marginLeft: '4px' }}>×</button>
+                                 </div>
+                               )}) : <p style={{ margin: 0, fontSize: '14px', color: '#92400e', fontStyle: 'italic' }}>No has añadido colores aún.</p>}
+                             </div>
                         </motion.div>
                       )}
 

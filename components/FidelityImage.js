@@ -65,11 +65,11 @@ export default function FidelityImage({ src, maskSrc, color, transform = { scale
   return (
     <div 
       className="fidelity-v7.21-invulnerable" 
-      key={imageSource} 
       style={{ 
         position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'hidden', 
         borderRadius: isLightboxView ? '40px' : 'inherit',
-        background: sceneSource ? 'none' : "#f1f5f9 url('/images/backgrounds/marble-bg.png') center/cover no-repeat" 
+        background: sceneSource ? 'none' : "#f1f5f9 url('/images/backgrounds/marble-bg.png') center/cover no-repeat",
+        transition: 'background 0.3s ease'
       }}
     >
       {/* 1. OPTIONAL SCENE OVERRIDE */}
