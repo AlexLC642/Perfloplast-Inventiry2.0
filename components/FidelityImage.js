@@ -5,34 +5,47 @@ import { useState, useEffect, useMemo, useId } from 'react';
  * FIDELITY ENGINE v7.20 - "CLEAN SLATE" 🚀
  * TOTAL REWRITE to break HMR cache collisions and fix "filterId" duplicate errors.
  */
-export default function FidelityImage({ src, maskSrc, color, transform = { scale: 1, x: 0, y: 0 }, sceneSrc = '', isLightboxView = false }) {
-  useEffect(() => { console.log('🚀 FidelityEngine v7.22: Ready'); }, []);
+export default function FidelityImage({ 
+  src, 
+  maskSrc, 
+  color, 
+  transform = { scale: 1, x: 0, y: 0 }, 
+  sceneSrc = '', 
+  isLightboxView = false,
+  textureSrc = null,
+  textureTransform = { scale: 1, x: 0, y: 0 }
+}) {
+  useEffect(() => { console.log('🚀 FidelityEngine v7.25: Texture-Ready'); }, []);
   // 1. UNIQUE IDENTIFIERS (Standardized via React useId)
   const smartEraserId = useId().replace(/:/g, ''); // SVG-safe unique ID
   
   const [imageSource, setImageSource] = useState(null);
   const [maskSource, setMaskSource] = useState(null);
   const [sceneSource, setSceneSource] = useState(null);
+  const [textureSource, setTextureSource] = useState(null);
 
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     setHasError(false); // Reset error state on source change
-    let sUrl = null, mUrl = null, scUrl = null;
+    let sUrl = null, mUrl = null, scUrl = null, tUrl = null;
     if (src) sUrl = typeof src === 'string' ? src : URL.createObjectURL(src);
     if (maskSrc) mUrl = typeof maskSrc === 'string' ? maskSrc : URL.createObjectURL(maskSrc);
     if (sceneSrc) scUrl = typeof sceneSrc === 'string' ? sceneSrc : URL.createObjectURL(sceneSrc);
+    if (textureSrc) tUrl = typeof textureSrc === 'string' ? textureSrc : (textureSrc instanceof Blob ? URL.createObjectURL(textureSrc) : null);
 
     setImageSource(sUrl);
     setMaskSource(mUrl);
     setSceneSource(scUrl);
+    setTextureSource(tUrl);
 
     return () => {
       if (sUrl && typeof src !== 'string') URL.revokeObjectURL(sUrl);
       if (mUrl && typeof maskSrc !== 'string') URL.revokeObjectURL(mUrl);
       if (scUrl && typeof sceneSrc !== 'string') URL.revokeObjectURL(scUrl);
+      if (tUrl && typeof textureSrc !== 'string') URL.revokeObjectURL(tUrl);
     };
-  }, [src, maskSrc, sceneSrc]);
+  }, [src, maskSrc, sceneSrc, textureSrc]);
 
   // 2. RENDERING LOGIC - Ultra-defensive color check
   const safeColor = (typeof color === 'string') ? color : (color?.hex || 'transparent');
@@ -54,6 +67,14 @@ export default function FidelityImage({ src, maskSrc, color, transform = { scale
     maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat',
     maskPosition: 'center', WebkitMaskPosition: 'center',
   };
+
+  // Texture-specific styles (Mosaic/Repeat mode)
+  const textureStyles = textureSource ? {
+    backgroundImage: `url(${textureSource})`,
+    backgroundSize: `${(textureTransform?.scale || 1) * 100}%`,
+    backgroundPosition: `${textureTransform?.x || 0}% ${textureTransform?.y || 0}%`,
+    backgroundRepeat: 'repeat'
+  } : {};
 
   // Skip rendering if no valid source or error detected early
   if (!imageSource || imageSource.length < 5) {
@@ -113,7 +134,7 @@ export default function FidelityImage({ src, maskSrc, color, transform = { scale
         )}
 
         {/* LUMINA ENGINE (COLOR LAYERS) */}
-        {(!isNeutral && !hasError) && (
+        {((!isNeutral || textureSource) && !hasError) && (
           <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
              {/* 1. Neutralizer Pass */}
              <img 
@@ -128,11 +149,25 @@ export default function FidelityImage({ src, maskSrc, color, transform = { scale
                 }} 
              />
              
-             {/* 2. Color Burn/Hue */}
-             <div style={{ ...maskStyles, backgroundColor: safeColor, mixBlendMode: 'color', opacity: maskSource ? 0.9 : 0.82, zIndex: 4 }} />
+             {/* 2. Color Burn/Hue or Texture */}
+             <div style={{ 
+                ...maskStyles, 
+                backgroundColor: textureSource ? 'transparent' : safeColor, 
+                ...textureStyles,
+                mixBlendMode: textureSource ? 'multiply' : 'color', 
+                opacity: textureSource ? 1 : (maskSource ? 0.9 : 0.82), 
+                zIndex: 4 
+             }} />
              
-             {/* 3. Soft Volume */}
-             <div style={{ ...maskStyles, backgroundColor: safeColor, mixBlendMode: 'soft-light', opacity: maskSource ? 0.4 : 0.25, zIndex: 5 }} />
+             {/* 3. Soft Volume or Texture Detail */}
+             <div style={{ 
+                ...maskStyles, 
+                backgroundColor: textureSource ? 'transparent' : safeColor, 
+                ...textureStyles,
+                mixBlendMode: textureSource ? 'soft-light' : 'soft-light', 
+                opacity: textureSource ? 1 : (maskSource ? 0.4 : 0.25), 
+                zIndex: 5 
+             }} />
 
              {/* 4. Specular White Recovery */}
              <div style={{ 

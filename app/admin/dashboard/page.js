@@ -26,6 +26,7 @@ export default function AdminDashboard({ params, searchParams }) {
   const [tempColorName, setTempColorName] = useState('');
   const [tempColorHex, setTempColorHex] = useState('#000000');
   const [tempColorFile, setTempColorFile] = useState(null);
+  const [tempColorTransform, setTempColorTransform] = useState({ scale: 1, x: 0, y: 0 });
   const [productSceneFile, setProductSceneFile] = useState(null);
   const [tempType, setTempType] = useState('');
   const [tempTypeFile, setTempTypeFile] = useState(null);
@@ -553,7 +554,8 @@ export default function AdminDashboard({ params, searchParams }) {
           hex: tempColorHex,
           // If tempColorFile is 'clear', we remove it. Otherwise keep existing or use new.
           file: tempColorFile === 'clear' ? null : (tempColorFile || existingColor.file),
-          image: tempColorFile === 'clear' ? null : (tempColorFile ? null : existingColor.image)
+          image: tempColorFile === 'clear' ? null : (tempColorFile ? null : existingColor.image),
+          textureTransform: tempColorTransform
         };
         setColors(newColors);
         setEditingColorIndex(null);
@@ -563,13 +565,15 @@ export default function AdminDashboard({ params, searchParams }) {
           id: Date.now(), 
           name: tempColorName, 
           hex: tempColorHex,
-          file: tempColorFile && tempColorFile !== 'clear' ? tempColorFile : null
+          file: tempColorFile && tempColorFile !== 'clear' ? tempColorFile : null,
+          textureTransform: tempColorTransform
         };
         setColors([...colors, newColor]);
       }
       
       setTempColorName('');
       setTempColorFile(null);
+      setTempColorTransform({ scale: 1, x: 0, y: 0 });
       // Reset color to a random one to prompt variety
       const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
       setTempColorHex(randomColor);
@@ -580,6 +584,7 @@ export default function AdminDashboard({ params, searchParams }) {
     setEditingColorIndex(null);
     setTempColorName('');
     setTempColorFile(null);
+    setTempColorTransform({ scale: 1, x: 0, y: 0 });
     setTempColorHex('#000000');
   };
 
@@ -1279,6 +1284,43 @@ export default function AdminDashboard({ params, searchParams }) {
                               )}
                             </div>
                             
+                            {/* Texture Transformation Sliders (Visible only when texture exists) */}
+                            {(tempColorFile || (editingColorIndex !== null && colors[editingColorIndex]?.image && tempColorFile !== 'clear')) && (
+                              <div style={{ padding: '24px', background: '#f0f9ff', borderRadius: '24px', border: '1px solid #bae6fd', display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '20px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#0ea5e9' }} />
+                                  <span style={{ fontSize: '11px', fontWeight: '900', color: '#0369a1', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ajustes de Textura</span>
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '24px' }}>
+                                  {/* Scale */}
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                      <label style={{ fontSize: '10px', fontWeight: '800', color: '#64748b' }}>ESCALA</label>
+                                      <span style={{ fontSize: '10px', fontWeight: '900', color: '#0ea5e9' }}>{tempColorTransform.scale}x</span>
+                                    </div>
+                                    <input type="range" min="0.05" max="4" step="0.01" value={tempColorTransform.scale} onChange={(e) => setTempColorTransform({...tempColorTransform, scale: parseFloat(e.target.value)})} style={{ accentColor: '#0ea5e9' }} />
+                                  </div>
+                                  {/* X */}
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                      <label style={{ fontSize: '10px', fontWeight: '800', color: '#64748b' }}>EJE X (%)</label>
+                                      <span style={{ fontSize: '10px', fontWeight: '900', color: '#0ea5e9' }}>{tempColorTransform.x}%</span>
+                                    </div>
+                                    <input type="range" min="-100" max="100" value={tempColorTransform.x} onChange={(e) => setTempColorTransform({...tempColorTransform, x: parseInt(e.target.value)})} style={{ accentColor: '#0ea5e9' }} />
+                                  </div>
+                                  {/* Y */}
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                      <label style={{ fontSize: '10px', fontWeight: '800', color: '#64748b' }}>EJE Y (%)</label>
+                                      <span style={{ fontSize: '10px', fontWeight: '900', color: '#0ea5e9' }}>{tempColorTransform.y}%</span>
+                                    </div>
+                                    <input type="range" min="-100" max="100" value={tempColorTransform.y} onChange={(e) => setTempColorTransform({...tempColorTransform, y: parseInt(e.target.value)})} style={{ accentColor: '#0ea5e9' }} />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
                             <div>
                               <p style={{ margin: '0 0 12px 0', fontSize: '12px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Sugerencias de Calidad</p>
                               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -1304,6 +1346,7 @@ export default function AdminDashboard({ params, searchParams }) {
                                      setTempColorName(c.name);
                                      setTempColorHex(c.hex);
                                      setTempColorFile(null); // Clear temp file, it will use existing image/file
+                                     setTempColorTransform(c.textureTransform || { scale: 1, x: 0, y: 0 });
                                    }}
                                    style={{ 
                                      display: 'flex', 
@@ -1485,20 +1528,25 @@ export default function AdminDashboard({ params, searchParams }) {
                       <div style={{ transform: isMobile ? 'scale(0.7)' : 'none' }}>
                         {/* More defensive preview logic to prevent crashes */}
                         <FidelityImage 
-                          src={
-                            (colors && colors.length > 0 && typeof colors[0] === 'object' && (colors[0].file || colors[0].image)) 
-                            || (getActiveSettings ? getActiveSettings().image : '/images/chair.png')
-                          } 
-                          maskSrc={
-                            (colors && colors.length > 0 && typeof colors[0] === 'object' && (colors[0].file || colors[0].image)) 
-                            ? null 
-                            : (getActiveSettings ? getActiveSettings().maskImage : null)
-                          }
+                          src={getActiveSettings ? getActiveSettings().image : '/images/chair.png'} 
+                          maskSrc={getActiveSettings ? getActiveSettings().maskImage : null}
                           color={
-                            (colors && colors.length > 0 && typeof colors[0] === 'object' && (colors[0].file || colors[0].image)) 
-                            ? 'transparent' 
-                            : (colors && colors.length > 0 ? (typeof colors[0] === 'object' ? (colors[0].hex || 'transparent') : colors[0]) : (editingProduct?.colors?.[0]?.hex || editingProduct?.colors?.[0] || 'transparent'))
+                            activeTab === 'colors' && editingColorIndex === null && tempColorFile !== 'clear' && tempColorFile
+                            ? 'transparent'
+                            : (editingColorIndex !== null && tempColorFile !== 'clear' && (tempColorFile || colors[editingColorIndex]?.image))
+                              ? 'transparent'
+                              : (colors && colors.length > 0 ? (typeof colors[0] === 'object' ? (colors[0].hex || 'transparent') : colors[0]) : (editingProduct?.colors?.[0]?.hex || editingProduct?.colors?.[0] || 'transparent'))
                           } 
+                          textureSrc={
+                            activeTab === 'colors' 
+                              ? (tempColorFile && tempColorFile !== 'clear' ? tempColorFile : (editingColorIndex !== null && tempColorFile !== 'clear' ? colors[editingColorIndex]?.image : null))
+                              : (colors && colors.length > 0 && typeof colors[0] === 'object' ? (colors[0].file || colors[0].image) : null)
+                          }
+                          textureTransform={
+                            activeTab === 'colors'
+                              ? tempColorTransform
+                              : (colors && colors.length > 0 && typeof colors[0] === 'object' ? colors[0].textureTransform : { scale: 1, x: 0, y: 0 })
+                          }
                           baseHue={getActiveSettings ? getActiveSettings().baseHue : 0}
                           transform={getActiveSettings ? getActiveSettings().imageTransform : { scale: 1, x: 0, y: 0 }}
                           sceneSrc={productSceneFile || (editingProduct?.sceneBackground || (sceneFile || settings.productSceneBackground))}
