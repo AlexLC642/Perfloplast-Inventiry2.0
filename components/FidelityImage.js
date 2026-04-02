@@ -12,10 +12,9 @@ export default function FidelityImage({
   transform = { scale: 1, x: 0, y: 0 }, 
   sceneSrc = '', 
   isLightboxView = false,
-  textureSrc = null,
-  textureTransform = { scale: 1, x: 0, y: 0 }
+  textureSrc = null
 }) {
-  useEffect(() => { console.log('🚀 FidelityEngine v7.25: Texture-Ready'); }, []);
+  useEffect(() => { console.log('🚀 FidelityEngine v7.26: Clean Texture Mode'); }, []);
   // 1. UNIQUE IDENTIFIERS (Standardized via React useId)
   const smartEraserId = useId().replace(/:/g, ''); // SVG-safe unique ID
   
@@ -68,12 +67,12 @@ export default function FidelityImage({
     maskPosition: 'center', WebkitMaskPosition: 'center',
   };
 
-  // Texture-specific styles (Mosaic/Repeat mode)
+  // Texture-specific styles (Simple Cover mode)
   const textureStyles = textureSource ? {
     backgroundImage: `url(${textureSource})`,
-    backgroundSize: `${(textureTransform?.scale || 1) * 100}%`,
-    backgroundPosition: `${textureTransform?.x || 0}% ${textureTransform?.y || 0}%`,
-    backgroundRepeat: 'repeat'
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat'
   } : {};
 
   // Skip rendering if no valid source or error detected early
