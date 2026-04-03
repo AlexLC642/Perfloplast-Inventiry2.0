@@ -26,6 +26,7 @@ export default function AdminDashboard({ params, searchParams }) {
   const [tempColorName, setTempColorName] = useState('');
   const [tempColorHex, setTempColorHex] = useState('#000000');
   const [tempColorFile, setTempColorFile] = useState(null);
+  const [tempColorTransform, setTempColorTransform] = useState({ scale: 1, x: 0, y: 0 });
   const [productSceneFile, setProductSceneFile] = useState(null);
   const [tempType, setTempType] = useState('');
   const [tempTypeFile, setTempTypeFile] = useState(null);
@@ -553,7 +554,8 @@ export default function AdminDashboard({ params, searchParams }) {
           hex: tempColorHex,
           // If tempColorFile is 'clear', we remove it. Otherwise keep existing or use new.
           file: tempColorFile === 'clear' ? null : (tempColorFile || existingColor.file),
-          image: tempColorFile === 'clear' ? null : (tempColorFile ? null : existingColor.image)
+          image: tempColorFile === 'clear' ? null : (tempColorFile ? null : existingColor.image),
+          textureTransform: tempColorTransform
         };
         setColors(newColors);
         setEditingColorIndex(null);
@@ -563,13 +565,15 @@ export default function AdminDashboard({ params, searchParams }) {
           id: Date.now(), 
           name: tempColorName, 
           hex: tempColorHex,
-          file: tempColorFile && tempColorFile !== 'clear' ? tempColorFile : null
+          file: tempColorFile && tempColorFile !== 'clear' ? tempColorFile : null,
+          textureTransform: tempColorTransform
         };
         setColors([...colors, newColor]);
       }
       
       setTempColorName('');
       setTempColorFile(null);
+      setTempColorTransform({ scale: 1, x: 0, y: 0 });
       // Reset color to a random one to prompt variety
       const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
       setTempColorHex(randomColor);
@@ -580,6 +584,7 @@ export default function AdminDashboard({ params, searchParams }) {
     setEditingColorIndex(null);
     setTempColorName('');
     setTempColorFile(null);
+    setTempColorTransform({ scale: 1, x: 0, y: 0 });
     setTempColorHex('#000000');
   };
 
@@ -1279,6 +1284,26 @@ export default function AdminDashboard({ params, searchParams }) {
                               )}
                             </div>
                             
+                            {/* NEW: Simple Image Size Slider (Only if image exists) */}
+                            {(tempColorFile || (editingColorIndex !== null && colors[editingColorIndex]?.image && tempColorFile !== 'clear')) && (
+                              <div style={{ padding: '20px', background: '#f0f9ff', borderRadius: '20px', border: '1px solid #bae6fd', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                  <label style={{ fontSize: '11px', fontWeight: '900', color: '#0369a1', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tamaño de Imagen de Color</label>
+                                  <span style={{ fontSize: '11px', fontWeight: '900', color: '#0ea5e9' }}>{tempColorTransform.scale}x</span>
+                                </div>
+                                <input 
+                                  type="range" 
+                                  min="0.1" 
+                                  max="4" 
+                                  step="0.01" 
+                                  value={tempColorTransform.scale} 
+                                  onChange={(e) => setTempColorTransform({...tempColorTransform, scale: parseFloat(e.target.value)})} 
+                                  style={{ accentColor: '#0ea5e9', cursor: 'grab' }} 
+                                />
+                                <p style={{ margin: 0, fontSize: '10px', color: '#64748b', fontStyle: 'italic' }}>Ajusta qué tan grande se ve la foto sobre el producto.</p>
+                              </div>
+                            )}
+
                             <div>
                               <p style={{ margin: '0 0 12px 0', fontSize: '12px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Sugerencias de Calidad</p>
                               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -1304,6 +1329,7 @@ export default function AdminDashboard({ params, searchParams }) {
                                      setTempColorName(c.name);
                                      setTempColorHex(c.hex);
                                      setTempColorFile(null); // Clear temp file, it will use existing image/file
+                                     setTempColorTransform(c.textureTransform || { scale: 1, x: 0, y: 0 });
                                    }}
                                    style={{ 
                                      display: 'flex', 
@@ -1498,6 +1524,11 @@ export default function AdminDashboard({ params, searchParams }) {
                             activeTab === 'colors' 
                               ? (tempColorFile && tempColorFile !== 'clear' ? tempColorFile : (editingColorIndex !== null && tempColorFile !== 'clear' ? colors[editingColorIndex]?.image : null))
                               : (colors && colors.length > 0 && typeof colors[0] === 'object' ? (colors[0].file || colors[0].image) : null)
+                          }
+                          textureTransform={
+                            activeTab === 'colors'
+                              ? tempColorTransform
+                              : (colors && colors.length > 0 && typeof colors[0] === 'object' ? colors[0].textureTransform : { scale: 1, x: 0, y: 0 })
                           }
                           baseHue={getActiveSettings ? getActiveSettings().baseHue : 0}
                           transform={getActiveSettings ? getActiveSettings().imageTransform : { scale: 1, x: 0, y: 0 }}
