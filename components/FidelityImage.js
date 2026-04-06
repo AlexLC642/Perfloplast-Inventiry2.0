@@ -140,20 +140,20 @@ export default function FidelityImage({
         {/* LUMINA ENGINE (COLOR LAYERS) */}
         {((!isNeutral || textureSource) && !hasError) && (
           <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
-             {/* 1. Neutralizer Pass */}
-              {imageSource && (
-               <img 
-                  src={imageSource} 
-                  alt="" 
-                  onError={() => setHasError(true)}
-                  style={{ 
-                    ...maskStyles, 
-                    filter: 'grayscale(1) brightness(1.05) contrast(1.1)', 
-                    opacity: 1, 
-                    zIndex: 3 
-                  }} 
-               />
-              )}
+              {/* 1. Neutralizer Pass (Only if no texture) */}
+               {(imageSource && !textureSource) && (
+                <img 
+                   src={imageSource} 
+                   alt="" 
+                   onError={() => setHasError(true)}
+                   style={{ 
+                     ...maskStyles, 
+                     filter: 'grayscale(1) brightness(1.05) contrast(1.1)', 
+                     opacity: 1, 
+                     zIndex: 3 
+                   }} 
+                />
+               )}
              
              {/* 2. Color Burn/Hue or Texture */}
              <div style={{ 
@@ -165,15 +165,17 @@ export default function FidelityImage({
                 zIndex: 4 
              }} />
              
-             {/* 3. Soft Volume or Texture Detail */}
-             <div style={{ 
-                ...maskStyles, 
-                backgroundColor: textureSource ? 'transparent' : safeColor, 
-                ...textureStyles,
-                mixBlendMode: textureSource ? 'soft-light' : 'soft-light', 
-                opacity: textureSource ? 1 : (maskSource ? 0.4 : 0.25), 
-                zIndex: 5 
-             }} />
+             {/* 3. Soft Volume or Texture Detail (Only if no texture) */}
+             {(!textureSource) && (
+              <div style={{ 
+                 ...maskStyles, 
+                 backgroundColor: textureSource ? 'transparent' : safeColor, 
+                 ...textureStyles,
+                 mixBlendMode: textureSource ? 'soft-light' : 'soft-light', 
+                 opacity: textureSource ? 1 : (maskSource ? 0.4 : 0.25), 
+                 zIndex: 5 
+              }} />
+             )}
 
              {/* 4. Specular White Recovery (Only if main image and NO texture exists) */}
              {(imageSource && !textureSource) && (
