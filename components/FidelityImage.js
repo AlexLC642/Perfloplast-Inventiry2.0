@@ -92,7 +92,7 @@ export default function FidelityImage({
       className="fidelity-v7.21-invulnerable" 
       style={{ 
         position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'hidden', 
-        borderRadius: isLightboxView ? '40px' : 'inherit',
+        borderRadius: 'inherit',
         background: sceneSource ? 'none' : "#f1f5f9 url('/images/backgrounds/marble-bg.png') center/cover no-repeat",
         transition: 'background 0.3s ease'
       }}
@@ -165,14 +165,13 @@ export default function FidelityImage({
                 zIndex: 4 
              }} />
              
-             {/* 3. Soft Volume or Texture Detail (Only if no texture) */}
+             {/* 3. Soft Volume Detail (Only if no texture) */}
              {(!textureSource) && (
               <div style={{ 
                  ...maskStyles, 
-                 backgroundColor: textureSource ? 'transparent' : safeColor, 
-                 ...textureStyles,
-                 mixBlendMode: textureSource ? 'soft-light' : 'soft-light', 
-                 opacity: textureSource ? 1 : (maskSource ? 0.4 : 0.25), 
+                 backgroundColor: safeColor, 
+                 mixBlendMode: 'soft-light', 
+                 opacity: maskSource ? 0.4 : 0.25, 
                  zIndex: 5 
               }} />
              )}

@@ -44,7 +44,7 @@ export default function AdminDashboard({ params, searchParams }) {
   const [sceneFile, setSceneFile] = useState(null);
   const [savingSettings, setSavingSettings] = useState(false);
 
-  // Professional Color Presets (Industry Standard Plastic)
+  // Industry Standard Presets
   const PRESET_COLORS = [
     { name: 'Rojo Corporativo', hex: '#d32f2f' },
     { name: 'Azul Intenso', hex: '#1976d2' },
@@ -57,6 +57,31 @@ export default function AdminDashboard({ params, searchParams }) {
     { name: 'Negro Piano', hex: '#1a1a1a' },
     { name: 'Blanco Crema', hex: '#f5f5f5' }
   ];
+
+  // REAL-TIME SYNC: This fixes the bug where color adjustments (scale/pos) 
+  // weren't saved unless the user clicked "ACTUALIZAR" manually.
+  const syncColorChanges = (updates) => {
+    if (updates.name !== undefined) setTempColorName(updates.name);
+    if (updates.hex !== undefined) setTempColorHex(updates.hex);
+    if (updates.transform !== undefined) setTempColorTransform(updates.transform);
+    if (updates.file !== undefined) setTempColorFile(updates.file);
+
+    if (editingColorIndex !== null) {
+      setColors(prev => {
+        const newColors = [...prev];
+        const current = newColors[editingColorIndex];
+        newColors[editingColorIndex] = {
+          ...current,
+          name: updates.name !== undefined ? updates.name : current.name,
+          hex: updates.hex !== undefined ? updates.hex : current.hex,
+          textureTransform: updates.transform !== undefined ? updates.transform : current.textureTransform,
+          file: updates.file === 'clear' ? null : (updates.file || current.file),
+          image: updates.file === 'clear' ? null : (updates.file ? null : current.image)
+        };
+        return newColors;
+      });
+    }
+  };
 
   useEffect(() => {
     fetchProducts();
@@ -1233,11 +1258,11 @@ export default function AdminDashboard({ params, searchParams }) {
                           
                           <div style={{ background: '#f8fafc', padding: '24px', borderRadius: '24px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
-                              <input type="text" placeholder="Nombre (Ej: Azul Real)" value={tempColorName} onChange={(e) => setTempColorName(e.target.value)} style={{ flex: 1, minWidth: '180px', padding: '14px', borderRadius: '14px', border: '1px solid #cbd5e1', fontSize: '14px' }} />
+                              <input type="text" placeholder="Nombre (Ej: Azul Real)" value={tempColorName} onChange={(e) => syncColorChanges({ name: e.target.value })} style={{ flex: 1, minWidth: '180px', padding: '14px', borderRadius: '14px', border: '1px solid #cbd5e1', fontSize: '14px' }} />
                               
                               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <div style={{ width: '48px', height: '48px', borderRadius: '14px', overflow: 'hidden', border: '2px solid #cbd5e1', position: 'relative' }}>
-                                  <input type="color" value={tempColorHex} onChange={(e) => setTempColorHex(e.target.value)} style={{ position: 'absolute', inset: '-5px', width: '150%', height: '150%', border: 'none', cursor: 'pointer' }} />
+                                  <input type="color" value={tempColorHex} onChange={(e) => syncColorChanges({ hex: e.target.value })} style={{ position: 'absolute', inset: '-5px', width: '150%', height: '150%', border: 'none', cursor: 'pointer' }} />
                                 </div>
 
                                 {/* New Color Image Upload Button */}
@@ -1247,7 +1272,7 @@ export default function AdminDashboard({ params, searchParams }) {
                                     accept="image/*" 
                                     onChange={(e) => {
                                       const f = e.target.files[0];
-                                      if (validateFile(f)) setTempColorFile(f);
+                                      if (validateFile(f)) syncColorChanges({ file: f });
                                     }} 
                                     style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} 
                                   />
@@ -1263,7 +1288,7 @@ export default function AdminDashboard({ params, searchParams }) {
                                       type="button" 
                                       onClick={(e) => { 
                                         e.stopPropagation(); 
-                                        setTempColorFile('clear'); 
+                                        syncColorChanges({ file: 'clear' }); 
                                       }} 
                                       title="Quitar textura"
                                       style={{ position: 'absolute', top: 0, right: 0, background: '#ef4444', color: 'white', border: 'none', width: '20px', height: '20px', borderRadius: '0 0 0 8px', fontSize: '14px', cursor: 'pointer', zIndex: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900' }}
@@ -1298,7 +1323,7 @@ export default function AdminDashboard({ params, searchParams }) {
                                     max="4" 
                                     step="0.01" 
                                     value={tempColorTransform.scale} 
-                                    onChange={(e) => setTempColorTransform({...tempColorTransform, scale: parseFloat(e.target.value)})} 
+                                    onChange={(e) => syncColorChanges({ transform: {...tempColorTransform, scale: parseFloat(e.target.value)} })} 
                                     style={{ width: '100%', accentColor: '#0ea5e9', cursor: 'grab' }} 
                                   />
                                 </div>
@@ -1311,7 +1336,7 @@ export default function AdminDashboard({ params, searchParams }) {
                                       min="-100" 
                                       max="100" 
                                       value={tempColorTransform.x || 0} 
-                                      onChange={(e) => setTempColorTransform({...tempColorTransform, x: parseInt(e.target.value)})} 
+                                      onChange={(e) => syncColorChanges({ transform: {...tempColorTransform, x: parseInt(e.target.value)} })} 
                                       style={{ width: '100%', accentColor: '#0ea5e9' }} 
                                     />
                                   </div>
@@ -1322,7 +1347,7 @@ export default function AdminDashboard({ params, searchParams }) {
                                       min="-100" 
                                       max="100" 
                                       value={tempColorTransform.y || 0} 
-                                      onChange={(e) => setTempColorTransform({...tempColorTransform, y: parseInt(e.target.value)})} 
+                                      onChange={(e) => syncColorChanges({ transform: {...tempColorTransform, y: parseInt(e.target.value)} })} 
                                       style={{ width: '100%', accentColor: '#0ea5e9' }} 
                                     />
                                   </div>
@@ -1335,7 +1360,7 @@ export default function AdminDashboard({ params, searchParams }) {
                               <p style={{ margin: '0 0 12px 0', fontSize: '12px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Sugerencias de Calidad</p>
                               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                                 {PRESET_COLORS.map(p => (
-                                  <button key={p.hex} type="button" onClick={() => { setTempColorName(p.name); setTempColorHex(p.hex); }} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', borderRadius: '10px', background: 'white', border: '1px solid #e2e8f0', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
+                                  <button key={p.hex} type="button" onClick={() => syncColorChanges({ name: p.name, hex: p.hex })} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', borderRadius: '10px', background: 'white', border: '1px solid #e2e8f0', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
                                     <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: p.hex }} />
                                     {p.name}
                                   </button>
