@@ -61,21 +61,24 @@ export default function FidelityImage({
 
    const effectiveImageSource = imageSource || textureSource;
   const activeMask = maskSource ? `url(${maskSource})` : (effectiveImageSource ? `url(${effectiveImageSource})` : null);
-  const maskStyles = {
-    ...baseStyles,
-    maskImage: activeMask, WebkitMaskImage: activeMask,
-    maskSize: 'contain', WebkitMaskSize: 'contain',
-    maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat',
-    maskPosition: 'center', WebkitMaskPosition: 'center',
-  };
-
-   // Texture-specific styles (Mosaic/Repeat mode with custom scale)
+    const texturePos = `${(textureTransform?.x || 0) + 50}% ${(textureTransform?.y || 0) + 50}%`;
+  // Texture-specific styles (Mosaic/Repeat mode with custom scale)
   const textureStyles = textureSource ? {
     backgroundImage: `url(${textureSource})`,
     backgroundSize: `${(textureTransform?.scale || 1) * 100}%`,
-    backgroundPosition: `${(textureTransform?.x || 0) + 50}% ${(textureTransform?.y || 0) + 50}%`,
+    backgroundPosition: texturePos,
     backgroundRepeat: 'no-repeat' // Changed to no-repeat to behave like a photo, not a pattern
   } : {};
+
+  const maskStyles = {
+    ...baseStyles,
+    maskImage: activeMask, WebkitMaskImage: activeMask,
+    maskSize: textureSource ? textureStyles.backgroundSize : 'contain', 
+    WebkitMaskSize: textureSource ? textureStyles.backgroundSize : 'contain',
+    maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat',
+    maskPosition: textureSource ? texturePos : 'center', 
+    WebkitMaskPosition: textureSource ? texturePos : 'center',
+  };
 
    // Skip rendering if no valid source or error detected early
   if (!effectiveImageSource || (typeof effectiveImageSource === 'string' && effectiveImageSource.length < 5)) {
@@ -120,7 +123,7 @@ export default function FidelityImage({
       {/* 3. PRODUCT STACK */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
         {/* BASE PHOTO (FILTERED) */}
-         {(!hasError && imageSource) && (
+         {(!hasError && imageSource && !textureSource) && (
           <img 
             src={imageSource} 
             alt="" 
@@ -157,7 +160,7 @@ export default function FidelityImage({
                 ...maskStyles, 
                 backgroundColor: textureSource ? 'transparent' : safeColor, 
                 ...textureStyles,
-                mixBlendMode: (textureSource && !imageSource) ? 'normal' : (textureSource ? 'multiply' : 'color'), 
+                mixBlendMode: textureSource ? 'normal' : 'color', 
                 opacity: textureSource ? 1 : (maskSource ? 0.9 : 0.82), 
                 zIndex: 4 
              }} />
@@ -172,8 +175,8 @@ export default function FidelityImage({
                 zIndex: 5 
              }} />
 
-             {/* 4. Specular White Recovery (Only if main image exists) */}
-             {imageSource && (
+             {/* 4. Specular White Recovery (Only if main image and NO texture exists) */}
+             {(imageSource && !textureSource) && (
               <div style={{ 
                  ...maskStyles, 
                  backgroundImage: `url(${imageSource})`,
