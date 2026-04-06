@@ -59,7 +59,8 @@ export default function FidelityImage({
     opacity: hasError ? 0 : 1, // Hide if broken
   };
 
-  const activeMask = maskSource ? `url(${maskSource})` : `url(${imageSource})`;
+   const effectiveImageSource = imageSource || textureSource;
+  const activeMask = maskSource ? `url(${maskSource})` : (effectiveImageSource ? `url(${effectiveImageSource})` : null);
   const maskStyles = {
     ...baseStyles,
     maskImage: activeMask, WebkitMaskImage: activeMask,
@@ -68,16 +69,16 @@ export default function FidelityImage({
     maskPosition: 'center', WebkitMaskPosition: 'center',
   };
 
-  // Texture-specific styles (Mosaic/Repeat mode with custom scale)
+   // Texture-specific styles (Mosaic/Repeat mode with custom scale)
   const textureStyles = textureSource ? {
     backgroundImage: `url(${textureSource})`,
     backgroundSize: `${(textureTransform?.scale || 1) * 100}%`,
-    backgroundPosition: `${textureTransform?.x || 0}% ${textureTransform?.y || 0}%`,
-    backgroundRepeat: 'repeat'
+    backgroundPosition: `${(textureTransform?.x || 0) + 50}% ${(textureTransform?.y || 0) + 50}%`,
+    backgroundRepeat: 'no-repeat' // Changed to no-repeat to behave like a photo, not a pattern
   } : {};
 
-  // Skip rendering if no valid source or error detected early
-  if (!imageSource || imageSource.length < 5) {
+   // Skip rendering if no valid source or error detected early
+  if (!effectiveImageSource || (typeof effectiveImageSource === 'string' && effectiveImageSource.length < 5)) {
     return (
       <div style={{ position: 'absolute', inset: 0, backgroundImage: "url('/images/backgrounds/marble-bg.png')", backgroundSize: 'cover' }} />
     );
@@ -119,7 +120,7 @@ export default function FidelityImage({
       {/* 3. PRODUCT STACK */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
         {/* BASE PHOTO (FILTERED) */}
-        {!hasError && (
+         {(!hasError && imageSource) && (
           <img 
             src={imageSource} 
             alt="" 
@@ -128,7 +129,7 @@ export default function FidelityImage({
               ...baseStyles, 
               zIndex: 1, 
               filter: 'contrast(1.1) brightness(1.02)',
-              opacity: !maskSource ? 1 : 1
+              opacity: 1
             }} 
           />
         )}
@@ -137,24 +138,26 @@ export default function FidelityImage({
         {((!isNeutral || textureSource) && !hasError) && (
           <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
              {/* 1. Neutralizer Pass */}
-             <img 
-                src={imageSource} 
-                alt="" 
-                onError={() => setHasError(true)}
-                style={{ 
-                  ...maskStyles, 
-                  filter: 'grayscale(1) brightness(1.05) contrast(1.1)', 
-                  opacity: 1, 
-                  zIndex: 3 
-                }} 
-             />
+              {imageSource && (
+               <img 
+                  src={imageSource} 
+                  alt="" 
+                  onError={() => setHasError(true)}
+                  style={{ 
+                    ...maskStyles, 
+                    filter: 'grayscale(1) brightness(1.05) contrast(1.1)', 
+                    opacity: 1, 
+                    zIndex: 3 
+                  }} 
+               />
+              )}
              
              {/* 2. Color Burn/Hue or Texture */}
              <div style={{ 
                 ...maskStyles, 
                 backgroundColor: textureSource ? 'transparent' : safeColor, 
                 ...textureStyles,
-                mixBlendMode: textureSource ? 'multiply' : 'color', 
+                mixBlendMode: (textureSource && !imageSource) ? 'normal' : (textureSource ? 'multiply' : 'color'), 
                 opacity: textureSource ? 1 : (maskSource ? 0.9 : 0.82), 
                 zIndex: 4 
              }} />
@@ -169,16 +172,18 @@ export default function FidelityImage({
                 zIndex: 5 
              }} />
 
-             {/* 4. Specular White Recovery */}
-             <div style={{ 
-                ...maskStyles, 
-                backgroundImage: `url(${imageSource})`,
-                backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
-                mixBlendMode: 'screen', 
-                opacity: maskSource ? 0.75 : 0.45, 
-                filter: maskSource ? 'grayscale(1) contrast(4) brightness(0.95)' : 'grayscale(1) contrast(2.5) brightness(0.98)', 
-                zIndex: 6 
-             }} />
+             {/* 4. Specular White Recovery (Only if main image exists) */}
+             {imageSource && (
+              <div style={{ 
+                 ...maskStyles, 
+                 backgroundImage: `url(${imageSource})`,
+                 backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
+                 mixBlendMode: 'screen', 
+                 opacity: maskSource ? 0.75 : 0.45, 
+                 filter: maskSource ? 'grayscale(1) contrast(4) brightness(0.95)' : 'grayscale(1) contrast(2.5) brightness(0.98)', 
+                 zIndex: 6 
+              }} />
+             )}
           </div>
         )}
       </div>

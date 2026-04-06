@@ -374,10 +374,10 @@ export default function AdminDashboard({ params, searchParams }) {
           const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
           if (!uploadRes.ok) throw new Error('Error al subir foto de color');
           const data = await uploadRes.json();
-          return { name: c.name, hex: c.hex, image: data.url };
+          return { name: c.name, hex: c.hex, image: data.url, textureTransform: c.textureTransform };
         } catch (e) {
           console.error(e);
-          return c;
+          return { ...c, textureTransform: c.textureTransform };
         }
       }));
 
@@ -603,10 +603,10 @@ export default function AdminDashboard({ params, searchParams }) {
     }
   };
 
-  const getActiveSettings = () => {
+   const getActiveSettings = () => {
     if (adjustTarget === 'main' || !types[adjustTarget]) {
       return { 
-        image: file || (editingProduct?.image || '/images/chair.png'), 
+        image: file || (editingProduct?.image || null), // REMOVED fallback to chair.png
         maskImage: maskFile || (editingProduct?.maskImage || null),
         baseHue, 
         imageTransform,
@@ -615,8 +615,8 @@ export default function AdminDashboard({ params, searchParams }) {
     }
     const t = types[adjustTarget];
     return {
-      image: t.file || (t.image || editingProduct?.image || '/images/chair.png'),
-      maskImage: t.maskFile || (t.maskImage || null),
+      image: t.file || (t.image || (file || (editingProduct?.image || null))),
+      maskImage: t.maskFile || (t.maskImage || (maskFile || (editingProduct?.maskImage || null))),
       baseHue: t.baseHue,
       imageTransform: t.imageTransform,
       isMain: false
@@ -1286,21 +1286,48 @@ export default function AdminDashboard({ params, searchParams }) {
                             
                             {/* NEW: Simple Image Size Slider (Only if image exists) */}
                             {(tempColorFile || (editingColorIndex !== null && colors[editingColorIndex]?.image && tempColorFile !== 'clear')) && (
-                              <div style={{ padding: '20px', background: '#f0f9ff', borderRadius: '20px', border: '1px solid #bae6fd', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                  <label style={{ fontSize: '11px', fontWeight: '900', color: '#0369a1', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tamaño de Imagen de Color</label>
-                                  <span style={{ fontSize: '11px', fontWeight: '900', color: '#0ea5e9' }}>{tempColorTransform.scale}x</span>
+                              <div style={{ padding: '20px', background: '#f0f9ff', borderRadius: '20px', border: '1px solid #bae6fd', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <div>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                    <label style={{ fontSize: '11px', fontWeight: '900', color: '#0369a1', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tamaño de Imagen de Color</label>
+                                    <span style={{ fontSize: '11px', fontWeight: '900', color: '#0ea5e9' }}>{tempColorTransform.scale}x</span>
+                                  </div>
+                                  <input 
+                                    type="range" 
+                                    min="0.01" 
+                                    max="4" 
+                                    step="0.01" 
+                                    value={tempColorTransform.scale} 
+                                    onChange={(e) => setTempColorTransform({...tempColorTransform, scale: parseFloat(e.target.value)})} 
+                                    style={{ width: '100%', accentColor: '#0ea5e9', cursor: 'grab' }} 
+                                  />
                                 </div>
-                                <input 
-                                  type="range" 
-                                  min="0.1" 
-                                  max="4" 
-                                  step="0.01" 
-                                  value={tempColorTransform.scale} 
-                                  onChange={(e) => setTempColorTransform({...tempColorTransform, scale: parseFloat(e.target.value)})} 
-                                  style={{ accentColor: '#0ea5e9', cursor: 'grab' }} 
-                                />
-                                <p style={{ margin: 0, fontSize: '10px', color: '#64748b', fontStyle: 'italic' }}>Ajusta qué tan grande se ve la foto sobre el producto.</p>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                  <div>
+                                    <label style={{ fontSize: '10px', fontWeight: '900', color: '#0369a1', display: 'block', marginBottom: '8px' }}>EJE X (%)</label>
+                                    <input 
+                                      type="range" 
+                                      min="-100" 
+                                      max="100" 
+                                      value={tempColorTransform.x || 0} 
+                                      onChange={(e) => setTempColorTransform({...tempColorTransform, x: parseInt(e.target.value)})} 
+                                      style={{ width: '100%', accentColor: '#0ea5e9' }} 
+                                    />
+                                  </div>
+                                  <div>
+                                    <label style={{ fontSize: '10px', fontWeight: '900', color: '#0369a1', display: 'block', marginBottom: '8px' }}>EJE Y (%)</label>
+                                    <input 
+                                      type="range" 
+                                      min="-100" 
+                                      max="100" 
+                                      value={tempColorTransform.y || 0} 
+                                      onChange={(e) => setTempColorTransform({...tempColorTransform, y: parseInt(e.target.value)})} 
+                                      style={{ width: '100%', accentColor: '#0ea5e9' }} 
+                                    />
+                                  </div>
+                                </div>
+                                <p style={{ margin: 0, fontSize: '10px', color: '#64748b', fontStyle: 'italic' }}>Ajusta qué tan grande y dónde se ve la foto sobre el producto.</p>
                               </div>
                             )}
 
