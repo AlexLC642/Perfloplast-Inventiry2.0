@@ -2,8 +2,9 @@
 import { useState, useEffect, useMemo, useId } from 'react';
 
 /**
- * FIDELITY ENGINE v7.35 - "QUIRURGIC ISOLATION" 🎨
- * RESTORED: Extreme vibrancy and 100% white protection.
+ * FIDELITY ENGINE v7.40 - "VIBRANT CORE" 🎨
+ * RESTORED: Maximum plastic saturation and clean masking.
+ * REMOVED: Specular recovery layers that caused "washed out" colors.
  */
 export default function FidelityImage({ 
   src, 
@@ -88,38 +89,27 @@ export default function FidelityImage({
 
         {((!isNeutral || textureSource) && !hasError) && (
           <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
-             {/* 1. Neutralizer */}
+             {/* 1. Neutralizer (Deep Grayscale) */}
              {(imageSource && !textureSource) && (
               <img 
                 src={imageSource} 
-                style={{ ...maskStyles, filter: `grayscale(1) brightness(${1.05 * (lumina?.brightness || 1)}) contrast(${1.1 * (lumina?.contrast || 1)})`, zIndex: 3 }} 
+                style={{ ...maskStyles, filter: `grayscale(1) brightness(${1.0 * (lumina?.brightness || 1)}) contrast(${1.0 * (lumina?.contrast || 1)})`, zIndex: 3 }} 
               />
              )}
              
              {/* 2. Color/Texture */}
-             <div style={{ ...maskStyles, backgroundColor: textureSource ? 'transparent' : safeColor, mixBlendMode: textureSource ? 'normal' : 'color', opacity: textureSource ? 1 : 0.88, zIndex: 4 }}>
+             <div style={{ ...maskStyles, backgroundColor: textureSource ? 'transparent' : safeColor, mixBlendMode: textureSource ? 'normal' : 'color', opacity: textureSource ? 1 : 0.9, zIndex: 4 }}>
                 {textureSource && (
                    <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${textureSource})`, backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', transform: `scale(${textureTransform?.scale || 1}) translate(${textureTransform?.x || 0}%, ${textureTransform?.y || 0}%)` }} />
                 )}
              </div>
              
-             {/* 3. Soft Volume Detail (Saturación al 100%) */}
+             {/* 3. Soft Volume (High Saturation) */}
              {(!textureSource) && (
-              <div style={{ ...maskStyles, backgroundColor: safeColor, mixBlendMode: 'soft-light', opacity: maskSource ? 0.45 : 0.32, zIndex: 5 }} />
+              <div style={{ ...maskStyles, backgroundColor: safeColor, mixBlendMode: 'soft-light', opacity: maskSource ? 0.5 : 0.35, zIndex: 5 }} />
              )}
 
-             {/* 4. BLOQUEO QUIRURGICO DE BLANCOS (Opacidad 1.0) */}
-             {(imageSource && !textureSource) && (
-              <div style={{ 
-                ...maskStyles, 
-                backgroundImage: `url(${imageSource})`, 
-                backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
-                mixBlendMode: 'screen', 
-                opacity: maskSource ? 1.0 : 0.85, 
-                filter: `grayscale(1) contrast(${ (maskSource ? 5.5 : 3) * (lumina?.contrast || 1) }) brightness(1.1)`,
-                zIndex: 6 
-              }} />
-             )}
+             {/* 4. Removed specular recovery - Relying 100% on Mask precision */}
           </div>
         )}
       </div>

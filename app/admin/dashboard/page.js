@@ -216,7 +216,7 @@ export default function AdminDashboard({ params, searchParams }) {
     ];
 
     // 3. Process Mask (Euclidean Distance Removal)
-    const threshold = 55; // V4 Precision threshold for surgical white isolation
+    const threshold = 58; // Final surgical threshold for white isolating
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i], g = data[i+1], b = data[i+2];
       const dist = Math.sqrt(
@@ -234,7 +234,7 @@ export default function AdminDashboard({ params, searchParams }) {
     
     // 4. Soft-Edge Pass (Feathering)
     tctx.putImageData(imageData, 0, 0);
-    ctx.filter = 'none'; // CRITICAL: Removed blur to prevent color bleeding into white areas
+    ctx.filter = 'none'; // CRITICAL: Razor sharp edge for mask precision
     ctx.drawImage(tempCanvas, 0, 0);
     
     canvas.toBlob((blob) => {
