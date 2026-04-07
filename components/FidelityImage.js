@@ -13,7 +13,8 @@ export default function FidelityImage({
   sceneSrc = '', 
   isLightboxView = false,
   textureSrc = null,
-  textureTransform = { scale: 1, x: 0, y: 0 }
+  textureTransform = { scale: 1, x: 0, y: 0 },
+  lumina = { brightness: 1, contrast: 1 }
 }) {
   useEffect(() => { console.log('🚀 FidelityEngine v7.27: Dynamic Image-Color Mode'); }, []);
   // 1. UNIQUE IDENTIFIERS (Standardized via React useId)
@@ -148,7 +149,7 @@ export default function FidelityImage({
                    onError={() => setHasError(true)}
                    style={{ 
                      ...maskStyles, 
-                     filter: 'grayscale(1) brightness(1.05) contrast(1.1)', 
+                     filter: `grayscale(1) brightness(${1.05 * (lumina?.brightness || 1)}) contrast(${1.1 * (lumina?.contrast || 1)})`, 
                      opacity: 1, 
                      zIndex: 3 
                    }} 
@@ -195,7 +196,7 @@ export default function FidelityImage({
                  backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
                  mixBlendMode: 'screen', 
                  opacity: maskSource ? 0.75 : 0.45, 
-                 filter: maskSource ? 'grayscale(1) contrast(4) brightness(0.95)' : 'grayscale(1) contrast(2.5) brightness(0.98)', 
+                 filter: `grayscale(1) contrast(${ (maskSource ? 4 : 2.5) * (lumina?.contrast || 1) }) brightness(${ (maskSource ? 0.95 : 0.98) * (lumina?.brightness || 1) })`, 
                  zIndex: 6 
               }} />
              )}

@@ -1614,6 +1614,7 @@ export default function AdminDashboard({ params, searchParams }) {
                           }
                           baseHue={getActiveSettings ? getActiveSettings().baseHue : 0}
                           transform={getActiveSettings ? getActiveSettings().imageTransform : { scale: 1, x: 0, y: 0 }}
+                          lumina={getActiveSettings ? getActiveSettings().lumina : { brightness: 1, contrast: 1 }}
                           sceneSrc={productSceneFile || (editingProduct?.sceneBackground || (sceneFile || settings.productSceneBackground))}
                         />
                       </div>
@@ -1627,7 +1628,7 @@ export default function AdminDashboard({ params, searchParams }) {
                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr', gap: '16px' }}>
                        {/* Universal Reset */}
                        <button 
-                         onClick={() => updateActiveSettings({ imageTransform: { scale: 1, x: 0, y: 0 } })} 
+                         onClick={() => updateActiveSettings({ imageTransform: { scale: 1, x: 0, y: 0 }, lumina: { brightness: 1, contrast: 1 } })} 
                          style={{ background: '#fef2f2', border: '1px solid #fee2e2', color: '#ef4444', padding: '12px 20px', borderRadius: '16px', fontSize: '11px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s', width: '100%', textTransform: 'uppercase', letterSpacing: '0.05em' }}
                        >
                          🔄 REESTABLECER AJUSTES
@@ -1654,6 +1655,19 @@ export default function AdminDashboard({ params, searchParams }) {
                          <div style={{ background: 'white', padding: '20px', borderRadius: '24px', border: '1px solid #f1f5f9' }}>
                            <span style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', display: 'block', marginBottom: '12px' }}>EJE Y</span>
                            <input type="range" min="-100" max="100" value={getActiveSettings().imageTransform.y} onChange={(e) => updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, y: parseInt(e.target.value)} })} style={{ width: '100%', accentColor: '#c5a059', height: '4px' }} />
+                         </div>
+                       </div>
+
+                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' }}>
+                         {/* Control Card: Briilo */}
+                         <div style={{ background: 'white', padding: '20px', borderRadius: '24px', border: '1px solid #f1f5f9' }}>
+                           <span style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', display: 'block', marginBottom: '12px' }}>BRILLO</span>
+                           <input type="range" min="0.5" max="1.5" step="0.01" value={getActiveSettings().lumina?.brightness ?? 1} onChange={(e) => updateActiveSettings({ lumina: {...(getActiveSettings().lumina || { brightness: 1, contrast: 1 }), brightness: parseFloat(e.target.value)} })} style={{ width: '100%', accentColor: '#334155', height: '4px' }} />
+                         </div>
+                         {/* Control Card: Sombras */}
+                         <div style={{ background: 'white', padding: '20px', borderRadius: '24px', border: '1px solid #f1f5f9' }}>
+                           <span style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', display: 'block', marginBottom: '12px' }}>SOMBRAS</span>
+                           <input type="range" min="0.5" max="1.5" step="0.01" value={getActiveSettings().lumina?.contrast ?? 1} onChange={(e) => updateActiveSettings({ lumina: {...(getActiveSettings().lumina || { brightness: 1, contrast: 1 }), contrast: parseFloat(e.target.value)} })} style={{ width: '100%', accentColor: '#334155', height: '4px' }} />
                          </div>
                        </div>
                     </div>
