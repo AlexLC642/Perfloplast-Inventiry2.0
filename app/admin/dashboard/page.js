@@ -266,7 +266,8 @@ export default function AdminDashboard({ params, searchParams }) {
         name: typeof t === 'string' ? t : (t.name || ''),
         image: typeof t === 'string' ? (product.image || '') : (t.image || ''),
         baseHue: t.baseHue !== undefined ? t.baseHue : null,
-        imageTransform: t.imageTransform || { scale: 1, x: 0, y: 0 }
+        imageTransform: t.imageTransform || { scale: 1, x: 0, y: 0 },
+        lumina: t.lumina || { brightness: 1, contrast: 1 }
       }));
       setTypes(formattedTypes);
       setBaseHue(product.baseHue || 0);
@@ -655,7 +656,8 @@ export default function AdminDashboard({ params, searchParams }) {
         file: tempTypeFile, 
         maskFile: tempTypeMaskFile,
         baseHue: null, 
-        imageTransform: { scale: 1, x: 0, y: 0 } 
+        imageTransform: { scale: 1, x: 0, y: 0 },
+        lumina: { brightness: 1, contrast: 1 }
       }]);
       setTempType('');
       setTempTypeFile(null);
@@ -670,6 +672,7 @@ export default function AdminDashboard({ params, searchParams }) {
         maskImage: maskFile || (editingProduct?.maskImage || null),
         baseHue, 
         imageTransform,
+        lumina,
         isMain: true
       };
     }
