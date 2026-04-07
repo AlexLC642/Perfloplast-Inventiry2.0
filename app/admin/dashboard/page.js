@@ -216,7 +216,7 @@ export default function AdminDashboard({ params, searchParams }) {
     ];
 
     // 3. Process Mask (Euclidean Distance Removal)
-    const threshold = 82; // Extreme sensitivity to isolate whites (lids/highlights)
+    const threshold = 50; // Stable balanced threshold
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i], g = data[i+1], b = data[i+2];
       const dist = Math.sqrt(
@@ -234,7 +234,7 @@ export default function AdminDashboard({ params, searchParams }) {
     
     // 4. Soft-Edge Pass (Feathering)
     tctx.putImageData(imageData, 0, 0);
-    ctx.filter = 'blur(1.5px)'; // Soft feathering for professional blending
+    ctx.filter = 'none'; // CRITICAL: Removed blur to prevent color bleeding into white areas
     ctx.drawImage(tempCanvas, 0, 0);
     
     canvas.toBlob((blob) => {
