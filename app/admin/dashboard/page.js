@@ -20,6 +20,7 @@ export default function AdminDashboard({ params, searchParams }) {
   const [types, setTypes] = useState([]);
   const [baseHue, setBaseHue] = useState(0);
   const [imageTransform, setImageTransform] = useState({ scale: 1, x: 0, y: 0 });
+  const [lumina, setLumina] = useState({ brightness: 1, contrast: 1 });
   const [saving, setSaving] = useState(false);
 
   // Temp Color Fields
@@ -270,6 +271,7 @@ export default function AdminDashboard({ params, searchParams }) {
       setTypes(formattedTypes);
       setBaseHue(product.baseHue || 0);
       setImageTransform(product.imageTransform || { scale: 1, x: 0, y: 0 });
+      setLumina(product.lumina || { brightness: 1, contrast: 1 });
       setProductSceneFile(null);
     } else {
       setEditingProduct(null);
@@ -279,6 +281,7 @@ export default function AdminDashboard({ params, searchParams }) {
       setTypes([]);
       setBaseHue(0);
       setImageTransform({ scale: 1, x: 0, y: 0 });
+      setLumina({ brightness: 1, contrast: 1 });
       setProductSceneFile(null);
     }
     setShowForm(true);
@@ -482,7 +485,8 @@ export default function AdminDashboard({ params, searchParams }) {
           image: typeImageUrl,
           maskImage: typeMaskUrl,
           baseHue: t.baseHue !== undefined ? t.baseHue : null,
-          imageTransform: t.imageTransform || { scale: 1, x: 0, y: 0 }
+          imageTransform: t.imageTransform || { scale: 1, x: 0, y: 0 },
+          lumina: t.lumina || { brightness: 1, contrast: 1 }
         };
       }));
 
@@ -495,6 +499,7 @@ export default function AdminDashboard({ params, searchParams }) {
         types: finalTypes,
         baseHue,
         imageTransform,
+        lumina,
         sceneBackground: productSceneUrl
       };
       
@@ -674,6 +679,7 @@ export default function AdminDashboard({ params, searchParams }) {
       maskImage: t.maskFile || (t.maskImage || (maskFile || (editingProduct?.maskImage || null))),
       baseHue: t.baseHue,
       imageTransform: t.imageTransform,
+      lumina: t.lumina,
       isMain: false
     };
   };
@@ -682,10 +688,12 @@ export default function AdminDashboard({ params, searchParams }) {
     if (adjustTarget === 'main') {
       if (updates.baseHue !== undefined) setBaseHue(updates.baseHue);
       if (updates.imageTransform !== undefined) setImageTransform(updates.imageTransform);
+      if (updates.lumina !== undefined) setLumina(updates.lumina);
     } else if (types[adjustTarget]) {
       const newTypes = [...types];
       if (updates.baseHue !== undefined) newTypes[adjustTarget].baseHue = updates.baseHue;
       if (updates.imageTransform !== undefined) newTypes[adjustTarget].imageTransform = updates.imageTransform;
+      if (updates.lumina !== undefined) newTypes[adjustTarget].lumina = updates.lumina;
       setTypes(newTypes);
     }
   };
