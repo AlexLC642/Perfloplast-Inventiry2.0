@@ -73,11 +73,11 @@ export default function FidelityImage({
   const maskStyles = {
     ...baseStyles,
     maskImage: activeMask, WebkitMaskImage: activeMask,
-    maskSize: textureSource ? textureStyles.backgroundSize : 'contain', 
-    WebkitMaskSize: textureSource ? textureStyles.backgroundSize : 'contain',
+    maskSize: 'contain', 
+    WebkitMaskSize: 'contain',
     maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat',
-    maskPosition: textureSource ? texturePos : 'center', 
-    WebkitMaskPosition: textureSource ? texturePos : 'center',
+    maskPosition: 'center', 
+    WebkitMaskPosition: 'center',
   };
 
    // Skip rendering if no valid source or error detected early
