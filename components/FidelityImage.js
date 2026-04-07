@@ -2,9 +2,8 @@
 import { useState, useEffect, useMemo, useId } from 'react';
 
 /**
- * FIDELITY ENGINE v7.30 - "STABLE RADIANCE" 🎨
- * RESTORED: Extreme vibrancy and balanced light protection.
- * FIXED: Removed global "nuke" filters that caused washed-out colors.
+ * FIDELITY ENGINE v7.35 - "QUIRURGIC ISOLATION" 🎨
+ * RESTORED: Extreme vibrancy and 100% white protection.
  */
 export default function FidelityImage({ 
   src, 
@@ -59,8 +58,7 @@ export default function FidelityImage({
 
   const effectiveImageSource = imageSource || textureSource;
   const activeMask = maskSource ? `url(${maskSource})` : (effectiveImageSource ? `url(${effectiveImageSource})` : null);
-  const texturePos = `${(textureTransform?.x || 0) + 50}% ${(textureTransform?.y || 0) + 50}%`;
-
+  
   const maskStyles = {
     ...baseStyles,
     maskImage: activeMask, WebkitMaskImage: activeMask,
@@ -94,7 +92,7 @@ export default function FidelityImage({
              {(imageSource && !textureSource) && (
               <img 
                 src={imageSource} 
-                style={{ ...maskStyles, filter: `grayscale(1) brightness(${1.04 * (lumina?.brightness || 1)}) contrast(${1.08 * (lumina?.contrast || 1)})`, zIndex: 3 }} 
+                style={{ ...maskStyles, filter: `grayscale(1) brightness(${1.05 * (lumina?.brightness || 1)}) contrast(${1.1 * (lumina?.contrast || 1)})`, zIndex: 3 }} 
               />
              )}
              
@@ -105,20 +103,20 @@ export default function FidelityImage({
                 )}
              </div>
              
-             {/* 3. Volume (RESTORED SATURATION) */}
+             {/* 3. Soft Volume Detail (Saturación al 100%) */}
              {(!textureSource) && (
               <div style={{ ...maskStyles, backgroundColor: safeColor, mixBlendMode: 'soft-light', opacity: maskSource ? 0.45 : 0.32, zIndex: 5 }} />
              )}
 
-             {/* 4. Natural Specular Recovery */}
+             {/* 4. BLOQUEO QUIRURGICO DE BLANCOS (Opacidad 1.0) */}
              {(imageSource && !textureSource) && (
               <div style={{ 
                 ...maskStyles, 
                 backgroundImage: `url(${imageSource})`, 
                 backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
                 mixBlendMode: 'screen', 
-                opacity: maskSource ? 0.72 : 0.42, 
-                filter: `grayscale(1) contrast(${ (maskSource ? 4 : 2.5) * (lumina?.contrast || 1) }) brightness(1.0)`,
+                opacity: maskSource ? 1.0 : 0.85, 
+                filter: `grayscale(1) contrast(${ (maskSource ? 5.5 : 3) * (lumina?.contrast || 1) }) brightness(1.1)`,
                 zIndex: 6 
               }} />
              )}

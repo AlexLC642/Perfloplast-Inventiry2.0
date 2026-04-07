@@ -216,7 +216,7 @@ export default function AdminDashboard({ params, searchParams }) {
     ];
 
     // 3. Process Mask (Euclidean Distance Removal)
-    const threshold = 50; // Stable balanced threshold
+    const threshold = 55; // V4 Precision threshold for surgical white isolation
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i], g = data[i+1], b = data[i+2];
       const dist = Math.sqrt(
