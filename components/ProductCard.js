@@ -161,8 +161,8 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
             src={selectedType?.image || product.image} 
             maskSrc={selectedType?.maskImage || product.maskImage}
             textureSrc={selectedColor ? (selectedColor.file || selectedColor.image) : null}
-            textureTransform={{ scale: 1, x: 0, y: 0 }}
-            transform={activeTransform || selectedType?.imageTransform || selectedColor?.imageTransform || selectedColor?.textureTransform || product.imageTransform}
+            textureTransform={selectedColor ? (selectedColor.textureTransform || { scale: 1, x: 0, y: 0 }) : { scale: 1, x: 0, y: 0 }}
+            transform={activeTransform || selectedType?.imageTransform || product.imageTransform}
             sceneSrc={product.sceneBackground || sceneSrc}
             isLightboxView={isLightboxView}
           />
