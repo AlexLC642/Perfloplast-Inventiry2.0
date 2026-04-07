@@ -159,11 +159,22 @@ export default function FidelityImage({
              <div style={{ 
                 ...maskStyles, 
                 backgroundColor: textureSource ? 'transparent' : safeColor, 
-                ...textureStyles,
                 mixBlendMode: textureSource ? 'normal' : 'color', 
                 opacity: textureSource ? 1 : (maskSource ? 0.9 : 0.82), 
                 zIndex: 4 
-             }} />
+             }}>
+                 {textureSource && (
+                     <div style={{
+                         position: 'absolute', inset: 0,
+                         backgroundImage: `url(${textureSource})`,
+                         backgroundSize: 'contain',
+                         backgroundPosition: 'center',
+                         backgroundRepeat: 'no-repeat',
+                         transformOrigin: 'center center',
+                         transform: `scale(${textureTransform?.scale || 1}) translate(${textureTransform?.x || 0}%, ${textureTransform?.y || 0}%)`
+                     }} />
+                 )}
+             </div>
              
              {/* 3. Soft Volume Detail (Only if no texture) */}
              {(!textureSource) && (
