@@ -63,24 +63,54 @@ export default function AdminDashboard({ params, searchParams }) {
   const syncColorChanges = (updates) => {
     if (updates.name !== undefined) setTempColorName(updates.name);
     if (updates.hex !== undefined) setTempColorHex(updates.hex);
-    if (updates.transform !== undefined) setTempColorTransform(updates.transform);
     if (updates.file !== undefined) setTempColorFile(updates.file);
 
-    if (editingColorIndex !== null) {
-      setColors(prev => {
-        const newColors = [...prev];
-        const current = newColors[editingColorIndex];
-        newColors[editingColorIndex] = {
-          ...current,
-          name: updates.name !== undefined ? updates.name : current.name,
-          hex: updates.hex !== undefined ? updates.hex : current.hex,
-          textureTransform: updates.transform !== undefined ? updates.transform : current.textureTransform,
-          file: updates.file === 'clear' ? null : (updates.file || current.file),
-          image: updates.file === 'clear' ? null : (updates.file ? null : current.image)
-        };
-        return newColors;
-      });
+    let nextTransform;
+    if (updates.transform !== undefined) {
+      nextTransform = updates.transform;
+      setTempColorTransform(nextTransform);
     }
+
+    setColors(prev => {
+      // Si no hay edición, simplemente retorna
+      if (editingColorIndex === null) return prev;
+
+      const newColors = [...prev];
+      const current = newColors[editingColorIndex];
+      if (!current) return prev; // Seguro
+
+      newColors[editingColorIndex] = {
+        ...current,
+        name: updates.name !== undefined ? updates.name : current.name,
+        hex: updates.hex !== undefined ? updates.hex : current.hex,
+        textureTransform: nextTransform !== undefined ? nextTransform : current.textureTransform,
+        file: updates.file === 'clear' ? null : (updates.file || current.file),
+        image: updates.file === 'clear' ? null : (updates.file ? null : current.image)
+      };
+      
+      return newColors;
+    });
+  };
+
+  const handleTransformChange = (key, value) => {
+    setTempColorTransform(prev => {
+      const nextTransform = { ...prev, [key]: value };
+      
+      if (editingColorIndex !== null) {
+        setColors(prevColors => {
+          const newColors = [...prevColors];
+          const current = newColors[editingColorIndex];
+          if (current) {
+            newColors[editingColorIndex] = {
+              ...current,
+              textureTransform: nextTransform
+            };
+          }
+          return newColors;
+        });
+      }
+      return nextTransform;
+    });
   };
 
   useEffect(() => {
@@ -1323,7 +1353,7 @@ export default function AdminDashboard({ params, searchParams }) {
                                     max="4" 
                                     step="0.01" 
                                     value={tempColorTransform.scale} 
-                                    onChange={(e) => syncColorChanges({ transform: {...tempColorTransform, scale: parseFloat(e.target.value)} })} 
+                                    onChange={(e) => handleTransformChange('scale', parseFloat(e.target.value))} 
                                     style={{ width: '100%', accentColor: '#0ea5e9', cursor: 'grab' }} 
                                   />
                                 </div>
@@ -1336,7 +1366,7 @@ export default function AdminDashboard({ params, searchParams }) {
                                       min="-100" 
                                       max="100" 
                                       value={tempColorTransform.x || 0} 
-                                      onChange={(e) => syncColorChanges({ transform: {...tempColorTransform, x: parseInt(e.target.value)} })} 
+                                      onChange={(e) => handleTransformChange('x', parseInt(e.target.value))} 
                                       style={{ width: '100%', accentColor: '#0ea5e9' }} 
                                     />
                                   </div>
@@ -1347,7 +1377,7 @@ export default function AdminDashboard({ params, searchParams }) {
                                       min="-100" 
                                       max="100" 
                                       value={tempColorTransform.y || 0} 
-                                      onChange={(e) => syncColorChanges({ transform: {...tempColorTransform, y: parseInt(e.target.value)} })} 
+                                      onChange={(e) => handleTransformChange('y', parseInt(e.target.value))} 
                                       style={{ width: '100%', accentColor: '#0ea5e9' }} 
                                     />
                                   </div>
