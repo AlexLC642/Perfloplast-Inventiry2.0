@@ -1604,7 +1604,7 @@ export default function AdminDashboard({ params, searchParams }) {
                           } 
                           textureSrc={
                             activeTab === 'colors' 
-                              ? (tempColorFile && tempColorFile !== 'clear' ? tempColorFile : (editingColorIndex !== null && tempColorFile !== 'clear' ? colors[editingColorIndex]?.image : null))
+                              ? (tempColorFile && tempColorFile !== 'clear' ? URL.createObjectURL(tempColorFile) : (editingColorIndex !== null && tempColorFile !== 'clear' ? colors[editingColorIndex]?.image : null))
                               : (colors && colors.length > 0 && typeof colors[0] === 'object' ? (colors[0].file || colors[0].image) : null)
                           }
                           textureTransform={
