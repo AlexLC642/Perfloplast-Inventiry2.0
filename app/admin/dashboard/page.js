@@ -1562,13 +1562,13 @@ export default function AdminDashboard({ params, searchParams }) {
                               ? (tempColorFile && tempColorFile !== 'clear' ? URL.createObjectURL(tempColorFile) : (editingColorIndex !== null && tempColorFile !== 'clear' ? colors[editingColorIndex]?.image : null))
                               : (colors && colors.length > 0 && typeof colors[0] === 'object' ? (colors[0].file || colors[0].image) : null)
                           }
-                          textureTransform={
-                            activeTab === 'colors'
-                              ? tempColorTransform
-                              : (colors && colors.length > 0 && typeof colors[0] === 'object' ? colors[0].textureTransform : { scale: 1, x: 0, y: 0 })
-                          }
+                          textureTransform={{ scale: 1, x: 0, y: 0 }}
                           baseHue={getActiveSettings ? getActiveSettings().baseHue : 0}
-                          transform={getActiveSettings ? getActiveSettings().imageTransform : { scale: 1, x: 0, y: 0 }}
+                          transform={
+                            activeTab === 'colors' 
+                              ? tempColorTransform 
+                              : (getActiveSettings ? getActiveSettings().imageTransform : { scale: 1, x: 0, y: 0 })
+                          }
                           sceneSrc={productSceneFile || (editingProduct?.sceneBackground || (sceneFile || settings.productSceneBackground))}
                         />
                       </div>
