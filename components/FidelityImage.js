@@ -183,7 +183,7 @@ export default function FidelityImage({
                  ...maskStyles, 
                  backgroundColor: safeColor, 
                  mixBlendMode: 'soft-light', 
-                 opacity: maskSource ? 0.4 : 0.25, 
+                 opacity: maskSource ? 0.3 : 0.18, 
                  zIndex: 5 
               }} />
              )}
@@ -195,8 +195,8 @@ export default function FidelityImage({
                  backgroundImage: `url(${imageSource})`,
                  backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
                  mixBlendMode: 'screen', 
-                 opacity: maskSource ? 0.75 : 0.45, 
-                 filter: `grayscale(1) contrast(${ (maskSource ? 4 : 2.5) * (lumina?.contrast || 1) }) brightness(${ (maskSource ? 0.95 : 0.98) * (lumina?.brightness || 1) })`, 
+                 opacity: maskSource ? 1.0 : 0.85, 
+                 filter: `grayscale(1) contrast(${ (maskSource ? 18 : 12) * (lumina?.contrast || 1) }) brightness(${ (maskSource ? 1.2 : 1.1) * (lumina?.brightness || 1) })`, 
                  zIndex: 6 
               }} />
              )}
