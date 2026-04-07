@@ -217,8 +217,10 @@ export default function AdminDashboard({ params, searchParams }) {
       (c1[2] + c2[2] + c3[2] + c4[2]) / 4
     ];
 
-    // 3. Process Mask (Euclidean Distance + Smart White Protection)
-    const threshold = thresholdToUse; // Using individual product threshold
+    // 3. Process Mask (v6: Euclidean Distance + Dynamic Brightness Shield)
+    const threshold = thresholdToUse; // Sensitivity from 1 to 180
+    const whiteShieldMin = 255 - (threshold * 0.85); // Dynamic white detection based on slider
+    
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i], g = data[i+1], b = data[i+2];
       
@@ -229,11 +231,16 @@ export default function AdminDashboard({ params, searchParams }) {
         Math.pow(b - bg[2], 2)
       );
 
-      // B. Smart White Detection (Lid/Label Shield)
-      // If RGB are all high (>245) and saturation is low, it's a white part.
-      const isWhitePart = (r > 245 && g > 245 && b > 245);
+      // B. Dynamic Desaturation/Brightness Shield (Lid & Label Guard)
+      // We check if the pixel is bright enough AND desaturated (grayish).
+      const brightness = (r + g + b) / 3;
+      const saturation = Math.max(r, g, b) - Math.min(r, g, b);
+      
+      // A pixel is "White/Gray Part" if it's bright AND has very low saturation.
+      // As threshold goes up, we become MORE aggressive at removing bright "pale" parts.
+      const isPalePart = (brightness > whiteShieldMin) && (saturation < (threshold / 3.5));
 
-      if (dist < threshold || isWhitePart) {
+      if (dist < threshold || isPalePart) {
         data[i] = 0; data[i+1] = 0; data[i+2] = 0; data[i+3] = 0; // Transparent
       } else {
         data[i] = 255; data[i+1] = 255; data[i+2] = 255; data[i+3] = 255; // Opaque
