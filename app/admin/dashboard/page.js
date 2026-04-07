@@ -21,6 +21,7 @@ export default function AdminDashboard({ params, searchParams }) {
   const [baseHue, setBaseHue] = useState(0);
   const [imageTransform, setImageTransform] = useState({ scale: 1, x: 0, y: 0 });
   const [lumina, setLumina] = useState({ brightness: 1, contrast: 1 });
+  const [maskThreshold, setMaskThreshold] = useState(58);
   const [saving, setSaving] = useState(false);
 
   // Temp Color Fields
@@ -179,8 +180,9 @@ export default function AdminDashboard({ params, searchParams }) {
     return true;
   };
 
-  const generateAutoMask = async (sourceFile, setTargetMask) => {
+  const generateAutoMask = async (sourceFile, setTargetMask, customThreshold = null) => {
     if (!validateFile(sourceFile)) return;
+    const thresholdToUse = customThreshold !== null ? customThreshold : maskThreshold;
     const img = new Image();
     const url = URL.createObjectURL(sourceFile);
     img.src = url;
@@ -216,7 +218,7 @@ export default function AdminDashboard({ params, searchParams }) {
     ];
 
     // 3. Process Mask (Euclidean Distance Removal)
-    const threshold = 58; // Final surgical threshold for white isolating
+    const threshold = thresholdToUse; // Using individual product threshold
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i], g = data[i+1], b = data[i+2];
       const dist = Math.sqrt(
@@ -273,6 +275,7 @@ export default function AdminDashboard({ params, searchParams }) {
       setBaseHue(product.baseHue || 0);
       setImageTransform(product.imageTransform || { scale: 1, x: 0, y: 0 });
       setLumina(product.lumina || { brightness: 1, contrast: 1 });
+      setMaskThreshold(product.maskThreshold || 58);
       setProductSceneFile(null);
     } else {
       setEditingProduct(null);
@@ -283,6 +286,7 @@ export default function AdminDashboard({ params, searchParams }) {
       setBaseHue(0);
       setImageTransform({ scale: 1, x: 0, y: 0 });
       setLumina({ brightness: 1, contrast: 1 });
+      setMaskThreshold(58);
       setProductSceneFile(null);
     }
     setShowForm(true);
@@ -501,6 +505,7 @@ export default function AdminDashboard({ params, searchParams }) {
         baseHue,
         imageTransform,
         lumina,
+        maskThreshold,
         sceneBackground: productSceneUrl
       };
       
@@ -1256,6 +1261,29 @@ export default function AdminDashboard({ params, searchParams }) {
                                     ✨ Generar Máscara Automática
                                   </button>
                                 )}
+                              </div>
+                              
+                              {/* INDIVIDUAL MASK THRESHOLD SLIDER (v4.5 - Separado del Color) */}
+                              <div style={{ gridColumn: isMobile ? 'span 1' : 'span 2', padding: '24px', background: '#f1f5f9', borderRadius: '24px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                  <div>
+                                    <h5 style={{ margin: 0, fontSize: '14px', fontWeight: '900', color: '#1e293b', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Protección Quirúrgica de Tapa/Detalles</h5>
+                                    <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748b' }}>Sube este valor si la tapa blanca se tiñe de color. (Recuerda re-generar máscara tras ajustar).</p>
+                                  </div>
+                                  <span style={{ fontSize: '20px', fontWeight: '900', color: '#c5a059', minWidth: '40px', textAlign: 'right' }}>{maskThreshold}</span>
+                                </div>
+                                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                                  <span style={{ fontSize: '11px', fontWeight: '800', color: '#94a3b8' }}>MÁS COLOR</span>
+                                  <input 
+                                    type="range" 
+                                    min="1" 
+                                    max="180" 
+                                    value={maskThreshold} 
+                                    onChange={(e) => setMaskThreshold(parseInt(e.target.value))} 
+                                    style={{ flex: 1, accentColor: '#c5a059', cursor: 'grab' }} 
+                                  />
+                                  <span style={{ fontSize: '11px', fontWeight: '800', color: '#94a3b8' }}>LIMPIAR TAPA</span>
+                                </div>
                               </div>
                             </div>
 
