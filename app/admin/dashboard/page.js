@@ -212,24 +212,34 @@ export default function AdminDashboard({ params, searchParams }) {
     tctx.drawImage(img, 0, 0);
     const imageData = tctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
-    
-    // 2. Sample Background Color (Average of 4 corners)
-    const getPixel = (x, y) => {
-      const i = (y * canvas.width + x) * 4;
-      return [data[i], data[i+1], data[i+2]];
+
+    // 2. Super-Sampling Background (Average of corner areas to avoid gold lines)
+    const getAreaAvg = (startX, startY, size = 10) => {
+      let r = 0, g = 0, b = 0, count = 0;
+      for (let y = startY; y < startY + size && y < canvas.height; y++) {
+        for (let x = startX; x < startX + size && x < canvas.width; x++) {
+          const i = (y * canvas.width + x) * 4;
+          r += data[i]; g += data[i+1]; b += data[i+2];
+          count++;
+        }
+      }
+      return [r / count, g / count, b / count];
     };
-    const c1 = getPixel(2, 2);
-    const c2 = getPixel(canvas.width - 3, 2);
-    const c3 = getPixel(2, canvas.height - 3);
-    const c4 = getPixel(canvas.width - 3, canvas.height - 3);
+    
+    const corners = [
+      getAreaAvg(2, 2),
+      getAreaAvg(canvas.width - 12, 2),
+      getAreaAvg(2, canvas.height - 12),
+      getAreaAvg(canvas.width - 12, canvas.height - 12)
+    ];
     
     const bg = [
-      (c1[0] + c2[0] + c3[0] + c4[0]) / 4,
-      (c1[1] + c2[1] + c3[1] + c4[1]) / 4,
-      (c1[2] + c2[2] + c3[2] + c4[2]) / 4
+      corners.reduce((sum, c) => sum + c[0], 0) / 4,
+      corners.reduce((sum, c) => sum + c[1], 0) / 4,
+      corners.reduce((sum, c) => sum + c[2], 0) / 4
     ];
 
-    // 3. Process Mask (v6: Euclidean Distance + Dynamic Brightness Shield)
+    // 3. Process Mask (v10: Area-Euclidean + Shield + Denoise)
     const threshold = thresholdToUse; // Sensitivity from 1 to 180
     const whiteShieldMin = 255 - (threshold * 0.85); // Dynamic white detection based on slider
     
@@ -259,13 +269,29 @@ export default function AdminDashboard({ params, searchParams }) {
       }
     }
     
-    // 4. Soft-Edge Pass (Feathering)
+    // 4. Denoise Pass (Remove isolated pixel "islands" - fixing the red spots)
+    const refinedData = new Uint8ClampedArray(data);
+    for (let i = 4 * canvas.width; i < data.length - 4 * canvas.width; i += 4) {
+      if (data[i+3] === 255) { // If opaque
+        // Check 4 neighbors
+        const n = data[i - (canvas.width * 4) + 3];
+        const s = data[i + (canvas.width * 4) + 3];
+        const w = data[i - 4 + 3];
+        const e = data[i + 4 + 3];
+        // If isolated (all neighbors are transparent), remove it
+        if (n === 0 && s === 0 && w === 0 && e === 0) refinedData[i+3] = 0;
+      }
+    }
+    imageData.data.set(refinedData);
+
+    // 5. High-Fidelity Feathering (Soft Edge)
     tctx.putImageData(imageData, 0, 0);
-    ctx.filter = 'none'; // CRITICAL: Razor sharp edge for mask precision
+    ctx.clearRect(0,0, canvas.width, canvas.height);
+    ctx.filter = 'blur(0.8px)'; // Subtle smooth edge
     ctx.drawImage(tempCanvas, 0, 0);
     
     canvas.toBlob((blob) => {
-      const resultMaskFile = new File([blob], "auto_mask_v9_infalible.png", { type: "image/png" });
+      const resultMaskFile = new File([blob], "auto_mask_v10_premium.png", { type: "image/png" });
       setTargetMask(resultMaskFile);
       if (typeof source !== 'string') URL.revokeObjectURL(img.src);
     }, 'image/png');
