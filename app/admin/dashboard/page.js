@@ -23,6 +23,7 @@ export default function AdminDashboard({ params, searchParams }) {
   const [lumina, setLumina] = useState({ brightness: 1, contrast: 1 });
   const [maskThreshold, setMaskThreshold] = useState(58);
   const [saving, setSaving] = useState(false);
+  const [isManualMask, setIsManualMask] = useState(false);
 
   // Temp Color Fields
   const [tempColorName, setTempColorName] = useState('');
@@ -184,23 +185,20 @@ export default function AdminDashboard({ params, searchParams }) {
     // source can be a File object or a URL string
     if (!source) return;
     
-    let sourceBlob = source;
-    if (typeof source === 'string') {
-      try {
-        const res = await fetch(source);
-        sourceBlob = await res.blob();
-      } catch (e) {
-        console.error('Error fetching source image for mask:', e);
-        return;
-      }
-    }
-
-    if (!validateFile(sourceBlob)) return;
     const thresholdToUse = customThreshold !== null ? customThreshold : maskThreshold;
     const img = new Image();
-    const url = URL.createObjectURL(sourceBlob);
-    img.src = url;
-    await new Promise(resolve => img.onload = resolve);
+    
+    if (typeof source === 'string') {
+      img.crossOrigin = "Anonymous"; // Fix CORS for Cloudinary/external URLs
+      img.src = source;
+    } else {
+      img.src = URL.createObjectURL(source);
+    }
+
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = () => reject(new Error('Failed to load image for mask'));
+    });
     
     const canvas = document.createElement('canvas');
     const tempCanvas = document.createElement('canvas');
@@ -267,24 +265,25 @@ export default function AdminDashboard({ params, searchParams }) {
     ctx.drawImage(tempCanvas, 0, 0);
     
     canvas.toBlob((blob) => {
-      const resultMaskFile = new File([blob], "auto_mask_v3_premium.png", { type: "image/png" });
+      const resultMaskFile = new File([blob], "auto_mask_v9_infalible.png", { type: "image/png" });
       setTargetMask(resultMaskFile);
-      URL.revokeObjectURL(url);
+      if (typeof source !== 'string') URL.revokeObjectURL(img.src);
     }, 'image/png');
   };
 
-  // REAL-TIME REACTIVE EFFECT (v8: Total Surgical Reactivity)
+  // REAL-TIME REACTIVE EFFECT (v9: Infallible Surgical Reactivity)
   useEffect(() => {
     if (showForm) {
       const source = file || (editingProduct ? editingProduct.image : null);
-      if (source && !maskFile) {
+      // ONLY re-generate if we don't have a manual/protected mask
+      if (source && !isManualMask) {
         const timer = setTimeout(() => {
           generateAutoMask(source, setMaskFile);
-        }, 100); // 100ms Debounce for butter-smooth slider
+        }, 80); // 80ms Fast reactive feedback
         return () => clearTimeout(timer);
       }
     }
-  }, [maskThreshold, file, showForm, editingProduct]);
+  }, [maskThreshold, file, showForm, editingProduct, isManualMask]);
 
   const openForm = (product = null) => {
     // ALWAYS clear file and temp states first to prevent pollution
@@ -304,6 +303,11 @@ export default function AdminDashboard({ params, searchParams }) {
       setPrice(product.price);
       setColors(product.colors || []);
       setTempColorFile(null); // Clear color file on open
+      
+      // If the product already has a mask, we treat it as "not manual" for now
+      // so the slider can still fix it, UNLESS the user explicitly uploads a new one.
+      setIsManualMask(false); 
+      
       const formattedTypes = (product.types || []).map(t => ({
         name: typeof t === 'string' ? t : (t.name || ''),
         image: typeof t === 'string' ? (product.image || '') : (t.image || ''),
@@ -328,6 +332,7 @@ export default function AdminDashboard({ params, searchParams }) {
       setLumina({ brightness: 1, contrast: 1 });
       setMaskThreshold(58);
       setProductSceneFile(null);
+      setIsManualMask(false);
     }
     setShowForm(true);
   };
@@ -1251,7 +1256,10 @@ export default function AdminDashboard({ params, searchParams }) {
                                   accept="image/png,image/jpeg,image/webp" 
                                   onChange={(e) => {
                                     const f = e.target.files[0];
-                                    if (validateFile(f)) setFile(f);
+                                    if (validateFile(f)) {
+                                      setFile(f);
+                                      setIsManualMask(false); // Reset to auto mode for new images
+                                    }
                                   }} 
                                   style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} 
                                 />
@@ -1278,21 +1286,28 @@ export default function AdminDashboard({ params, searchParams }) {
                                     accept="image/png,image/jpeg,image/webp" 
                                     onChange={(e) => {
                                       const f = e.target.files[0];
-                                      if (validateFile(f)) setMaskFile(f);
+                                      if (validateFile(f)) {
+                                        setMaskFile(f);
+                                        setIsManualMask(true); // User uploaded their own mask
+                                      }
                                     }} 
                                     style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} 
                                   />
                                   <div style={{ width: isMobile ? '32px' : '40px', height: isMobile ? '32px' : '40px', background: 'white', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
                                     <svg width={isMobile ? "16" : "20"} height={isMobile ? "16" : "20"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                                   </div>
-                                  <span style={{ fontSize: isMobile ? '11px' : '12px', fontWeight: '700', color: '#1e293b', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  <span style={{ fontSize: isMobile ? '11px' : '12px', fontWeight: '700', color: '#1e293b', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                     {maskFile ? maskFile.name : (editingProduct?.maskImage ? editingProduct.maskImage.split('/').pop() : 'Subir Máscara')}
+                                    {!isManualMask && (maskFile || editingProduct?.maskImage) && (
+                                      <span style={{ background: '#f0fdf4', color: '#166534', padding: '2px 8px', borderRadius: '6px', fontSize: '10px', border: '1px solid #bbf7d0' }}>✨ AUTO</span>
+                                    )}
                                   </span>
                                   {(maskFile || editingProduct?.maskImage) && (
                                     <button type="button" onClick={(e) => { 
                                       e.stopPropagation(); 
                                       if (maskFile) setMaskFile(null); 
                                       else setEditingProduct({...editingProduct, maskImage: null});
+                                      setIsManualMask(false);
                                     }} style={{ position: 'absolute', top: '12px', right: '12px', background: '#fee2e2', color: '#ef4444', border: 'none', padding: '8px 12px', borderRadius: '10px', fontSize: '11px', fontWeight: '800', cursor: 'pointer', zIndex: 20, boxShadow: '0 4px 12px rgba(239, 68, 68, 0.1)' }}>Eliminar</button>
                                   )}
                                 </div>
