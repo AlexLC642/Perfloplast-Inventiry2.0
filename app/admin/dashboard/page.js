@@ -216,7 +216,7 @@ export default function AdminDashboard({ params, searchParams }) {
     ];
 
     // 3. Process Mask (Euclidean Distance Removal)
-    const threshold = 65; // High sensitivity to ignore whites/lights
+    const threshold = 82; // Extreme sensitivity to isolate whites (lids/highlights)
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i], g = data[i+1], b = data[i+2];
       const dist = Math.sqrt(
