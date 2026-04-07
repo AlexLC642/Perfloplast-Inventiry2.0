@@ -180,11 +180,25 @@ export default function AdminDashboard({ params, searchParams }) {
     return true;
   };
 
-  const generateAutoMask = async (sourceFile, setTargetMask, customThreshold = null) => {
-    if (!validateFile(sourceFile)) return;
+  const generateAutoMask = async (source, setTargetMask, customThreshold = null) => {
+    // source can be a File object or a URL string
+    if (!source) return;
+    
+    let sourceBlob = source;
+    if (typeof source === 'string') {
+      try {
+        const res = await fetch(source);
+        sourceBlob = await res.blob();
+      } catch (e) {
+        console.error('Error fetching source image for mask:', e);
+        return;
+      }
+    }
+
+    if (!validateFile(sourceBlob)) return;
     const thresholdToUse = customThreshold !== null ? customThreshold : maskThreshold;
     const img = new Image();
-    const url = URL.createObjectURL(sourceFile);
+    const url = URL.createObjectURL(sourceBlob);
     img.src = url;
     await new Promise(resolve => img.onload = resolve);
     
@@ -253,11 +267,24 @@ export default function AdminDashboard({ params, searchParams }) {
     ctx.drawImage(tempCanvas, 0, 0);
     
     canvas.toBlob((blob) => {
-      const maskFile = new File([blob], "auto_mask_v3_premium.png", { type: "image/png" });
-      setTargetMask(maskFile);
+      const resultMaskFile = new File([blob], "auto_mask_v3_premium.png", { type: "image/png" });
+      setTargetMask(resultMaskFile);
       URL.revokeObjectURL(url);
     }, 'image/png');
   };
+
+  // REAL-TIME REACTIVE EFFECT (v8: Total Surgical Reactivity)
+  useEffect(() => {
+    if (showForm) {
+      const source = file || (editingProduct ? editingProduct.image : null);
+      if (source && !maskFile) {
+        const timer = setTimeout(() => {
+          generateAutoMask(source, setMaskFile);
+        }, 100); // 100ms Debounce for butter-smooth slider
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [maskThreshold, file, showForm, editingProduct]);
 
   const openForm = (product = null) => {
     // ALWAYS clear file and temp states first to prevent pollution
@@ -1292,7 +1319,12 @@ export default function AdminDashboard({ params, searchParams }) {
                                     min="1" 
                                     max="180" 
                                     value={maskThreshold} 
-                                    onChange={(e) => setMaskThreshold(parseInt(e.target.value))} 
+                                    onChange={(e) => {
+                                      const val = parseInt(e.target.value);
+                                      setMaskThreshold(val);
+                                      // If we're editing and have no new file, we might need to fetch the original
+                                      // but for now, we rely on the reactive useEffect for new uploads
+                                    }} 
                                     style={{ flex: 1, accentColor: '#c5a059', cursor: 'grab' }} 
                                   />
                                   <span style={{ fontSize: '11px', fontWeight: '800', color: '#94a3b8' }}>LIMPIAR TAPA</span>
