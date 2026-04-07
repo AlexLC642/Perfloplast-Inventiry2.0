@@ -217,17 +217,23 @@ export default function AdminDashboard({ params, searchParams }) {
       (c1[2] + c2[2] + c3[2] + c4[2]) / 4
     ];
 
-    // 3. Process Mask (Euclidean Distance Removal)
+    // 3. Process Mask (Euclidean Distance + Smart White Protection)
     const threshold = thresholdToUse; // Using individual product threshold
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i], g = data[i+1], b = data[i+2];
+      
+      // A. Background Distance Calculation
       const dist = Math.sqrt(
         Math.pow(r - bg[0], 2) + 
         Math.pow(g - bg[1], 2) + 
         Math.pow(b - bg[2], 2)
       );
 
-      if (dist < threshold) {
+      // B. Smart White Detection (Lid/Label Shield)
+      // If RGB are all high (>245) and saturation is low, it's a white part.
+      const isWhitePart = (r > 245 && g > 245 && b > 245);
+
+      if (dist < threshold || isWhitePart) {
         data[i] = 0; data[i+1] = 0; data[i+2] = 0; data[i+3] = 0; // Transparent
       } else {
         data[i] = 255; data[i+1] = 255; data[i+2] = 255; data[i+3] = 255; // Opaque
