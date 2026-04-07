@@ -158,8 +158,8 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
           <FidelityImage 
             key={`${selectedType?.name || 'original'}-${(typeof selectedColor === 'object' ? selectedColor?.name : selectedColor) || 'color'}`}
             color={selectedColor?.image ? 'transparent' : (selectedColor?.hex || selectedColor || '#ffffff')} 
-            src={selectedColor?.image || selectedType?.image || product.image} 
-            maskSrc={selectedColor?.image ? null : (selectedType?.maskImage || product.maskImage)}
+            src={selectedType?.image || product.image} 
+            maskSrc={selectedType?.maskImage || product.maskImage}
             textureSrc={selectedColor ? (selectedColor.file || selectedColor.image) : null}
             textureTransform={selectedColor ? (selectedColor.textureTransform || { scale: 1, x: 0, y: 0 }) : { scale: 1, x: 0, y: 0 }}
             transform={activeTransform || selectedType?.imageTransform || product.imageTransform}
