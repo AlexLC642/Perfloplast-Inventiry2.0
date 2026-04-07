@@ -1339,7 +1339,52 @@ export default function AdminDashboard({ params, searchParams }) {
                               )}
                             </div>
                             
-                            {/* Blue texture sliders removed to consolidate with global sliders */}
+                            {/* NEW: Simple Image Size Slider (Only if image exists) */}
+                            {(tempColorFile || (editingColorIndex !== null && colors[editingColorIndex]?.image && tempColorFile !== 'clear')) && (
+                              <div style={{ padding: '20px', background: '#f0f9ff', borderRadius: '20px', border: '1px solid #bae6fd', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <div>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                    <label style={{ fontSize: '11px', fontWeight: '900', color: '#0369a1', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tamaño de Imagen de Color</label>
+                                    <span style={{ fontSize: '11px', fontWeight: '900', color: '#0ea5e9' }}>{tempColorTransform.scale}x</span>
+                                  </div>
+                                  <input 
+                                    type="range" 
+                                    min="0.01" 
+                                    max="4" 
+                                    step="0.01" 
+                                    value={tempColorTransform.scale} 
+                                    onChange={(e) => handleTransformChange('scale', parseFloat(e.target.value))} 
+                                    style={{ width: '100%', accentColor: '#0ea5e9', cursor: 'grab' }} 
+                                  />
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                  <div>
+                                    <label style={{ fontSize: '10px', fontWeight: '900', color: '#0369a1', display: 'block', marginBottom: '8px' }}>EJE X (%)</label>
+                                    <input 
+                                      type="range" 
+                                      min="-100" 
+                                      max="100" 
+                                      value={tempColorTransform.x || 0} 
+                                      onChange={(e) => handleTransformChange('x', parseInt(e.target.value))} 
+                                      style={{ width: '100%', accentColor: '#0ea5e9' }} 
+                                    />
+                                  </div>
+                                  <div>
+                                    <label style={{ fontSize: '10px', fontWeight: '900', color: '#0369a1', display: 'block', marginBottom: '8px' }}>EJE Y (%)</label>
+                                    <input 
+                                      type="range" 
+                                      min="-100" 
+                                      max="100" 
+                                      value={tempColorTransform.y || 0} 
+                                      onChange={(e) => handleTransformChange('y', parseInt(e.target.value))} 
+                                      style={{ width: '100%', accentColor: '#0ea5e9' }} 
+                                    />
+                                  </div>
+                                </div>
+                                <p style={{ margin: 0, fontSize: '10px', color: '#64748b', fontStyle: 'italic' }}>Ajusta qué tan grande y dónde se ve la foto sobre el producto.</p>
+                              </div>
+                            )}
 
                             <div>
                               <p style={{ margin: '0 0 12px 0', fontSize: '12px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Sugerencias de Calidad</p>
@@ -1582,15 +1627,7 @@ export default function AdminDashboard({ params, searchParams }) {
                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr', gap: '16px' }}>
                        {/* Universal Reset */}
                        <button 
-                         onClick={() => {
-                           if (activeTab === 'colors') {
-                             handleTransformChange('scale', 1);
-                             handleTransformChange('x', 0);
-                             handleTransformChange('y', 0);
-                           } else {
-                             updateActiveSettings({ imageTransform: { scale: 1, x: 0, y: 0 } });
-                           }
-                         }} 
+                         onClick={() => updateActiveSettings({ imageTransform: { scale: 1, x: 0, y: 0 } })} 
                          style={{ background: '#fef2f2', border: '1px solid #fee2e2', color: '#ef4444', padding: '12px 20px', borderRadius: '16px', fontSize: '11px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s', width: '100%', textTransform: 'uppercase', letterSpacing: '0.05em' }}
                        >
                          🔄 REESTABLECER AJUSTES
@@ -1599,14 +1636,11 @@ export default function AdminDashboard({ params, searchParams }) {
                        {/* Control Card: Scale */}
                        <div style={{ background: 'white', padding: '20px', borderRadius: '24px', border: '1px solid #f1f5f9', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                           <span style={{ fontSize: '11px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{activeTab === 'colors' ? 'Escala de Color/Textura' : 'Escala Global'}</span>
-                           <span style={{ fontSize: '12px', fontWeight: '900', color: activeTab === 'colors' ? '#0ea5e9' : '#c5a059' }}>{activeTab === 'colors' ? tempColorTransform.scale : getActiveSettings().imageTransform.scale}x</span>
+                           <span style={{ fontSize: '11px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Escala</span>
+                           <span style={{ fontSize: '12px', fontWeight: '900', color: '#c5a059' }}>{getActiveSettings().imageTransform.scale}x</span>
                          </div>
                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                           <input type="range" min="0.1" max="3" step="0.01" value={activeTab === 'colors' ? tempColorTransform.scale : getActiveSettings().imageTransform.scale} onChange={(e) => {
-                             if (activeTab === 'colors') handleTransformChange('scale', parseFloat(e.target.value));
-                             else updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, scale: parseFloat(e.target.value)} });
-                           }} style={{ width: '100%', accentColor: activeTab === 'colors' ? '#0ea5e9' : '#c5a059', height: '6px', cursor: 'pointer' }} />
+                           <input type="range" min="0.1" max="3" step="0.01" value={getActiveSettings().imageTransform.scale} onChange={(e) => updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, scale: parseFloat(e.target.value)} })} style={{ width: '100%', accentColor: '#c5a059', height: '6px', cursor: 'pointer' }} />
                          </div>
                        </div>
                        
@@ -1614,18 +1648,12 @@ export default function AdminDashboard({ params, searchParams }) {
                          {/* Control Card: X */}
                          <div style={{ background: 'white', padding: '20px', borderRadius: '24px', border: '1px solid #f1f5f9' }}>
                            <span style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', display: 'block', marginBottom: '12px' }}>EJE X</span>
-                           <input type="range" min="-100" max="100" value={activeTab === 'colors' ? (tempColorTransform.x || 0) : getActiveSettings().imageTransform.x} onChange={(e) => {
-                             if (activeTab === 'colors') handleTransformChange('x', parseInt(e.target.value));
-                             else updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, x: parseInt(e.target.value)} });
-                           }} style={{ width: '100%', accentColor: activeTab === 'colors' ? '#0ea5e9' : '#c5a059', height: '4px' }} />
+                           <input type="range" min="-100" max="100" value={getActiveSettings().imageTransform.x} onChange={(e) => updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, x: parseInt(e.target.value)} })} style={{ width: '100%', accentColor: '#c5a059', height: '4px' }} />
                          </div>
                          {/* Control Card: Y */}
                          <div style={{ background: 'white', padding: '20px', borderRadius: '24px', border: '1px solid #f1f5f9' }}>
                            <span style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', display: 'block', marginBottom: '12px' }}>EJE Y</span>
-                           <input type="range" min="-100" max="100" value={activeTab === 'colors' ? (tempColorTransform.y || 0) : getActiveSettings().imageTransform.y} onChange={(e) => {
-                             if (activeTab === 'colors') handleTransformChange('y', parseInt(e.target.value));
-                             else updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, y: parseInt(e.target.value)} });
-                           }} style={{ width: '100%', accentColor: activeTab === 'colors' ? '#0ea5e9' : '#c5a059', height: '4px' }} />
+                           <input type="range" min="-100" max="100" value={getActiveSettings().imageTransform.y} onChange={(e) => updateActiveSettings({ imageTransform: {...getActiveSettings().imageTransform, y: parseInt(e.target.value)} })} style={{ width: '100%', accentColor: '#c5a059', height: '4px' }} />
                          </div>
                        </div>
                     </div>
