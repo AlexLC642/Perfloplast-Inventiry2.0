@@ -22,6 +22,7 @@ export default function AdminDashboard({ params, searchParams }) {
   const [imageTransform, setImageTransform] = useState({ scale: 1, x: 0, y: 0 });
   const [lumina, setLumina] = useState({ brightness: 1, contrast: 1 });
   const [maskThreshold, setMaskThreshold] = useState(58);
+  const [whiteThreshold, setWhiteThreshold] = useState(64);
   const [saving, setSaving] = useState(false);
   const [isManualMask, setIsManualMask] = useState(false);
 
@@ -186,6 +187,7 @@ export default function AdminDashboard({ params, searchParams }) {
     if (!source) return;
     
     const thresholdToUse = customThreshold !== null ? customThreshold : maskThreshold;
+    const currentWhiteThreshold = whiteThreshold; // Sensitivity for white parts
     const img = new Image();
     
     if (typeof source === 'string') {
@@ -239,9 +241,9 @@ export default function AdminDashboard({ params, searchParams }) {
       corners.reduce((sum, c) => sum + c[2], 0) / 4
     ];
 
-    // 3. Process Mask (v10: Area-Euclidean + Shield + Denoise)
-    const threshold = thresholdToUse; // Sensitivity from 1 to 180
-    const whiteShieldMin = 255 - (threshold * 0.85); // Dynamic white detection based on slider
+    // 3. Process Mask (v11: Decoupled Dual Control)
+    const bgThreshold = thresholdToUse; // Strictly for background distance
+    const whiteShieldMin = 255 - (currentWhiteThreshold * 1.8); // Independent white detection
     
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i], g = data[i+1], b = data[i+2];
@@ -253,16 +255,14 @@ export default function AdminDashboard({ params, searchParams }) {
         Math.pow(b - bg[2], 2)
       );
 
-      // B. Dynamic Desaturation/Brightness Shield (Lid & Label Guard)
-      // We check if the pixel is bright enough AND desaturated (grayish).
+      // B. Independent White Shield (Lid & Label Guard)
       const brightness = (r + g + b) / 3;
       const saturation = Math.max(r, g, b) - Math.min(r, g, b);
       
-      // A pixel is "White/Gray Part" if it's bright AND has very low saturation.
-      // As threshold goes up, we become MORE aggressive at removing bright "pale" parts.
-      const isPalePart = (brightness > whiteShieldMin) && (saturation < (threshold / 3.5));
+      // A pixel is "White Part" if it's very bright (using its own slider)
+      const isPalePart = (brightness > whiteShieldMin) && (saturation < (currentWhiteThreshold / 2));
 
-      if (dist < threshold || isPalePart) {
+      if (dist < bgThreshold || isPalePart) {
         data[i] = 0; data[i+1] = 0; data[i+2] = 0; data[i+3] = 0; // Transparent
       } else {
         data[i] = 255; data[i+1] = 255; data[i+2] = 255; data[i+3] = 255; // Opaque
@@ -309,7 +309,7 @@ export default function AdminDashboard({ params, searchParams }) {
         return () => clearTimeout(timer);
       }
     }
-  }, [maskThreshold, file, showForm, editingProduct, isManualMask]);
+  }, [maskThreshold, whiteThreshold, file, showForm, editingProduct, isManualMask]);
 
   const openForm = (product = null) => {
     // ALWAYS clear file and temp states first to prevent pollution
@@ -346,6 +346,7 @@ export default function AdminDashboard({ params, searchParams }) {
       setImageTransform(product.imageTransform || { scale: 1, x: 0, y: 0 });
       setLumina(product.lumina || { brightness: 1, contrast: 1 });
       setMaskThreshold(product.maskThreshold || 58);
+      setWhiteThreshold(product.whiteThreshold || 64);
       setProductSceneFile(null);
     } else {
       setEditingProduct(null);
@@ -357,6 +358,7 @@ export default function AdminDashboard({ params, searchParams }) {
       setImageTransform({ scale: 1, x: 0, y: 0 });
       setLumina({ brightness: 1, contrast: 1 });
       setMaskThreshold(58);
+      setWhiteThreshold(64);
       setProductSceneFile(null);
       setIsManualMask(false);
     }
@@ -577,6 +579,7 @@ export default function AdminDashboard({ params, searchParams }) {
         imageTransform,
         lumina,
         maskThreshold,
+        whiteThreshold,
         sceneBackground: productSceneUrl
       };
       
@@ -1344,31 +1347,49 @@ export default function AdminDashboard({ params, searchParams }) {
                                 )}
                               </div>
                               
-                              {/* INDIVIDUAL MASK THRESHOLD SLIDER (v4.5 - Separado del Color) */}
-                              <div style={{ gridColumn: isMobile ? 'span 1' : 'span 2', padding: '24px', background: '#f1f5f9', borderRadius: '24px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                  <div>
-                                    <h5 style={{ margin: 0, fontSize: '14px', fontWeight: '900', color: '#1e293b', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Protección Quirúrgica de Tapa/Detalles</h5>
-                                    <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748b' }}>Sube este valor si la tapa blanca se tiñe de color. (Recuerda re-generar máscara tras ajustar).</p>
+                              {/* DUAL SURGICAL CONTROLS (v11: Decoupled Precision) */}
+                              <div style={{ gridColumn: isMobile ? 'span 1' : 'span 2', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                
+                                {/* 1. BACKGROUND REMOVAL SLIDER */}
+                                <div style={{ padding: '24px', background: '#f1f5f9', borderRadius: '24px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div>
+                                      <h5 style={{ margin: 0, fontSize: '13px', fontWeight: '900', color: '#1e293b', textTransform: 'uppercase', letterSpacing: '0.02em' }}>1. Recorte de Fondo (Bordes)</h5>
+                                      <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#64748b' }}>Ajusta qué tan limpio es el recorte exterior del producto.</p>
+                                    </div>
+                                    <span style={{ fontSize: '18px', fontWeight: '900', color: '#c5a059', minWidth: '40px', textAlign: 'right' }}>{maskThreshold}</span>
                                   </div>
-                                  <span style={{ fontSize: '20px', fontWeight: '900', color: '#c5a059', minWidth: '40px', textAlign: 'right' }}>{maskThreshold}</span>
+                                  <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                                    <input 
+                                      type="range" 
+                                      min="1" 
+                                      max="180" 
+                                      value={maskThreshold} 
+                                      onChange={(e) => setMaskThreshold(parseInt(e.target.value))} 
+                                      style={{ flex: 1, accentColor: '#c5a059', cursor: 'grab' }} 
+                                    />
+                                  </div>
                                 </div>
-                                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                                  <span style={{ fontSize: '11px', fontWeight: '800', color: '#94a3b8' }}>MÁS COLOR</span>
-                                  <input 
-                                    type="range" 
-                                    min="1" 
-                                    max="180" 
-                                    value={maskThreshold} 
-                                    onChange={(e) => {
-                                      const val = parseInt(e.target.value);
-                                      setMaskThreshold(val);
-                                      // If we're editing and have no new file, we might need to fetch the original
-                                      // but for now, we rely on the reactive useEffect for new uploads
-                                    }} 
-                                    style={{ flex: 1, accentColor: '#c5a059', cursor: 'grab' }} 
-                                  />
-                                  <span style={{ fontSize: '11px', fontWeight: '800', color: '#94a3b8' }}>LIMPIAR TAPA</span>
+
+                                {/* 2. WHITE LID PROTECTION SLIDER */}
+                                <div style={{ padding: '24px', background: '#f8fafc', borderRadius: '24px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div>
+                                      <h5 style={{ margin: 0, fontSize: '13px', fontWeight: '900', color: '#1e293b', textTransform: 'uppercase', letterSpacing: '0.02em' }}>2. Limpieza de Tapa (Blancos)</h5>
+                                      <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#64748b' }}>Sube este valor si la tapa blanca aún se ve con color. No afecta a la base.</p>
+                                    </div>
+                                    <span style={{ fontSize: '18px', fontWeight: '900', color: '#3b82f6', minWidth: '#40px', textAlign: 'right' }}>{whiteThreshold}</span>
+                                  </div>
+                                  <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                                    <input 
+                                      type="range" 
+                                      min="1" 
+                                      max="100" 
+                                      value={whiteThreshold} 
+                                      onChange={(e) => setWhiteThreshold(parseInt(e.target.value))} 
+                                      style={{ flex: 1, accentColor: '#3b82f6', cursor: 'grab' }} 
+                                    />
+                                  </div>
                                 </div>
                               </div>
                             </div>
