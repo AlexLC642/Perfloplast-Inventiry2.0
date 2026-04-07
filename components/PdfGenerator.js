@@ -50,9 +50,10 @@ export const generateCatalogPdf = async (products) => {
     item.style.pageBreakInside = 'avoid';
 
     // Image Area
+    const t = product.imageTransform || { scale: 1, x: 0, y: 0 };
     const imageArea = `
       <div style="width: 100%; height: 160px; background: white; border-radius: 12px; padding: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); overflow: hidden;">
-        <img src="${product.image}" style="max-width: 100%; max-height: 100%; object-fit: contain;" crossorigin="anonymous" />
+        <img src="${product.image}" style="max-width: 100%; max-height: 100%; object-fit: contain; transform: scale(${t.scale}) translate(${t.x}%, ${t.y}%);" crossorigin="anonymous" />
       </div>
     `;
 
