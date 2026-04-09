@@ -1843,7 +1843,7 @@ export default function AdminDashboard({ params, searchParams }) {
                               {/* Model Photo Upload */}
                               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                 <label style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Foto del Modelo</label>
-                                <div style={{ position: 'relative', background: 'white', border: '2px dashed #cbd5e1', borderRadius: '24px', padding: '24px', textAlign: 'center', minHeight: '140px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', transition: 'all 0.3s ease' }}>
+                                <div style={{ position: 'relative', background: 'white', border: '2px dashed #cbd5e1', borderRadius: '24px', padding: '24px', textAlign: 'center', minHeight: '140px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', transition: 'all 0.3s ease', overflow: 'hidden' }}>
                                   <input
                                     type="file"
                                     accept="image/png,image/jpeg,image/webp"
@@ -1854,14 +1854,42 @@ export default function AdminDashboard({ params, searchParams }) {
                                     style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }}
                                     title=""
                                   />
-                                  <div style={{ width: '44px', height: '44px', background: 'rgba(197, 160, 89, 0.1)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c5a059' }}>
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
-                                  </div>
-                                  <span style={{ fontSize: '13px', fontWeight: '700', color: '#1e293b', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                    {tempTypeFile ? tempTypeFile.name : 'Seleccionar Foto'}
-                                  </span>
-                                  {tempTypeFile && (
-                                    <button type="button" onClick={(e) => { e.stopPropagation(); setTempTypeFile(null); }} style={{ position: 'absolute', top: '12px', right: '12px', background: '#fee2e2', color: '#ef4444', border: 'none', padding: '6px 10px', borderRadius: '10px', fontSize: '10px', fontWeight: '800', cursor: 'pointer', zIndex: 20 }}>Quitar</button>
+                                  
+                                  {(tempTypeFile || (editingTypeIndex !== null && types[editingTypeIndex]?.image)) ? (
+                                    <div style={{ position: 'relative', zIndex: 1, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                                      <img 
+                                        src={tempTypeFile ? URL.createObjectURL(tempTypeFile) : types[editingTypeIndex].image} 
+                                        style={{ height: '70px', maxWidth: '100%', objectFit: 'contain', borderRadius: '12px', border: '1px solid #f1f5f9', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }} 
+                                      />
+                                      <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', marginTop: '10px', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        {tempTypeFile ? tempTypeFile.name : 'Imagen Guardada'}
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <>
+                                      <div style={{ width: '44px', height: '44px', background: 'rgba(197, 160, 89, 0.1)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c5a059' }}>
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                                      </div>
+                                      <span style={{ fontSize: '13px', fontWeight: '700', color: '#1e293b' }}>Seleccionar Foto</span>
+                                    </>
+                                  )}
+
+                                  {(tempTypeFile || (editingTypeIndex !== null && types[editingTypeIndex]?.image)) && (
+                                    <button 
+                                      type="button" 
+                                      onClick={(e) => { 
+                                        e.stopPropagation(); 
+                                        if (tempTypeFile) setTempTypeFile(null); 
+                                        else {
+                                          const nt = [...types];
+                                          nt[editingTypeIndex].image = null;
+                                          setTypes(nt);
+                                        }
+                                      }} 
+                                      style={{ position: 'absolute', top: '12px', right: '12px', background: '#fee2e2', color: '#ef4444', border: 'none', padding: '6px 10px', borderRadius: '10px', fontSize: '10px', fontWeight: '800', cursor: 'pointer', zIndex: 20 }}
+                                    >
+                                      Quitar
+                                    </button>
                                   )}
                                 </div>
                               </div>
@@ -1869,7 +1897,7 @@ export default function AdminDashboard({ params, searchParams }) {
                               {/* Model Mask Upload */}
                               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                 <label style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Máscara (Opcional)</label>
-                                <div style={{ position: 'relative', background: 'white', border: '2px dashed #cbd5e1', borderRadius: '24px', padding: '24px', textAlign: 'center', minHeight: '140px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', transition: 'all 0.3s ease' }}>
+                                <div style={{ position: 'relative', background: 'white', border: '2px dashed #cbd5e1', borderRadius: '24px', padding: '24px', textAlign: 'center', minHeight: '140px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', transition: 'all 0.3s ease', overflow: 'hidden' }}>
                                   <input
                                     type="file"
                                     accept="image/png,image/jpeg,image/webp"
@@ -1880,14 +1908,44 @@ export default function AdminDashboard({ params, searchParams }) {
                                     style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }}
                                     title=""
                                   />
-                                  <div style={{ width: '44px', height: '44px', background: 'rgba(71, 85, 105, 0.1)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569' }}>
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
-                                  </div>
-                                  <span style={{ fontSize: '13px', fontWeight: '700', color: '#1e293b', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                    {tempTypeMaskFile ? tempTypeMaskFile.name : 'Seleccionar Máscara'}
-                                  </span>
-                                  {tempTypeMaskFile && (
-                                    <button type="button" onClick={(e) => { e.stopPropagation(); setTempTypeMaskFile(null); }} style={{ position: 'absolute', top: '12px', right: '12px', background: '#fee2e2', color: '#ef4444', border: 'none', padding: '6px 10px', borderRadius: '10px', fontSize: '10px', fontWeight: '800', cursor: 'pointer', zIndex: 20 }}>Quitar</button>
+
+                                  {(tempTypeMaskFile || (editingTypeIndex !== null && types[editingTypeIndex]?.maskImage)) ? (
+                                    <div style={{ position: 'relative', zIndex: 1, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                                      <div style={{ height: '70px', width: '70px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                                        <img 
+                                          src={tempTypeMaskFile ? URL.createObjectURL(tempTypeMaskFile) : types[editingTypeIndex].maskImage} 
+                                          style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+                                        />
+                                      </div>
+                                      <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', marginTop: '10px', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        {tempTypeMaskFile ? tempTypeMaskFile.name : 'Máscara Guardada'}
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <>
+                                      <div style={{ width: '44px', height: '44px', background: 'rgba(71, 85, 105, 0.1)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569' }}>
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+                                      </div>
+                                      <span style={{ fontSize: '13px', fontWeight: '700', color: '#1e293b' }}>Seleccionar Máscara</span>
+                                    </>
+                                  )}
+
+                                  {(tempTypeMaskFile || (editingTypeIndex !== null && types[editingTypeIndex]?.maskImage)) && (
+                                    <button 
+                                      type="button" 
+                                      onClick={(e) => { 
+                                        e.stopPropagation(); 
+                                        if (tempTypeMaskFile) setTempTypeMaskFile(null); 
+                                        else {
+                                          const nt = [...types];
+                                          nt[editingTypeIndex].maskImage = null;
+                                          setTypes(nt);
+                                        }
+                                      }} 
+                                      style={{ position: 'absolute', top: '12px', right: '12px', background: '#fee2e2', color: '#ef4444', border: 'none', padding: '6px 10px', borderRadius: '10px', fontSize: '10px', fontWeight: '800', cursor: 'pointer', zIndex: 20 }}
+                                    >
+                                      Quitar
+                                    </button>
                                   )}
                                 </div>
                                 {tempTypeFile && !tempTypeMaskFile && (
