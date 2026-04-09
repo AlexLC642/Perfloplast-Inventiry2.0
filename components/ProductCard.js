@@ -204,20 +204,20 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
                     <div style={{ width: '4px', height: '12px', background: '#c5a059', borderRadius: '2px' }} />
                     <h4 style={{ margin: 0, fontSize: '11px', fontWeight: '900', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Modelos Disponibles</h4>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: '12px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))', gap: '10px' }}>
                     {/* Base / Original */}
                     <motion.button
                       whileHover={{ y: -4, boxShadow: '0 10px 25px rgba(0,0,0,0.08)' }}
                       whileTap={{ scale: 0.97 }}
                       onClick={(e) => { e.stopPropagation(); handleTypeSelect(availableTypes[0]); }}
                       style={{
-                        padding: '16px 12px', borderRadius: '24px', cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                        padding: '12px 8px', borderRadius: '18px', cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
                         background: selectedType?.name === 'Original' ? 'white' : '#f8fafc',
-                        border: selectedType?.name === 'Original' ? '2.5px solid #c5a059' : '1px solid #e2e8f0',
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px'
+                        border: selectedType?.name === 'Original' ? '2px solid #c5a059' : '1px solid #e2e8f0',
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px'
                       }}
                     >
-                      <div style={{ width: '44px', height: '44px', background: 'white', borderRadius: '14px', overflow: 'hidden', padding: '6px', border: '1px solid #f1f5f9' }}>
+                      <div style={{ width: '40px', height: '40px', background: 'white', borderRadius: '12px', overflow: 'hidden', padding: '4px', border: '1px solid #f1f5f9' }}>
                         <img src={product.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                       </div>
                       <span style={{ fontSize: '11px', fontWeight: '900', color: selectedType?.name === 'Original' ? '#1e293b' : '#64748b' }}>Original</span>
@@ -230,16 +230,16 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
                         whileTap={{ scale: 0.97 }}
                         onClick={(e) => { e.stopPropagation(); handleTypeSelect(t); }}
                         style={{
-                          padding: '16px 12px', borderRadius: '24px', cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                          padding: '12px 8px', borderRadius: '18px', cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
                           background: selectedType?.name === t.name ? 'white' : '#f8fafc',
-                          border: selectedType?.name === t.name ? '2.5px solid #c5a059' : '1px solid #e2e8f0',
-                          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px'
+                          border: selectedType?.name === t.name ? '2px solid #c5a059' : '1px solid #e2e8f0',
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px'
                         }}
                       >
-                        <div style={{ width: '44px', height: '44px', background: 'white', borderRadius: '14px', overflow: 'hidden', padding: '6px', border: '1px solid #f1f5f9' }}>
+                        <div style={{ width: '40px', height: '40px', background: 'white', borderRadius: '12px', overflow: 'hidden', padding: '4px', border: '1px solid #f1f5f9' }}>
                           {t.image
                             ? <img src={t.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                            : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', opacity: 0.3 }}>📦</div>
+                            : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', opacity: 0.3 }}>📦</div>
                           }
                         </div>
                         <span style={{ fontSize: '11px', fontWeight: '900', color: selectedType?.name === t.name ? '#1e293b' : '#64748b' }}>{t.name}</span>
