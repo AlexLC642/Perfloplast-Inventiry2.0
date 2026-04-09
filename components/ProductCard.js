@@ -204,23 +204,23 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
                     <div style={{ width: '4px', height: '12px', background: '#c5a059', borderRadius: '2px' }} />
                     <h4 style={{ margin: 0, fontSize: '11px', fontWeight: '900', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Modelos Disponibles</h4>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))', gap: '10px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(75px, 1fr))', gap: '8px' }}>
                     {/* Base / Original */}
                     <motion.button
                       whileHover={{ y: -4, boxShadow: '0 10px 25px rgba(0,0,0,0.08)' }}
                       whileTap={{ scale: 0.97 }}
                       onClick={(e) => { e.stopPropagation(); handleTypeSelect(availableTypes[0]); }}
                       style={{
-                        padding: '12px 8px', borderRadius: '18px', cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                        padding: '8px 4px', borderRadius: '14px', cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
                         background: selectedType?.name === 'Original' ? 'white' : '#f8fafc',
                         border: selectedType?.name === 'Original' ? '2px solid #c5a059' : '1px solid #e2e8f0',
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px'
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px'
                       }}
                     >
-                      <div style={{ width: '40px', height: '40px', background: 'white', borderRadius: '12px', overflow: 'hidden', padding: '4px', border: '1px solid #f1f5f9' }}>
+                      <div style={{ width: '32px', height: '32px', background: 'white', borderRadius: '10px', overflow: 'hidden', padding: '3px', border: '1px solid #f1f5f9' }}>
                         <img src={product.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                       </div>
-                      <span style={{ fontSize: '11px', fontWeight: '900', color: selectedType?.name === 'Original' ? '#1e293b' : '#64748b' }}>Original</span>
+                      <span style={{ fontSize: '10px', fontWeight: '900', color: selectedType?.name === 'Original' ? '#1e293b' : '#64748b' }}>Original</span>
                     </motion.button>
 
                     {availableTypes.slice(1).map((t, idx) => (
@@ -230,21 +230,21 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
                         whileTap={{ scale: 0.97 }}
                         onClick={(e) => { e.stopPropagation(); handleTypeSelect(t); }}
                         style={{
-                          padding: '12px 8px', borderRadius: '18px', cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                          padding: '8px 4px', borderRadius: '14px', cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
                           background: selectedType?.name === t.name ? 'white' : '#f8fafc',
                           border: selectedType?.name === t.name ? '2px solid #c5a059' : '1px solid #e2e8f0',
-                          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px'
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px'
                         }}
                       >
-                        <div style={{ width: '40px', height: '40px', background: 'white', borderRadius: '12px', overflow: 'hidden', padding: '4px', border: '1px solid #f1f5f9' }}>
+                        <div style={{ width: '32px', height: '32px', background: 'white', borderRadius: '10px', overflow: 'hidden', padding: '3px', border: '1px solid #f1f5f9' }}>
                           {t.image
                             ? <img src={t.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                            : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', opacity: 0.3 }}>📦</div>
+                            : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', opacity: 0.3 }}>📦</div>
                           }
                         </div>
-                        <span style={{ fontSize: '11px', fontWeight: '900', color: selectedType?.name === t.name ? '#1e293b' : '#64748b' }}>{t.name}</span>
+                        <span style={{ fontSize: '10px', fontWeight: '900', color: selectedType?.name === t.name ? '#1e293b' : '#64748b' }}>{t.name}</span>
                         {t.price && (
-                          <span style={{ fontSize: '10px', fontWeight: '800', color: '#c5a059' }}>Q{Number(t.price).toFixed(2)}</span>
+                          <span style={{ fontSize: '9px', fontWeight: '800', color: '#c5a059' }}>Q{Number(t.price).toFixed(2)}</span>
                         )}
                       </motion.button>
                     ))}
