@@ -44,7 +44,7 @@ export const generateCatalogPdf = async (products) => {
       p.types.forEach(t => {
         if (!t) return;
         allEntries.push({
-          displayName: `${p.name} - ${typeof t === 'string' ? t : (t.name || '')}`,
+          displayName: typeof t === 'string' ? t : (t.name || p.name),
           price: (typeof t === 'object' && t.price) ? t.price : p.price,
           colors: (typeof t === 'object' && t.colors && t.colors.length > 0) ? t.colors : p.colors,
           image: (typeof t === 'object' && t.image) ? t.image : p.image,

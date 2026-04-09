@@ -175,7 +175,9 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
               {/* Title + Dynamic Price */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
                 <div>
-                  <h2 style={{ fontSize: '36px', fontWeight: '900', color: '#1e293b', margin: '0 0 8px 0', letterSpacing: '-0.02em', lineHeight: 1.1 }}>{product.name}</h2>
+                  <h2 style={{ fontSize: '36px', fontWeight: '900', color: '#1e293b', margin: '0 0 8px 0', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+                    {(selectedType && selectedType.name !== 'Original') ? selectedType.name : product.name}
+                  </h2>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e' }} />
                     <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Studio Product</span>
