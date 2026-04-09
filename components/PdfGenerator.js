@@ -7,143 +7,147 @@ import html2canvas from 'html2canvas';
  * Generates a premium catalog PDF with high-fidelity product images.
  */
 export const generateCatalogPdf = async (products) => {
-  // 1. Create a hidden container for the PDF layout
-  const container = document.createElement('div');
-  container.style.position = 'fixed';
-  container.style.top = '-10000px';
-  container.style.left = '-10000px';
-  container.style.width = '800px'; // Standard width for PDF capture
-  container.style.background = 'white';
-  container.style.padding = '60px';
-  container.style.fontFamily = "'Inter', sans-serif";
-  container.style.color = '#1a1a1b';
-  
-  // 2. Build the Document Header
-  container.innerHTML = `
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #c5a059; padding-bottom: 20px; margin-bottom: 40px;">
+  const HEADER_HTML = `
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #c5a059; padding-bottom: 20px; margin-bottom: 25px; width: 100%;">
       <div>
-        <h1 style="margin: 0; font-size: 32px; color: #0047AB; font-weight: 900; letter-spacing: -0.02em;">PERFLO PLAST</h1>
-        <p style="margin: 5px 0 0 0; font-size: 12px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;">Industria de Plástico - Catálogo Oficial</p>
+        <h1 style="margin: 0; font-size: 44px; color: #0047AB; font-weight: 950; letter-spacing: -0.04em; text-transform: uppercase; line-height: 1;">PERFLO PLAST</h1>
+        <p style="margin: 8px 0 0 0; font-size: 14px; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em;">Industria de Plástico - Catálogo Oficial</p>
       </div>
-      <div style="text-align: right;">
-        <p style="margin: 0; font-size: 11px; color: #c5a059; font-weight: 800;">${new Date().toLocaleDateString()}</p>
-        <p style="margin: 2px 0 0 0; font-size: 10px; color: #94a3b8; font-weight: 600;">Ref: PRODUCT_CATALOG_2024</p>
+      <div style="text-align: right; background: #fcfcfc; padding: 12px 18px; border-radius: 18px; border: 1px solid #f1f5f9;">
+        <p style="margin: 0; font-size: 13px; color: #c5a059; font-weight: 900;">${new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
+        <div style="margin-top: 4px; height: 2px; background: #c5a059; width: 35px; margin-left: auto;"></div>
       </div>
     </div>
   `;
 
-  // 3. Build the Product Grid
-  const list = document.createElement('div');
-  list.style.display = 'grid';
-  list.style.gridTemplateColumns = 'repeat(2, 1fr)';
-  list.style.gap = '20px';
+  const FOOTER_HTML = (page, total) => `
+    <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #f1f5f9; text-align: center; width: 100%; display: flex; justify-content: space-between; align-items: center;">
+      <p style="margin: 0; font-size: 11px; color: #94a3b8; font-weight: 700;">página ${page} de ${total}</p>
+      <p style="margin: 0; font-size: 13px; color: #1e293b; font-weight: 800;">&copy; ${new Date().getFullYear()} PERFLO-PLAST</p>
+      <p style="margin: 0; font-size: 11px; color: #94a3b8; font-weight: 700;">www.perfloplast.com</p>
+    </div>
+  `;
 
-  for (const product of products) {
-    const item = document.createElement('div');
-    item.style.display = 'flex';
-    item.style.flexDirection = 'column';
-    item.style.gap = '15px';
-    item.style.padding = '20px';
-    item.style.background = '#f8fafc';
-    item.style.borderRadius = '20px';
-    item.style.border = '1px solid #e2e8f0';
-    item.style.pageBreakInside = 'avoid';
-
-    // Image Area
-    const t = product.imageTransform || { scale: 1, x: 0, y: 0 };
-    const imageArea = `
-      <div style="width: 100%; height: 160px; background: white; border-radius: 12px; padding: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); overflow: hidden;">
-        <img src="${product.image}" style="max-width: 100%; max-height: 100%; object-fit: contain; transform: scale(${t.scale}) translate(${t.x}%, ${t.y}%);" crossorigin="anonymous" />
-      </div>
-    `;
-
-    // Colors Area
-    const colorSwatches = (product.colors || []).map(c => `
-      <div style="width: 10px; height: 10px; border-radius: 50%; background: ${c.hex}; border: 1px solid rgba(0,0,0,0.1);"></div>
-    `).join('');
-
-    // Types Area
-    const typesList = (product.types || []).filter(t => t).map(t => (typeof t === 'string' ? t : t.name)).join(', ');
-
-    item.innerHTML = `
-      ${imageArea}
-      <div style="display: flex; flex-direction: column; flex: 1;">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
-          <h2 style="margin: 0; font-size: 16px; font-weight: 800; color: #1e293b; line-height: 1.2;">${product.name}</h2>
-          <div style="font-size: 18px; font-weight: 900; color: #c5a059; flex-shrink: 0;">
-            <span style="font-size: 11px; vertical-align: super; margin-right: 1px;">Q</span>${Number(product.price || 0).toFixed(2)}
-          </div>
-        </div>
-        
-        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
-          <div style="display: flex; gap: 3px;">${colorSwatches}</div>
-          <span style="font-size: 9px; color: #94a3b8; font-weight: 700;">Colores</span>
-        </div>
-
-        ${typesList ? `
-          <div style="margin-top: auto;">
-             <span style="font-size: 8px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 2px;">Modelos:</span>
-             <span style="font-size: 11px; color: #1e293b; font-weight: 600; line-height: 1.2;">${typesList}</span>
-          </div>
-        ` : ''}
-      </div>
-    `;
-    list.appendChild(item);
-  }
-
-  container.appendChild(list);
-
-  // 4. Add Footer
-  const footer = document.createElement('div');
-  footer.style.marginTop = '40px';
-  footer.style.textAlign = 'center';
-  footer.style.fontSize = '12px';
-  footer.style.color = '#94a3b8';
-  footer.style.fontWeight = '600';
-  footer.innerHTML = `&copy; ${new Date().getFullYear()} Perflo-Plast. Industria de Plástico. Todos los derechos reservados.`;
-  container.appendChild(footer);
-
-  document.body.appendChild(container);
-
-  try {
-    // 5. Capture with html2canvas
-    const canvas = await html2canvas(container, {
-      scale: 2, // Retína quality
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#ffffff'
+  // 1. Flatten Products into Entries
+  const allEntries = [];
+  products.forEach(p => {
+    allEntries.push({
+      displayName: p.name,
+      price: p.price,
+      colors: p.colors || [],
+      image: p.image,
+      transform: p.imageTransform || { scale: 1, x: 0, y: 0 },
+      isOriginal: true
     });
 
-    const imgData = canvas.toDataURL('image/png');
-    
-    // 6. Create PDF
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    
-    const imgWidth = pdfWidth;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    
-    let heightLeft = imgHeight;
-    let position = 0;
+    if (p.types && p.types.length > 0) {
+      p.types.forEach(t => {
+        if (!t) return;
+        allEntries.push({
+          displayName: `${p.name} - ${typeof t === 'string' ? t : (t.name || '')}`,
+          price: (typeof t === 'object' && t.price) ? t.price : p.price,
+          colors: (typeof t === 'object' && t.colors && t.colors.length > 0) ? t.colors : p.colors,
+          image: (typeof t === 'object' && t.image) ? t.image : p.image,
+          transform: (typeof t === 'object' && t.imageTransform) ? t.imageTransform : (p.imageTransform || { scale: 1, x: 0, y: 0 }),
+          isOriginal: false
+        });
+      });
+    }
+  });
 
-    // Add first page
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pdfHeight;
+  const chunks = [];
+  for (let i = 0; i < allEntries.length; i += 6) {
+    chunks.push(allEntries.slice(i, i + 6));
+  }
 
-    // Handle multi-page if content is too long
-    while (heightLeft >= 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pdfHeight;
+  const pdf = new jsPDF('p', 'mm', 'a4');
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = pdf.internal.pageSize.getHeight();
+
+  try {
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i];
+      const pageDiv = document.createElement('div');
+      pageDiv.style.position = 'fixed';
+      pageDiv.style.top = '-10000px';
+      pageDiv.style.left = '-10000px';
+      pageDiv.style.width = '1000px';
+      pageDiv.style.height = '1414px';
+      pageDiv.style.background = 'white';
+      pageDiv.style.padding = '40px 60px';
+      pageDiv.style.fontFamily = "'Inter', system-ui, sans-serif";
+      pageDiv.style.display = 'flex';
+      pageDiv.style.flexDirection = 'column';
+      pageDiv.style.boxSizing = 'border-box';
+      pageDiv.style.overflow = 'hidden';
+
+      let itemsHtml = chunk.map(entry => {
+        const t = entry.transform || { scale: 1, x: 0, y: 0 };
+        const colorSwatches = (entry.colors || []).slice(0, 10).map(c => `
+          <div style="width: 16px; height: 16px; border-radius: 50%; background: ${c.hex}; border: 2px solid white; box-shadow: 0 3px 8px rgba(0,0,0,0.1);"></div>
+        `).join('');
+
+        return `
+          <div style="display: flex; flex-direction: column; padding: 20px; background: #ffffff; border-radius: 35px; border: 1px solid #e2e8f0; box-shadow: 0 15px 40px rgba(0,0,0,0.02); break-inside: avoid; height: 100%; box-sizing: border-box;">
+            <div style="width: 100%; height: 180px; background: radial-gradient(circle at center, #f8fafc 0%, #f1f5f9 100%); border-radius: 25px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 20px;">
+              <div style="position: absolute; top: 12px; left: 12px; opacity: 0.1; font-weight: 950; font-size: 13px; color: #0047AB; text-transform: uppercase;">Perflo Plast</div>
+              <img src="${entry.image}" style="max-width: 85%; max-height: 85%; object-fit: contain; transform: scale(${t.scale}) translate(${t.x || 0}%, ${t.y || 0}%);" crossorigin="anonymous" />
+            </div>
+
+            <div style="display: flex; flex-direction: column; flex-grow: 1;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; gap: 8px;">
+                <h2 style="margin: 0; font-size: 18px; font-weight: 900; color: #1e293b; line-height: 1.1;">${entry.displayName}</h2>
+                <div style="background: linear-gradient(135deg, #c5a059 0%, #a38241 100%); color: white; padding: 6px 14px; border-radius: 14px; font-weight: 950; font-size: 17px; white-space: nowrap;">
+                  <span style="font-size: 10px; vertical-align: middle; margin-right: 2px;">Q</span>${Number(entry.price || 0).toFixed(2)}
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 12px;">
+                <div style="width: 5px; height: 5px; border-radius: 50%; background: ${entry.isOriginal ? '#22c55e' : '#c5a059'};"></div>
+                <span style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">${entry.isOriginal ? 'Línea Principal' : 'Modelo Seleccionado'}</span>
+              </div>
+
+              <div style="margin-top: auto; border-top: 1px solid #f8fafc; padding-top: 12px; display: flex; align-items: center; gap: 8px;">
+                <div style="display: flex; gap: -5px; align-items: center;">${colorSwatches}</div>
+                <div style="height: 10px; width: 1px; background: #e2e8f0;"></div>
+                <span style="font-size: 10px; color: #475569; font-weight: 800; text-transform: uppercase;">Colores</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      pageDiv.innerHTML = `
+        ${HEADER_HTML}
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); gap: 25px; flex: 1;">
+          ${itemsHtml}
+        </div>
+        ${FOOTER_HTML(i + 1, chunks.length)}
+      `;
+
+      document.body.appendChild(pageDiv);
+
+      const canvas = await html2canvas(pageDiv, {
+        scale: 3,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      if (i > 0) pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+      document.body.removeChild(pageDiv);
     }
 
-    pdf.save(`Catálogo_Perflo_Plast_${new Date().toISOString().split('T')[0]}.pdf`);
+    pdf.save(`Catálogo_Premium_Perflo_${new Date().toISOString().split('T')[0]}.pdf`);
   } catch (err) {
     console.error("PDF Generation Error:", err);
-    alert("Error al generar el PDF. Por favor intenta de nuevo.");
-  } finally {
-    document.body.removeChild(container);
+    alert("Error al generar el PDF. Revisa tu conexión de red.");
   }
 };
+
+
+
+
+
