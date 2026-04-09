@@ -69,9 +69,6 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
   useEffect(() => {
     setSelectedType(availableTypes[0]);
     setSelectedColor(baseColors[0]);
-    availableTypes.forEach(type => {
-      if (type.image) { const img = new Image(); img.src = type.image; }
-    });
   }, [product.id]);
 
   const isMobile = useIsMobile();

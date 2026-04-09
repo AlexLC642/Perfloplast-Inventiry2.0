@@ -57,8 +57,19 @@ export default function FidelityImage({
     opacity: hasError ? 0 : 1,
   };
 
-  const effectiveImageSource = imageSource || textureSource;
-  const activeMask = maskSource ? `url(${maskSource})` : (effectiveImageSource ? `url(${effectiveImageSource})` : null);
+  const optimizeUrl = (url, width = 1200) => {
+    if (!url || typeof url !== 'string' || !url.includes('cloudinary.com')) return url;
+    if (url.includes('/upload/f_auto')) return url;
+    return url.replace('/upload/', `/upload/f_auto,q_auto:good,w_${width},c_limit/`);
+  };
+
+  const optimizedSrc = useMemo(() => optimizeUrl(imageSource, isLightboxView ? 1600 : 1000), [imageSource, isLightboxView]);
+  const optimizedMask = useMemo(() => optimizeUrl(maskSource, isLightboxView ? 1600 : 1000), [maskSource, isLightboxView]);
+  const optimizedScene = useMemo(() => optimizeUrl(sceneSource, 1920), [sceneSource]);
+  const optimizedTexture = useMemo(() => optimizeUrl(textureSource, 1000), [textureSource]);
+
+  const effectiveImageSource = optimizedSrc || optimizedTexture;
+  const activeMask = optimizedMask ? `url(${optimizedMask})` : (effectiveImageSource ? `url(${effectiveImageSource})` : null);
   
   const maskStyles = {
     ...baseStyles,
@@ -77,36 +88,44 @@ export default function FidelityImage({
   }
 
   return (
-    <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'hidden', borderRadius: 'inherit', background: sceneSource ? 'none' : "#f1f5f9 url('/images/backgrounds/marble-bg.png') center/cover no-repeat" }}>
-      {sceneSource && (
-        <div style={{ position: 'absolute', inset: '-1px', backgroundImage: `url(${sceneSource})`, backgroundSize: 'cover', backgroundPosition: 'center', zIndex: 1 }} />
+    <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'hidden', borderRadius: 'inherit', background: optimizedScene ? 'none' : "#f1f5f9 url('/images/backgrounds/marble-bg.png') center/cover no-repeat" }}>
+      {optimizedScene && (
+        <div style={{ position: 'absolute', inset: '-1px', backgroundImage: `url(${optimizedScene})`, backgroundSize: 'cover', backgroundPosition: 'center', zIndex: 1 }} />
       )}
 
       <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
-        {(!hasError && imageSource && !textureSource) && (
-          <img src={imageSource} alt="" style={{ ...baseStyles, zIndex: 1, filter: 'contrast(1.05) brightness(1.02)' }} />
+        {(!hasError && optimizedSrc && !optimizedTexture) && (
+          <img 
+            src={optimizedSrc} 
+            alt="" 
+            loading="lazy"
+            decoding="async"
+            style={{ ...baseStyles, zIndex: 1, filter: 'contrast(1.05) brightness(1.02)' }} 
+          />
         )}
 
-        {((!isNeutral || textureSource) && !hasError) && (
+        {((!isNeutral || optimizedTexture) && !hasError) && (
           <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
              {/* 1. Neutralizer (Deep Grayscale) */}
-             {(imageSource && !textureSource) && (
+             {(optimizedSrc && !optimizedTexture) && (
               <img 
-                src={imageSource} 
+                src={optimizedSrc} 
+                loading="lazy"
+                decoding="async"
                 style={{ ...maskStyles, filter: `grayscale(1) brightness(${1.0 * (lumina?.brightness || 1)}) contrast(${1.0 * (lumina?.contrast || 1)})`, zIndex: 3 }} 
               />
              )}
              
              {/* 2. Color/Texture */}
-             <div style={{ ...maskStyles, backgroundColor: textureSource ? 'transparent' : safeColor, mixBlendMode: textureSource ? 'normal' : 'color', opacity: textureSource ? 1 : 0.9, zIndex: 4 }}>
-                {textureSource && (
-                   <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${textureSource})`, backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', transform: `scale(${textureTransform?.scale || 1}) translate(${textureTransform?.x || 0}%, ${textureTransform?.y || 0}%)` }} />
+             <div style={{ ...maskStyles, backgroundColor: optimizedTexture ? 'transparent' : safeColor, mixBlendMode: optimizedTexture ? 'normal' : 'color', opacity: optimizedTexture ? 1 : 0.9, zIndex: 4 }}>
+                {optimizedTexture && (
+                   <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${optimizedTexture})`, backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', transform: `scale(${textureTransform?.scale || 1}) translate(${textureTransform?.x || 0}%, ${textureTransform?.y || 0}%)` }} />
                 )}
              </div>
              
              {/* 3. Soft Volume (High Saturation) */}
-             {(!textureSource) && (
-              <div style={{ ...maskStyles, backgroundColor: safeColor, mixBlendMode: 'soft-light', opacity: maskSource ? 0.5 : 0.35, zIndex: 5 }} />
+             {(!optimizedTexture) && (
+              <div style={{ ...maskStyles, backgroundColor: safeColor, mixBlendMode: 'soft-light', opacity: optimizedMask ? 0.5 : 0.35, zIndex: 5 }} />
              )}
 
              {/* 4. Removed specular recovery - Relying 100% on Mask precision */}
