@@ -16,6 +16,12 @@ function useIsMobile() {
 }
 
 export default function ProductCard({ product, onClick, isLightboxView = false, activeTransform = null, sceneSrc = '' }) {
+  const optimizeUrl = (url, width = 400) => {
+    if (!url || typeof url !== 'string' || !url.includes('cloudinary.com')) return url;
+    if (url.includes('/upload/f_auto')) return url;
+    return url.replace('/upload/', `/upload/f_auto,q_auto:good,w_${width},c_limit/`);
+  };
+
   const availableTypes = useMemo(() => {
     const baseType = {
       name: 'Original',
@@ -217,7 +223,7 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
                       }}
                     >
                       <div style={{ width: '32px', height: '32px', background: 'white', borderRadius: '10px', overflow: 'hidden', padding: '3px', border: '1px solid #f1f5f9' }}>
-                        <img src={product.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                        <img src={optimizeUrl(product.image, 100)} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                       </div>
                       <span style={{ fontSize: '10px', fontWeight: '900', color: selectedType?.name === 'Original' ? '#1e293b' : '#64748b' }}>Original</span>
                     </motion.button>
@@ -237,7 +243,7 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
                       >
                         <div style={{ width: '32px', height: '32px', background: 'white', borderRadius: '10px', overflow: 'hidden', padding: '3px', border: '1px solid #f1f5f9' }}>
                           {t.image
-                            ? <img src={t.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                            ? <img src={optimizeUrl(t.image, 100)} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                             : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', opacity: 0.3 }}>📦</div>
                           }
                         </div>
@@ -278,7 +284,11 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
                           whileTap={{ scale: 0.9 }}
                           onClick={(e) => { e.stopPropagation(); setSelectedColor(c); }}
                           style={{
-                            width: '42px', height: '42px', borderRadius: '50%', background: c.hex, cursor: 'pointer',
+                            width: '42px', height: '42px', borderRadius: '50%', 
+                            background: c.hex,
+                            backgroundImage: (c.file || c.image) ? `url(${optimizeUrl(typeof c.file === 'string' ? c.file : (c.image || ''), 100)})` : 'none',
+                            backgroundSize: 'cover', backgroundPosition: 'center',
+                            cursor: 'pointer',
                             border: selectedColor?.hex === c.hex ? '3px solid #c5a059' : '4px solid white',
                             boxShadow: selectedColor?.hex === c.hex ? '0 8px 20px ' + c.hex + '55' : '0 4px 12px rgba(0,0,0,0.08)',
                             transition: 'all 0.3s'
