@@ -268,9 +268,11 @@ export default function Home() {
               backdropFilter: 'blur(10px)',
               zIndex: 1000,
               display: 'flex',
-              alignItems: 'center',
+              alignItems: 'flex-start',
               justifyContent: 'center',
-              padding: 'clamp(8px, 2vw, 40px)'
+              padding: 'clamp(8px, 2vw, 40px)',
+              overflowY: 'auto',
+              WebkitOverflowScrolling: 'touch'
             }}
           >
             <motion.div

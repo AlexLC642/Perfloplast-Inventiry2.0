@@ -259,7 +259,7 @@ html {
     width: 100%;
     margin: 8px;
     height: auto;
-    max-height: 94vh;
+    max-height: none;
     border-radius: 28px;
   }
   
