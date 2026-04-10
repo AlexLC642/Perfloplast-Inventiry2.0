@@ -33,6 +33,7 @@ export const generateCatalogPdf = async (products) => {
   products.forEach(p => {
     allEntries.push({
       displayName: p.name,
+      description: p.description || '',
       price: p.price,
       colors: p.colors || [],
       image: p.image,
@@ -45,6 +46,7 @@ export const generateCatalogPdf = async (products) => {
         if (!t) return;
         allEntries.push({
           displayName: typeof t === 'string' ? t : (t.name || p.name),
+          description: (typeof t === 'object' && t.description) ? t.description : (p.description || ''),
           price: (typeof t === 'object' && t.price) ? t.price : p.price,
           colors: (typeof t === 'object' && t.colors && t.colors.length > 0) ? t.colors : p.colors,
           image: (typeof t === 'object' && t.image) ? t.image : p.image,
@@ -102,10 +104,16 @@ export const generateCatalogPdf = async (products) => {
                 </div>
               </div>
 
-              <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 12px;">
+              <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 8px;">
                 <div style="width: 5px; height: 5px; border-radius: 50%; background: ${entry.isOriginal ? '#22c55e' : '#c5a059'};"></div>
                 <span style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">${entry.isOriginal ? 'Línea Principal' : 'Modelo Seleccionado'}</span>
               </div>
+
+              ${entry.description ? `
+                <p style="margin: 0 0 12px 0; font-size: 9.5px; color: #64748b; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-weight: 500;">
+                  ${entry.description}
+                </p>
+              ` : ''}
 
               <div style="margin-top: auto; border-top: 1px solid #f8fafc; padding-top: 12px; display: flex; align-items: center; gap: 8px;">
                 <div style="display: flex; gap: -5px; align-items: center;">${colorSwatches}</div>

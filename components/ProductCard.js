@@ -198,8 +198,10 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
                 </motion.div>
               </div>
 
-              <p style={{ fontSize: '15px', color: '#64748b', lineHeight: '1.7', marginBottom: '40px' }}>
-                Diseño exclusivo Perflo-Plast. Fabricado con materiales de alta resistencia, ideal para maximizar el estilo y funcionalidad de tus espacios.
+              <p style={{ fontSize: '15px', color: '#64748b', lineHeight: '1.7', marginBottom: '40px', whiteSpace: 'pre-wrap' }}>
+                {(selectedType && selectedType.description) 
+                  ? selectedType.description 
+                  : (product.description || 'Diseño exclusivo Perflo-Plast. Fabricado con materiales de alta resistencia, ideal para maximizar el estilo y funcionalidad de tus espacios.')}
               </p>
 
               {/* Models */}

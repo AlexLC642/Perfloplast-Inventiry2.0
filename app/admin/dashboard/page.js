@@ -13,6 +13,7 @@ export default function AdminDashboard({ params, searchParams }) {
 
   // Form State
   const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [file, setFile] = useState(null);
   const [maskFile, setMaskFile] = useState(null);
@@ -33,6 +34,7 @@ export default function AdminDashboard({ params, searchParams }) {
   const [tempColorTransform, setTempColorTransform] = useState({ scale: 1, x: 0, y: 0 });
   const [productSceneFile, setProductSceneFile] = useState(null);
   const [tempType, setTempType] = useState('');
+  const [tempTypeDescription, setTempTypeDescription] = useState('');
   const [tempTypePrice, setTempTypePrice] = useState('');
   const [tempTypeColors, setTempTypeColors] = useState([]);
   const [tempTypeColorHex, setTempTypeColorHex] = useState('#2563eb');
@@ -346,9 +348,9 @@ export default function AdminDashboard({ params, searchParams }) {
     setActiveTab('general');
     userTouchedThreshold.current = false; // Reset guard on form open
 
-    if (product) {
       setEditingProduct(product);
       setName(product.name);
+      setDescription(product.description || '');
       setPrice(product.price);
       setColors(product.colors || []);
       setTempColorFile(null); // Clear color file on open
@@ -379,6 +381,7 @@ export default function AdminDashboard({ params, searchParams }) {
     } else {
       setEditingProduct(null);
       setName('');
+      setDescription('');
       setPrice('');
       setColors([]);
       setTypes([]);
@@ -602,6 +605,7 @@ export default function AdminDashboard({ params, searchParams }) {
 
       const productData = {
         name,
+        description,
         price,
         image: imageUrl,
         maskImage: maskUrl,
@@ -633,7 +637,7 @@ export default function AdminDashboard({ params, searchParams }) {
       }
 
       setShowForm(false);
-      setName(''); setPrice(''); setFile(null); setColors([]); setTypes([]);
+      setName(''); setDescription(''); setPrice(''); setFile(null); setColors([]); setTypes([]);
       fetchProducts();
     } catch (err) {
       console.error('Final Submit Error:', err);
@@ -765,6 +769,7 @@ export default function AdminDashboard({ params, searchParams }) {
 
     const typeData = {
       name: tempType.trim(),
+      description: tempTypeDescription,
       price: tempTypePrice,
       colors: tempTypeColors,
       file: tempTypeFile,
@@ -794,6 +799,7 @@ export default function AdminDashboard({ params, searchParams }) {
 
     // Reset temp fields
     setTempType('');
+    setTempTypeDescription('');
     setTempTypePrice('');
     setTempTypeColors([]);
     setTempTypeColorHex('#2563eb');
@@ -808,6 +814,7 @@ export default function AdminDashboard({ params, searchParams }) {
     if (!t) return;
     setEditingTypeIndex(idx);
     setTempType(t.name || '');
+    setTempTypeDescription(t.description || '');
     setTempTypePrice(t.price || '');
     setTempTypeColors(t.colors || []);
     setTempTypeColorHex('#2563eb');
@@ -824,6 +831,7 @@ export default function AdminDashboard({ params, searchParams }) {
   const cancelTypeEdit = () => {
     setEditingTypeIndex(null);
     setTempType('');
+    setTempTypeDescription('');
     setTempTypePrice('');
     setTempTypeColors([]);
     setTempTypeColorHex('#2563eb');
@@ -1402,6 +1410,28 @@ export default function AdminDashboard({ params, searchParams }) {
                       {activeTab === 'general' && (
                         <motion.div key="general" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '24px' : '32px' }}>
                           <h4 style={{ margin: 0, fontSize: isMobile ? '16px' : '18px', fontWeight: '900', color: '#1e293b', letterSpacing: '-0.02em' }}>Configuración General</h4>
+
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <label style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Descripción del Producto</label>
+                            <textarea 
+                              value={description} 
+                              onChange={(e) => setDescription(e.target.value)} 
+                              placeholder="Escribe una descripción atractiva para este producto..." 
+                              style={{ 
+                                background: '#f8fafc', 
+                                border: '1px solid #e2e8f0', 
+                                padding: '16px', 
+                                borderRadius: '14px', 
+                                fontSize: '14px', 
+                                fontWeight: '500', 
+                                color: '#0f172a',
+                                minHeight: '100px',
+                                resize: 'vertical',
+                                fontFamily: 'inherit'
+                              }} 
+                            />
+                          </div>
+
                           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '16px' : '24px' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                               <label style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Nombre del Producto</label>
@@ -1742,15 +1772,31 @@ export default function AdminDashboard({ params, searchParams }) {
                             </div>
                           )}
 
-                            {/* Nombre + Precio + Botón */}
                             <div style={{ display: 'flex', gap: '12px', flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
-                              <input type="text" placeholder="Ej: Con Tapa Rosca" value={tempType} onChange={(e) => setTempType(e.target.value)} style={{ flex: 2, minWidth: '160px', padding: '18px 24px', borderRadius: '20px', border: editingTypeIndex !== null ? '2px solid #3b82f6' : '1px solid #cbd5e1', fontSize: '15px', fontWeight: '500', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)' }} />
+                              <div style={{ flex: 2, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <input type="text" placeholder="Ej: Con Tapa Rosca" value={tempType} onChange={(e) => setTempType(e.target.value)} style={{ width: '100%', padding: '18px 24px', borderRadius: '20px', border: editingTypeIndex !== null ? '2px solid #3b82f6' : '1px solid #cbd5e1', fontSize: '15px', fontWeight: '500', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)', boxSizing: 'border-box' }} />
+                                <textarea 
+                                  placeholder="Descripción del modelo (opcional)..." 
+                                  value={tempTypeDescription} 
+                                  onChange={(e) => setTempTypeDescription(e.target.value)} 
+                                  style={{ 
+                                    width: '100%', 
+                                    padding: '12px 18px', 
+                                    borderRadius: '16px', 
+                                    border: '1px solid #e2e8f0', 
+                                    fontSize: '13px', 
+                                    minHeight: '60px', 
+                                    resize: 'none',
+                                    boxSizing: 'border-box'
+                                  }} 
+                                />
+                              </div>
                               <div style={{ position: 'relative', flex: 1, minWidth: '120px' }}>
-                                <span style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', fontWeight: '900', color: '#c5a059', fontSize: '15px', pointerEvents: 'none' }}>Q</span>
+                                <span style={{ position: 'absolute', left: '18px', top: '28px', fontWeight: '900', color: '#c5a059', fontSize: '15px', pointerEvents: 'none' }}>Q</span>
                                 <input type="number" placeholder="0.00" value={tempTypePrice} onChange={(e) => setTempTypePrice(e.target.value)} style={{ width: '100%', padding: '18px 18px 18px 36px', borderRadius: '20px', border: '1px solid #e2e8f0', fontSize: '15px', fontWeight: '800', color: '#c5a059', boxSizing: 'border-box', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)' }} />
                               </div>
-                              <button type="button" onClick={addType} style={{ padding: '0 28px', background: editingTypeIndex !== null ? 'linear-gradient(135deg, #1d4ed8, #1e40af)' : 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', color: 'white', border: 'none', borderRadius: '20px', fontWeight: '800', cursor: 'pointer', boxShadow: '0 10px 20px rgba(15, 23, 42, 0.15)', transition: 'all 0.3s ease', whiteSpace: 'nowrap' }}>
-                                {editingTypeIndex !== null ? '💾 Guardar Cambios' : 'Añadir Modelo'}
+                              <button type="button" onClick={addType} style={{ padding: '0 28px', height: '60px', background: editingTypeIndex !== null ? 'linear-gradient(135deg, #1d4ed8, #1e40af)' : 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', color: 'white', border: 'none', borderRadius: '20px', fontWeight: '800', cursor: 'pointer', boxShadow: '0 10px 20px rgba(15, 23, 42, 0.15)', transition: 'all 0.3s ease', whiteSpace: 'nowrap' }}>
+                                {editingTypeIndex !== null ? '💾 Guardar' : 'Añadir'}
                               </button>
                             </div>
 
