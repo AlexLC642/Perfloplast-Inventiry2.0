@@ -1777,32 +1777,42 @@ export default function AdminDashboard({ params, searchParams }) {
                             </div>
                           )}
 
+                            {/* Nombre + Precio + Botón */}
                             <div style={{ display: 'flex', gap: '12px', flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
-                              <div style={{ flex: 2, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                              <div style={{ flex: 2 }}>
                                 <input type="text" placeholder="Ej: Con Tapa Rosca" value={tempType} onChange={(e) => setTempType(e.target.value)} style={{ width: '100%', padding: '18px 24px', borderRadius: '20px', border: editingTypeIndex !== null ? '2px solid #3b82f6' : '1px solid #cbd5e1', fontSize: '15px', fontWeight: '500', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)', boxSizing: 'border-box' }} />
-                                <textarea 
-                                  placeholder="Descripción del modelo (opcional)..." 
-                                  value={tempTypeDescription} 
-                                  onChange={(e) => setTempTypeDescription(e.target.value)} 
-                                  style={{ 
-                                    width: '100%', 
-                                    padding: '12px 18px', 
-                                    borderRadius: '16px', 
-                                    border: '1px solid #e2e8f0', 
-                                    fontSize: '13px', 
-                                    minHeight: '60px', 
-                                    resize: 'none',
-                                    boxSizing: 'border-box'
-                                  }} 
-                                />
                               </div>
                               <div style={{ position: 'relative', flex: 1, minWidth: '120px' }}>
-                                <span style={{ position: 'absolute', left: '18px', top: '28px', fontWeight: '900', color: '#c5a059', fontSize: '15px', pointerEvents: 'none' }}>Q</span>
+                                <span style={{ position: 'absolute', left: '18px', top: '18px', fontWeight: '900', color: '#c5a059', fontSize: '15px', pointerEvents: 'none' }}>Q</span>
                                 <input type="number" placeholder="0.00" value={tempTypePrice} onChange={(e) => setTempTypePrice(e.target.value)} style={{ width: '100%', padding: '18px 18px 18px 36px', borderRadius: '20px', border: '1px solid #e2e8f0', fontSize: '15px', fontWeight: '800', color: '#c5a059', boxSizing: 'border-box', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)' }} />
                               </div>
                               <button type="button" onClick={addType} style={{ padding: '0 28px', height: '60px', background: editingTypeIndex !== null ? 'linear-gradient(135deg, #1d4ed8, #1e40af)' : 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', color: 'white', border: 'none', borderRadius: '20px', fontWeight: '800', cursor: 'pointer', boxShadow: '0 10px 20px rgba(15, 23, 42, 0.15)', transition: 'all 0.3s ease', whiteSpace: 'nowrap' }}>
                                 {editingTypeIndex !== null ? '💾 Guardar' : 'Añadir'}
                               </button>
+                            </div>
+
+                            {/* Descripción del Modelo (Estilo Premium similar al General) */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '20px', background: '#ffffff', borderRadius: '24px', border: '1px solid #e2e8f0' }}>
+                              <label style={{ fontSize: '11px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Descripción del modelo seleccionado (Opcional)</label>
+                              <textarea 
+                                placeholder="Describe las medidas o detalles especiales de este modelo..." 
+                                value={tempTypeDescription} 
+                                onChange={(e) => setTempTypeDescription(e.target.value)} 
+                                style={{ 
+                                  width: '100%', 
+                                  padding: '16px', 
+                                  borderRadius: '16px', 
+                                  border: '1px solid #e2e8f0', 
+                                  fontSize: '14px', 
+                                  fontWeight: '500',
+                                  minHeight: '80px', 
+                                  resize: 'vertical',
+                                  fontFamily: 'inherit',
+                                  boxSizing: 'border-box',
+                                  background: '#fcfcfc',
+                                  boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
+                                }} 
+                              />
                             </div>
 
                             {/* Color picker libre para el modelo */}
