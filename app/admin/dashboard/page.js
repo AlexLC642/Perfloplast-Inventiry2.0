@@ -348,6 +348,7 @@ export default function AdminDashboard({ params, searchParams }) {
     setActiveTab('general');
     userTouchedThreshold.current = false; // Reset guard on form open
 
+    if (product) {
       setEditingProduct(product);
       setName(product.name);
       setDescription(product.description || '');
@@ -1411,27 +1412,7 @@ export default function AdminDashboard({ params, searchParams }) {
                         <motion.div key="general" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '24px' : '32px' }}>
                           <h4 style={{ margin: 0, fontSize: isMobile ? '16px' : '18px', fontWeight: '900', color: '#1e293b', letterSpacing: '-0.02em' }}>Configuración General</h4>
 
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <label style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Descripción del Producto</label>
-                            <textarea 
-                              value={description} 
-                              onChange={(e) => setDescription(e.target.value)} 
-                              placeholder="Escribe una descripción atractiva para este producto..." 
-                              style={{ 
-                                background: '#f8fafc', 
-                                border: '1px solid #e2e8f0', 
-                                padding: '16px', 
-                                borderRadius: '14px', 
-                                fontSize: '14px', 
-                                fontWeight: '500', 
-                                color: '#0f172a',
-                                minHeight: '100px',
-                                resize: 'vertical',
-                                fontFamily: 'inherit'
-                              }} 
-                            />
-                          </div>
-
+                          {/* NOMBRE Y PRECIO PRIMERO PARA QUE EL USUARIO NO SE PIERDA */}
                           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '16px' : '24px' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                               <label style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Nombre del Producto</label>
@@ -1441,6 +1422,30 @@ export default function AdminDashboard({ params, searchParams }) {
                               <label style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Precio Base (Q)</label>
                               <input type="text" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="0.00" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '16px', borderRadius: '14px', fontSize: '15px', fontWeight: '800', color: '#c5a059' }} />
                             </div>
+                          </div>
+
+                          {/* DESCRIPCIÓN JUSTO DEBAJO */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '24px', background: '#f1f5f9', borderRadius: '24px', border: '1px solid #e2e8f0' }}>
+                            <label style={{ fontSize: '12px', fontWeight: '800', color: '#1e293b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Descripción para el Catálogo</label>
+                            <textarea 
+                              value={description} 
+                              onChange={(e) => setDescription(e.target.value)} 
+                              placeholder="Escribe aquí los detalles, medidas o características del producto..." 
+                              style={{ 
+                                background: 'white', 
+                                border: '1px solid #cbd5e1', 
+                                padding: '16px', 
+                                borderRadius: '14px', 
+                                fontSize: '14px', 
+                                fontWeight: '500', 
+                                color: '#0f172a',
+                                minHeight: '120px',
+                                resize: 'vertical',
+                                fontFamily: 'inherit',
+                                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+                              }} 
+                            />
+                            <p style={{ margin: 0, fontSize: '11px', color: '#64748b' }}>Esta descripción aparecerá en el catálogo y en el PDF.</p>
                           </div>
 
                           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '16px' : '24px' }}>
