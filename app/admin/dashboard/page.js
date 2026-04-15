@@ -273,9 +273,13 @@ export default function AdminDashboard({ params, searchParams }) {
       corners.reduce((sum, c) => sum + c[2], 0) / 4
     ];
 
-    // 3. Process Mask (v11: Decoupled Dual Control)
+    // 3. Process Mask (v12: Perceptual White Guard)
     const bgThreshold = thresholdToUse; // Strictly for background distance
-    const whiteShieldMin = 255 - (currentWhiteThreshold * 1.8); // Independent white detection
+    
+    // Sensitivity for white parts: 
+    // Higher slider value = lower brightness threshold and higher chroma tolerance
+    const whiteShieldMin = 255 - (currentWhiteThreshold * 1.6); 
+    const chromaLimit = (currentWhiteThreshold * 0.6);
 
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i], g = data[i + 1], b = data[i + 2];
@@ -288,11 +292,14 @@ export default function AdminDashboard({ params, searchParams }) {
       );
 
       // B. Independent White Shield (Lid & Label Guard)
-      const brightness = (r + g + b) / 3;
-      const saturation = Math.max(r, g, b) - Math.min(r, g, b);
+      // Use Perceptual Brightness for better white detection
+      const pBrightness = (r * 0.299 + g * 0.587 + b * 0.114);
+      
+      // Chroma (saturation) detection
+      const chroma = Math.max(r, g, b) - Math.min(r, g, b);
 
-      // A pixel is "White Part" if it's very bright (using its own slider)
-      const isPalePart = (brightness > whiteShieldMin) && (saturation < (currentWhiteThreshold / 2));
+      // A pixel is "White Part" if it's very bright AND neutral enough
+      const isPalePart = (pBrightness > whiteShieldMin) && (chroma < chromaLimit);
 
       if (dist < bgThreshold || isPalePart) {
         data[i] = 0; data[i + 1] = 0; data[i + 2] = 0; data[i + 3] = 0; // Transparent
