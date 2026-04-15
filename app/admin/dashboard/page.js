@@ -1350,7 +1350,10 @@ export default function AdminDashboard({ params, searchParams }) {
                     ].map(tab => (
                       <button
                         key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
+                        onClick={() => {
+                          setActiveTab(tab.id);
+                          if (tab.id === 'general' || tab.id === 'colors') setAdjustTarget('main');
+                        }}
                         className="no-scrollbar"
                         style={{
                           display: 'flex',
@@ -1397,7 +1400,10 @@ export default function AdminDashboard({ params, searchParams }) {
                         { id: 'colors', label: 'Paleta de Colores', icon: '🎨' },
                         { id: 'types', label: 'Modelos y Variantes', icon: '📦' }
                       ].map(tab => (
-                        <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
+                        <button key={tab.id} onClick={() => {
+                          setActiveTab(tab.id);
+                          if (tab.id === 'general' || tab.id === 'colors') setAdjustTarget('main');
+                        }} style={{
                           display: 'flex',
                           alignItems: 'center',
                           gap: '12px',
@@ -1551,7 +1557,10 @@ export default function AdminDashboard({ params, searchParams }) {
                                     min="1"
                                     max="180"
                                     value={maskThreshold}
-                                    onChange={(e) => setMaskThreshold(parseInt(e.target.value))}
+                                    onChange={(e) => {
+                                      userTouchedThreshold.current = true;
+                                      setMaskThreshold(parseInt(e.target.value));
+                                    }}
                                     style={{ flex: 1, accentColor: '#c5a059', cursor: 'grab' }}
                                   />
                                 </div>
@@ -1572,7 +1581,10 @@ export default function AdminDashboard({ params, searchParams }) {
                                     min="1"
                                     max="100"
                                     value={whiteThreshold}
-                                    onChange={(e) => setWhiteThreshold(parseInt(e.target.value))}
+                                    onChange={(e) => {
+                                      userTouchedThreshold.current = true;
+                                      setWhiteThreshold(parseInt(e.target.value));
+                                    }}
                                     style={{ flex: 1, accentColor: '#3b82f6', cursor: 'grab' }}
                                   />
                                 </div>
