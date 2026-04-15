@@ -49,6 +49,17 @@ export default function FidelityImage({
   const safeColor = (typeof color === 'string') ? color : (color?.hex || 'transparent');
   const isNeutral = !safeColor || safeColor.toLowerCase() === '#ffffff' || safeColor.toLowerCase() === 'transparent' || safeColor.toLowerCase() === '#fff';
   
+  const optimizeUrl = (url, width = 1200) => {
+    if (!url || typeof url !== 'string' || !url.includes('cloudinary.com')) return url;
+    if (url.includes('/upload/f_auto')) return url;
+    return url.replace('/upload/', `/upload/f_auto,q_auto:good,w_${width},c_limit/`);
+  };
+
+  const optimizedSrc = useMemo(() => optimizeUrl(imageSource, isLightboxView ? 1600 : 1000), [imageSource, isLightboxView]);
+  const optimizedMask = useMemo(() => optimizeUrl(maskSource, isLightboxView ? 1600 : 1000), [maskSource, isLightboxView]);
+  const optimizedScene = useMemo(() => optimizeUrl(sceneSource, 1920), [sceneSource]);
+  const optimizedTexture = useMemo(() => optimizeUrl(textureSource, 1000), [textureSource]);
+
   // DARKNESS DETECTION & DEPTH REINFORCEMENT
   const getLuminance = (hex) => {
     if (!hex || hex === 'transparent' || !hex.startsWith('#')) return 1;
@@ -88,17 +99,6 @@ export default function FidelityImage({
     transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
     opacity: hasError ? 0 : 1,
   };
-
-  const optimizeUrl = (url, width = 1200) => {
-    if (!url || typeof url !== 'string' || !url.includes('cloudinary.com')) return url;
-    if (url.includes('/upload/f_auto')) return url;
-    return url.replace('/upload/', `/upload/f_auto,q_auto:good,w_${width},c_limit/`);
-  };
-
-  const optimizedSrc = useMemo(() => optimizeUrl(imageSource, isLightboxView ? 1600 : 1000), [imageSource, isLightboxView]);
-  const optimizedMask = useMemo(() => optimizeUrl(maskSource, isLightboxView ? 1600 : 1000), [maskSource, isLightboxView]);
-  const optimizedScene = useMemo(() => optimizeUrl(sceneSource, 1920), [sceneSource]);
-  const optimizedTexture = useMemo(() => optimizeUrl(textureSource, 1000), [textureSource]);
 
   const effectiveImageSource = optimizedSrc || optimizedTexture;
   const activeMask = optimizedMask ? `url(${optimizedMask})` : (effectiveImageSource ? `url(${effectiveImageSource})` : null);
