@@ -169,6 +169,25 @@ export default function FidelityImage({
              {luminance < 0.15 && (
                <div style={{ ...maskStyles, backgroundColor: 'black', mixBlendMode: 'multiply', opacity: 0.15, zIndex: 7 }} />
              )}
+
+             {/* 6. Gloss Restoration (Specular POP) - RESTORES ORIGINAL SHINE */}
+             {(optimizedSrc && !optimizedTexture) && (
+               <img 
+                 src={optimizedSrc} 
+                 loading="lazy"
+                 decoding="async"
+                 style={{ 
+                   ...maskStyles, 
+                   // High contrast filter to isolate pure highlights
+                   filter: `grayscale(1) brightness(0.9) contrast(1.8)`, 
+                   mixBlendMode: 'screen', 
+                   // More visible gloss on dark colors to give that 'piano black' / polished look
+                   opacity: luminance < 0.3 ? 0.35 : 0.2, 
+                   zIndex: 8,
+                   pointerEvents: 'none'
+                 }} 
+               />
+             )}
           </div>
         )}
       </div>
