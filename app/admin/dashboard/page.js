@@ -166,6 +166,7 @@ export default function AdminDashboard({ params, searchParams }) {
 
     const timer = setTimeout(() => {
       if (adjustTarget !== 'main' && types[adjustTarget]) {
+        // Option A: Specific Model
         const t = types[adjustTarget];
         const source = t.file || t.image;
         if (source) {
@@ -174,6 +175,12 @@ export default function AdminDashboard({ params, searchParams }) {
             newTypes[adjustTarget] = { ...newTypes[adjustTarget], maskFile: maskBlob };
             setTypes(newTypes);
           });
+        }
+      } else if (adjustTarget === 'main') {
+        // Option B: Main Product
+        const source = file || (editingProduct?.image || null);
+        if (source) {
+          generateAutoMask(source, setMaskFile);
         }
       }
     }, 300); // Debounce
