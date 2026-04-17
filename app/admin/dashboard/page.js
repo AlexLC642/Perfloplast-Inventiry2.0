@@ -2212,30 +2212,32 @@ export default function AdminDashboard({ params, searchParams }) {
 
                         <div style={{ transform: isMobile ? 'scale(0.7)' : 'none' }}>
                           <FidelityImage
-                            src={getActiveSettings ? getActiveSettings().image : '/images/chair.png'}
-                            maskSrc={getActiveSettings ? getActiveSettings().maskImage : null}
+                            src={getActiveSettings().image}
+                            maskSrc={getActiveSettings().maskImage}
                             color={
                               activeTab === 'types'
-                                ? (tempTypeColorName || editingTypeColorIndex !== null ? tempTypeColorHex : (tempTypeColors.length > 0 ? tempTypeColors[0].hex : 'transparent'))
-                                : (activeTab === 'colors' && editingColorIndex === null && tempColorFile !== 'clear' && tempColorFile
-                                  ? 'transparent'
-                                  : (editingColorIndex !== null && tempColorFile !== 'clear' && (tempColorFile || colors[editingColorIndex]?.image))
-                                    ? 'transparent'
-                                    : (colors && colors.length > 0 ? (typeof colors[0] === 'object' ? (colors[0].hex || 'transparent') : colors[0]) : (editingProduct?.colors?.[0]?.hex || editingProduct?.colors?.[0] || 'transparent')))
+                                ? (editingTypeColorIndex !== null ? tempTypeColorHex : (tempTypeColors.length > 0 ? tempTypeColors[0].hex : 'transparent'))
+                                : activeTab === 'colors'
+                                  ? (editingColorIndex !== null
+                                    ? (tempColorFile || colors[editingColorIndex]?.image ? 'transparent' : tempColorHex)
+                                    : (tempColorFile ? 'transparent' : (colors.length > 0 ? (typeof colors[0] === 'object' ? colors[0].hex : colors[0]) : 'transparent')))
+                                  : (colors.length > 0 ? (typeof colors[0] === 'object' ? colors[0].hex : colors[0]) : 'transparent')
                             }
                             textureSrc={
-                              activeTab === 'colors'
-                                ? (tempColorFile && tempColorFile !== 'clear' ? URL.createObjectURL(tempColorFile) : (editingColorIndex !== null && tempColorFile !== 'clear' ? colors[editingColorIndex]?.image : null))
-                                : (colors && colors.length > 0 && typeof colors[0] === 'object' ? (colors[0].file || colors[0].image) : null)
+                              activeTab === 'types'
+                                ? (editingTypeIndex !== null && editingTypeColorIndex !== null && types[editingTypeIndex]?.colors[editingTypeColorIndex]?.image)
+                                : activeTab === 'colors'
+                                  ? (tempColorFile && tempColorFile !== 'clear' ? URL.createObjectURL(tempColorFile) : (editingColorIndex !== null ? colors[editingColorIndex]?.image : null))
+                                  : (colors.length > 0 && typeof colors[0] === 'object' ? (colors[0].file || colors[0].image) : null)
                             }
                             textureTransform={
                               activeTab === 'colors'
                                 ? tempColorTransform
-                                : (colors && colors.length > 0 && typeof colors[0] === 'object' ? colors[0].textureTransform : { scale: 1, x: 0, y: 0 })
+                                : (activeTab === 'types' && editingTypeIndex !== null && editingTypeColorIndex !== null ? (types[editingTypeIndex].colors[editingTypeColorIndex].textureTransform || { scale: 1, x: 0, y: 0 }) : (colors.length > 0 && typeof colors[0] === 'object' ? colors[0].textureTransform : { scale: 1, x: 0, y: 0 }))
                             }
-                            baseHue={getActiveSettings ? getActiveSettings().baseHue : 0}
-                            transform={getActiveSettings ? getActiveSettings().imageTransform : { scale: 1, x: 0, y: 0 }}
-                            lumina={getActiveSettings ? getActiveSettings().lumina : { brightness: 1, contrast: 1 }}
+                            baseHue={getActiveSettings().baseHue}
+                            transform={getActiveSettings().imageTransform}
+                            lumina={getActiveSettings().lumina}
                             sceneSrc={productSceneFile || (editingProduct?.sceneBackground || (sceneFile || settings.productSceneBackground))}
                           />
                         </div>
