@@ -13,6 +13,17 @@ export default function Home() {
   const [selectedProductIndex, setSelectedProductIndex] = useState(null);
   const [settings, setSettings] = useState({ productSceneBackground: '' });
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Handle Responsiveness
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   // Keyboard Navigation for Lightbox
   useEffect(() => {
@@ -111,35 +122,28 @@ export default function Home() {
   return (
     <main className="container" style={{ paddingBottom: '100px', position: 'relative' }}>
       <header className="catalog-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <Logo size={80} />
+        <div style={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
+          <Logo size={isMobile ? 55 : 80} />
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div className="header-utilities">
           {/* PDF Download Button */}
           <motion.button
             onClick={handleDownloadPdf}
             disabled={isGeneratingPdf}
+            className="utility-btn"
             title="Descargar Catálogo PDF"
-            whileHover={{ scale: 1.2, color: '#a38241' }}
+            whileHover={{ scale: 1.1, color: '#a38241' }}
             whileTap={{ scale: 0.9 }}
             style={{
-              background: 'none',
-              border: 'none',
               color: isGeneratingPdf ? '#cbd5e1' : '#c5a059',
-              padding: '12px',
-              cursor: isGeneratingPdf ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.3s ease',
-              marginRight: '8px'
+              position: 'relative'
             }}
           >
             {isGeneratingPdf ? (
-              <div style={{ width: '28px', height: '28px', border: '3px solid #e2e8f0', borderTop: '3px solid #c5a059', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+              <div style={{ width: '24px', height: '24px', border: '3px solid #e2e8f0', borderTop: '3px solid #c5a059', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
             ) : (
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>
               </svg>
             )}
@@ -147,22 +151,13 @@ export default function Home() {
 
           <motion.a 
             href="/admin/login" 
-            className="admin-access-btn" 
+            className="utility-btn admin-access-btn" 
             title="Configuración / Admin"
-            whileHover={{ rotate: 180, scale: 1.2, color: '#a38241' }}
+            whileHover={{ rotate: 90, scale: 1.1, color: '#a38241' }}
             whileTap={{ scale: 0.9 }}
-            style={{ 
-              color: '#c5a059', 
-              textDecoration: 'none',
-              padding: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.3s ease',
-              cursor: 'pointer'
-            }}
+            style={{ color: '#c5a059' }}
           >
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V22a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>
             </svg>
           </motion.a>
