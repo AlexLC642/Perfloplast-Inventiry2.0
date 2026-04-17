@@ -115,12 +115,12 @@ export default function FidelityImage({
 
   if (!effectiveImageSource || (typeof effectiveImageSource === 'string' && effectiveImageSource.length < 5)) {
     return (
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: "url('/images/backgrounds/marble-bg.png')", backgroundSize: 'cover' }} />
+      <div style={{ position: 'absolute', inset: 0, background: '#f8fafc' }} />
     );
   }
 
   return (
-    <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'hidden', borderRadius: 'inherit', background: optimizedScene ? 'none' : "#f1f5f9 url('/images/backgrounds/marble-bg.png') center/cover no-repeat" }}>
+    <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'hidden', borderRadius: 'inherit', background: optimizedScene ? 'none' : "#f8fafc" }}>
       {optimizedScene && (
         <div style={{ position: 'absolute', inset: '-1px', backgroundImage: `url(${optimizedScene})`, backgroundSize: 'cover', backgroundPosition: 'center', zIndex: 1 }} />
       )}

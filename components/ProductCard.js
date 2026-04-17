@@ -114,8 +114,8 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
         aspectRatio: isLightboxView ? 'unset' : (isMobile ? '1/1' : '16/11'),
         flex: isLightboxView ? 1 : 'none',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: isLightboxView ? 'transparent' : `radial-gradient(circle at 50% 50%, ${selectedColor?.hex || '#fff'}15 0%, transparent 70%)`,
-        transition: 'background 0.8s ease',
+        background: isLightboxView ? '#f8fafc' : `radial-gradient(circle at 50% 50%, ${selectedColor?.hex || '#fff'}15 0%, transparent 70%)`,
+        transition: 'background 0.6s ease',
         minHeight: isLightboxView ? (isMobile ? '300px' : '500px') : 'auto',
         overflow: 'hidden'
       }}>
@@ -130,7 +130,6 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
 
         <div style={{ position: 'absolute', inset: 0, padding: isLightboxView ? (isMobile ? '40px' : '80px') : '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <FidelityImage
-            key={`${selectedType?.name || 'original'}-${selectedColor?.name || 'color'}`}
             color={selectedColor?.image ? 'transparent' : (selectedColor?.hex || '#ffffff')}
             src={selectedType?.image || product.image}
             maskSrc={selectedType?.maskImage || product.maskImage}
