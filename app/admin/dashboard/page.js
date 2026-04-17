@@ -546,9 +546,8 @@ export default function AdminDashboard({ params, searchParams }) {
         productSceneUrl = uploadData.url;
       }
 
-      // 3. Upload Color-Specific Images
       const finalColors = await Promise.all(colors.map(async (c) => {
-        if (!c.file) return c; // Existing or hex-only
+        if (!c.file) return { ...c, lumina: c.lumina }; // Existing or hex-only
         try {
           const processedFile = await processImage(c.file);
           const formData = new FormData();
@@ -556,7 +555,13 @@ export default function AdminDashboard({ params, searchParams }) {
           const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
           if (!uploadRes.ok) throw new Error('Error al subir foto de color');
           const data = await uploadRes.json();
-          return { name: c.name, hex: c.hex, image: data.url, textureTransform: c.textureTransform };
+          return { 
+            name: c.name, 
+            hex: c.hex, 
+            image: data.url, 
+            textureTransform: c.textureTransform,
+            lumina: c.lumina 
+          };
         } catch (e) {
           console.error(e);
           return { ...c, textureTransform: c.textureTransform };
@@ -904,14 +909,48 @@ export default function AdminDashboard({ params, searchParams }) {
   ];
 
   const getActiveSettings = () => {
+    // A. PRIORITY: If editing a MAIN COLOR
+    if (activeTab === 'colors' && editingColorIndex !== null && colors[editingColorIndex]) {
+      const c = colors[editingColorIndex];
+      return {
+        image: file || (editingProduct?.image || null),
+        maskImage: maskFile || (editingProduct?.maskImage || null),
+        baseHue,
+        imageTransform,
+        lumina: c.lumina || { brightness: 1, contrast: 1 },
+        isMain: true,
+        isColorMode: true,
+        label: `DEL COLOR: ${c.name}`
+      };
+    }
+
+    // B. PRIORITY: If editing a MODEL COLOR
+    if (activeTab === 'types' && editingTypeIndex !== null && editingTypeColorIndex !== null && types[editingTypeIndex]?.colors[editingTypeColorIndex]) {
+      const t = types[editingTypeIndex];
+      const tc = t.colors[editingTypeColorIndex];
+      return {
+        image: t.file || (t.image || (file || (editingProduct?.image || null))),
+        maskImage: t.maskFile || (t.maskImage || (maskFile || (editingProduct?.maskImage || null))),
+        baseHue: t.baseHue,
+        imageTransform: t.imageTransform,
+        lumina: tc.lumina || { brightness: 1, contrast: 1 },
+        isMain: false,
+        isColorMode: true,
+        label: `DEL MODELO: ${tc.name}`
+      };
+    }
+
+    // C. FALLBACK: Main view vs Model view
     if (adjustTarget === 'main' || !types[adjustTarget]) {
       return {
-        image: file || (editingProduct?.image || null), // REMOVED fallback to chair.png
+        image: file || (editingProduct?.image || null),
         maskImage: maskFile || (editingProduct?.maskImage || null),
         baseHue,
         imageTransform,
         lumina,
-        isMain: true
+        isMain: true,
+        isColorMode: false,
+        label: 'VISTA PRINCIPAL'
       };
     }
     const t = types[adjustTarget];
@@ -921,11 +960,30 @@ export default function AdminDashboard({ params, searchParams }) {
       baseHue: t.baseHue,
       imageTransform: t.imageTransform,
       lumina: t.lumina,
-      isMain: false
+      isMain: false,
+      isColorMode: false,
+      label: `MODELO: ${t.name}`
     };
   };
 
   const updateActiveSettings = (updates) => {
+    // 1. ROUTE TO MAIN COLOR
+    if (activeTab === 'colors' && editingColorIndex !== null) {
+      const newColors = [...colors];
+      if (updates.lumina !== undefined) newColors[editingColorIndex].lumina = updates.lumina;
+      setColors(newColors);
+      return;
+    }
+
+    // 2. ROUTE TO MODEL COLOR
+    if (activeTab === 'types' && editingTypeIndex !== null && editingTypeColorIndex !== null) {
+      const newTypes = [...types];
+      if (updates.lumina !== undefined) newTypes[editingTypeIndex].colors[editingTypeColorIndex].lumina = updates.lumina;
+      setTypes(newTypes);
+      return;
+    }
+
+    // 3. ROUTE TO VIEW (MAIN OR TYPE)
     if (adjustTarget === 'main') {
       if (updates.baseHue !== undefined) setBaseHue(updates.baseHue);
       if (updates.imageTransform !== undefined) setImageTransform(updates.imageTransform);
@@ -2183,7 +2241,7 @@ export default function AdminDashboard({ params, searchParams }) {
                         </div>
                         <div style={{ position: 'absolute', bottom: '12px', left: '12px', right: '12px', display: 'flex', justifyContent: 'center', zIndex: 10 }}>
                           <div style={{ background: 'rgba(255, 255, 255, 0.9)', color: '#1e293b', padding: '4px 12px', borderRadius: '12px', fontSize: '9px', fontWeight: '900', border: '1px solid #e2e8f0', backdropFilter: 'blur(4px)' }}>
-                            {getActiveSettings().isMain ? 'VISTA PRINCIPAL' : `MODELO: ${(types[adjustTarget]?.name || 'N/A').toUpperCase()}`}
+                            {getActiveSettings().label}
                           </div>
                         </div>
                       </div>
@@ -2225,13 +2283,17 @@ export default function AdminDashboard({ params, searchParams }) {
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' }}>
                         {/* Control Card: Briilo */}
                         <div style={{ background: 'white', padding: '20px', borderRadius: '24px', border: '1px solid #f1f5f9' }}>
-                          <span style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', display: 'block', marginBottom: '12px' }}>BRILLO</span>
-                          <input type="range" min="0.5" max="1.5" step="0.01" value={getActiveSettings().lumina?.brightness ?? 1} onChange={(e) => updateActiveSettings({ lumina: { ...(getActiveSettings().lumina || { brightness: 1, contrast: 1 }), brightness: parseFloat(e.target.value) } })} style={{ width: '100%', accentColor: '#334155', height: '4px' }} />
+                          <span style={{ fontSize: '10px', fontWeight: '900', color: getActiveSettings().isColorMode ? '#2563eb' : '#64748b', display: 'block', marginBottom: '12px' }}>
+                            {getActiveSettings().isColorMode ? 'BRILLO DEL COLOR' : 'BRILLO'}
+                          </span>
+                          <input type="range" min="0.5" max="1.5" step="0.01" value={getActiveSettings().lumina?.brightness ?? 1} onChange={(e) => updateActiveSettings({ lumina: { ...(getActiveSettings().lumina || { brightness: 1, contrast: 1 }), brightness: parseFloat(e.target.value) } })} style={{ width: '100%', accentColor: getActiveSettings().isColorMode ? '#2563eb' : '#334155', height: '4px' }} />
                         </div>
                         {/* Control Card: Sombras */}
                         <div style={{ background: 'white', padding: '20px', borderRadius: '24px', border: '1px solid #f1f5f9' }}>
-                          <span style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', display: 'block', marginBottom: '12px' }}>SOMBRAS</span>
-                          <input type="range" min="0.5" max="1.5" step="0.01" value={getActiveSettings().lumina?.contrast ?? 1} onChange={(e) => updateActiveSettings({ lumina: { ...(getActiveSettings().lumina || { brightness: 1, contrast: 1 }), contrast: parseFloat(e.target.value) } })} style={{ width: '100%', accentColor: '#334155', height: '4px' }} />
+                          <span style={{ fontSize: '10px', fontWeight: '900', color: getActiveSettings().isColorMode ? '#2563eb' : '#64748b', display: 'block', marginBottom: '12px' }}>
+                            {getActiveSettings().isColorMode ? 'SOMBRAS DEL COLOR' : 'SOMBRAS'}
+                          </span>
+                          <input type="range" min="0.5" max="1.5" step="0.01" value={getActiveSettings().lumina?.contrast ?? 1} onChange={(e) => updateActiveSettings({ lumina: { ...(getActiveSettings().lumina || { brightness: 1, contrast: 1 }), contrast: parseFloat(e.target.value) } })} style={{ width: '100%', accentColor: getActiveSettings().isColorMode ? '#2563eb' : '#334155', height: '4px' }} />
                         </div>
                       </div>
                     </div>

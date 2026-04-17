@@ -138,7 +138,7 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
             textureTransform={selectedColor ? (selectedColor.textureTransform || { scale: 1, x: 0, y: 0 }) : { scale: 1, x: 0, y: 0 }}
             transform={activeTransform || selectedType?.imageTransform || product.imageTransform}
             sceneSrc={product.sceneBackground || sceneSrc}
-            lumina={selectedType?.lumina || product.lumina}
+            lumina={selectedColor?.lumina || selectedType?.lumina || product.lumina}
             isLightboxView={isLightboxView}
           />
         </div>
