@@ -38,3 +38,6 @@ yarn-error.log*
 # data
 /data/products.json
 /data/settings.json
+
+# temporary scripts and backups
+/tmp/
