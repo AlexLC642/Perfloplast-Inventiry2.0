@@ -848,6 +848,33 @@ export default function AdminDashboard({ params, searchParams }) {
     setAdjustTarget(idx);
   };
 
+  const applyMainPaletteToAllModels = () => {
+    if (types.length === 0) {
+      alert("⚠️ No hay modelos registrados para sincronizar.");
+      return;
+    }
+    if (confirm("¿Estás seguro de que deseas copiar la paleta principal a TODOS los modelos? Esto sobrescribirá sus colores actuales.")) {
+      const newTypes = types.map(t => ({
+        ...t,
+        colors: colors.map(c => ({ ...c })) // Deep copy
+      }));
+      setTypes(newTypes);
+      alert("✅ Paleta sincronizada con todos los modelos registrados.");
+    }
+  };
+
+  const importMainPaletteToType = () => {
+    if (colors.length === 0) {
+      alert("⚠️ La paleta principal está vacía.");
+      return;
+    }
+    setTempTypeColors(colors.map(c => ({ ...c })));
+  };
+
+  const clearTypeColors = () => {
+    setTempTypeColors([]);
+  };
+
   const cancelTypeEdit = () => {
     setEditingTypeIndex(null);
     setTempType('');
@@ -1684,9 +1711,20 @@ export default function AdminDashboard({ params, searchParams }) {
                         </motion.div>
                       )}
 
-                      {activeTab === 'colors' && (
                         <motion.div key="colors" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                          <h4 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: '#1e293b' }}>Paleta de Colores</h4>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <h4 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: '#1e293b' }}>Paleta de Colores</h4>
+                            {types.length > 0 && (
+                              <button 
+                                type="button" 
+                                onClick={applyMainPaletteToAllModels}
+                                style={{ background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0', padding: '8px 16px', borderRadius: '12px', fontSize: '11px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s' }}
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M17 2.1l4 4-4 4" /><path d="M3 12.2v-2a4 4 0 0 1 4-4h14" /><path d="M7 21.9l-4-4 4-4" /><path d="M21 11.8v2a4 4 0 0 1-4 4H3" /></svg>
+                                SINCRONIZAR CON TODOS LOS MODELOS
+                              </button>
+                            )}
+                          </div>
 
                           <div style={{ background: '#f8fafc', padding: '24px', borderRadius: '24px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
@@ -1901,7 +1939,17 @@ export default function AdminDashboard({ params, searchParams }) {
 
                             {/* Color picker libre para el modelo */}
                             <div style={{ background: 'white', borderRadius: '20px', padding: '20px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                              <p style={{ margin: 0, fontSize: '11px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Colores del modelo</p>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <p style={{ margin: 0, fontSize: '11px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Colores del modelo</p>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                  <button type="button" onClick={importMainPaletteToType} title="Copiar de paleta principal" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '4px 10px', borderRadius: '8px', fontSize: '10px', fontWeight: '800', color: '#c5a059', cursor: 'pointer' }}>
+                                    📥 Importar Principal
+                                  </button>
+                                  <button type="button" onClick={clearTypeColors} title="Usar herencia global" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '4px 10px', borderRadius: '8px', fontSize: '10px', fontWeight: '800', color: '#64748b', cursor: 'pointer' }}>
+                                    ✨ Usar Global
+                                  </button>
+                                </div>
+                              </div>
 
                                 {/* Row: color picker + nombre + añadir */}
                                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
