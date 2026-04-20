@@ -1711,6 +1711,7 @@ export default function AdminDashboard({ params, searchParams }) {
                         </motion.div>
                       )}
 
+                      {activeTab === 'colors' && (
                         <motion.div key="colors" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <h4 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: '#1e293b' }}>Paleta de Colores</h4>
