@@ -132,7 +132,12 @@ export default function FidelityImage({
             alt="" 
             loading="lazy"
             decoding="async"
-            style={{ ...baseStyles, zIndex: 1, filter: `contrast(1.05) brightness(${luminance < 0.2 ? 0.98 : 1.02})` }} 
+            style={{ 
+              ...baseStyles, 
+              zIndex: 1, 
+              // Added subtle drop-shadow for ambient occlusion and reduced brightness for neutrals to avoid washing out
+              filter: `contrast(1.06) brightness(${luminance < 0.2 ? 0.98 : 0.99}) drop-shadow(0 15px 25px rgba(0,0,0,0.12))` 
+            }} 
           />
         )}
 
@@ -144,7 +149,11 @@ export default function FidelityImage({
                 src={optimizedSrc} 
                 loading="lazy"
                 decoding="async"
-                style={{ ...maskStyles, filter: `grayscale(1) brightness(${1.0 * (lumina?.brightness || 1)}) contrast(${1.0 * (lumina?.contrast || 1)})`, zIndex: 3 }} 
+                style={{ 
+                  ...maskStyles, 
+                  filter: `grayscale(1) brightness(${1.0 * (lumina?.brightness || 1)}) contrast(${1.0 * (lumina?.contrast || 1)}) drop-shadow(0 10px 20px rgba(0,0,0,0.08))`, 
+                  zIndex: 3 
+                }} 
               />
              )}
              

@@ -18,7 +18,7 @@
 
 body {
   background-color: var(--background);
-  background-image: url('/images/backgrounds/marble-bg.png');
+  background-image: linear-gradient(rgba(0,0,0,0.02), rgba(0,0,0,0.02)), url('/images/backgrounds/marble-bg.png');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;

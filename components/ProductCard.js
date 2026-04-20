@@ -95,7 +95,8 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
     cursor: 'pointer',
     position: 'relative',
     zIndex: 1,
-    minHeight: isMobile ? '160px' : '220px'
+    minHeight: isMobile ? '160px' : '220px',
+    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.03), inset 0 0 60px rgba(0, 0, 0, 0.01)'
   };
 
   return (
@@ -114,7 +115,8 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
         aspectRatio: isLightboxView ? 'unset' : (isMobile ? '1/1' : '16/11'),
         flex: isLightboxView ? 1 : 'none',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: isLightboxView ? '#f8fafc' : `radial-gradient(circle at 50% 50%, ${selectedColor?.hex || '#fff'}15 0%, transparent 70%)`,
+        background: isLightboxView ? '#f8fafc' : `radial-gradient(circle at 50% 50%, ${selectedColor?.hex || '#fff'}20 0%, transparent 85%)`,
+        boxShadow: isLightboxView ? 'none' : 'inset 0 0 40px rgba(0,0,0,0.02)',
         transition: 'background 0.6s ease',
         minHeight: isLightboxView ? (isMobile ? '300px' : '500px') : 'auto',
         overflow: 'hidden'
