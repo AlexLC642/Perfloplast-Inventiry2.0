@@ -849,26 +849,32 @@ export default function AdminDashboard({ params, searchParams }) {
   };
 
   const applyMainPaletteToAllModels = () => {
+    console.log("DEBUG: Iniciando sincronización masiva", { modelos: types.length, colores: colors.length });
     if (types.length === 0) {
       alert("⚠️ No hay modelos registrados para sincronizar.");
       return;
     }
-    if (confirm("¿Estás seguro de que deseas copiar la paleta principal a TODOS los modelos? Esto sobrescribirá sus colores actuales.")) {
-      const newTypes = types.map(t => ({
-        ...t,
-        colors: colors.map(c => ({ ...c })) // Deep copy
-      }));
-      setTypes(newTypes);
-      alert("✅ Paleta sincronizada con todos los modelos registrados.");
+    if (confirm(`¿Estás seguro de que deseas copiar los ${colors.length} colores actuales a TODOS los modelos registrados?`)) {
+      setTypes(prevTypes => {
+        const newTypes = prevTypes.map(t => ({
+          ...t,
+          colors: colors.map(c => ({ ...c })) // Clonar cada color
+        }));
+        console.log("DEBUG: Nuevos modelos generados", newTypes);
+        return newTypes;
+      });
+      alert("✅ Paleta sincronizada con todos los modelos. Revisa la pestaña de Modelos para ver los cambios.");
     }
   };
 
   const importMainPaletteToType = () => {
+    console.log("DEBUG: Importando paleta a modelo actual", { colores: colors.length });
     if (colors.length === 0) {
       alert("⚠️ La paleta principal está vacía.");
       return;
     }
-    setTempTypeColors(colors.map(c => ({ ...c })));
+    const clonedColors = colors.map(c => ({ ...c }));
+    setTempTypeColors(clonedColors);
   };
 
   const clearTypeColors = () => {
