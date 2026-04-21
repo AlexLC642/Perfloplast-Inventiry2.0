@@ -135,26 +135,7 @@ export default function FidelityImage({
       <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
         {(!hasError && optimizedSrc && !optimizedTexture) && (
           <div style={{ position: 'relative', width: '100%', height: '100%', zIndex: 1 }}>
-            {/* 0. Silhouette Healer (Sub-imprimación) - Fills transparency holes by dilating the alpha channel of a backdrop layer */}
-            <img 
-               src={optimizedSrc}
-               alt=""
-               loading="lazy"
-               decoding="async"
-               style={{ 
-                 ...baseStyles, 
-                 zIndex: 1, 
-                 // The 'Blur-Contrast' trick: 
-                 // 1. Blur closes small and medium holes.
-                 // 2. High contrast hardens the result into a solid white shape.
-                 // 3. Brightness makes it pure white.
-                 filter: 'blur(3px) contrast(50) brightness(1.5)', 
-                 opacity: 1,
-                 pointerEvents: 'none'
-               }} 
-            />
-
-            {/* 1. Base Product Image */}
+            {/* 1. Base Product Image with Micro-Heal */}
             <img 
               src={optimizedSrc} 
               alt="" 
@@ -163,8 +144,10 @@ export default function FidelityImage({
               style={{ 
                 ...baseStyles, 
                 zIndex: 2, 
-                // Mixed with the solid primer beneath to ensure no background bleed-through
-                filter: `contrast(1.06) brightness(${luminance < 0.2 ? 0.98 : 0.99}) drop-shadow(0 15px 25px rgba(0,0,0,0.12))` 
+                // Micro-Heal technique: 
+                // A tiny 0.4px blur creates a "bridge" for drop-shadows to fill even 100% transparent holes
+                // but is small enough to NOT create a visible glow/ghosting border.
+                filter: `blur(0.4px) contrast(1.06) brightness(${luminance < 0.2 ? 0.98 : 0.99}) drop-shadow(0 0 0 #fff) drop-shadow(0 0 0 #fff) drop-shadow(0 0 0 #fff) drop-shadow(0 15px 25px rgba(0,0,0,0.12))` 
               }} 
             />
           </div>
