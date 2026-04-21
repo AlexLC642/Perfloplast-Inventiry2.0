@@ -134,20 +134,33 @@ export default function FidelityImage({
 
       <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
         {(!hasError && optimizedSrc && !optimizedTexture) && (
-          <img 
-            src={optimizedSrc} 
-            alt="" 
-            loading="lazy"
-            decoding="async"
-            style={{ 
-              ...baseStyles, 
-              zIndex: 1, 
-              // Added subtle drop-shadow for ambient occlusion and reduced brightness for neutrals to avoid washing out
-              // Added 'Solid Primer' (drop-shadow 0 0 0 white) to heal transparency holes in highlights
-              // This fixes "spots" without touching the mask calibration layer.
-              filter: `contrast(1.06) brightness(${luminance < 0.2 ? 0.98 : 0.99}) drop-shadow(0 0 0 #ffffff) drop-shadow(0 0 0 #ffffff) drop-shadow(0 15px 25px rgba(0,0,0,0.12))` 
-            }} 
-          />
+          <div style={{ position: 'relative', width: '100%', height: '100%', zIndex: 1 }}>
+            {/* 0. Solid Primer (Hole Filler) - Hardens the mask to fill transparency gaps in highlights */}
+            <div 
+               style={{ 
+                 ...maskStyles, 
+                 backgroundColor: '#ffffff', 
+                 zIndex: 1, 
+                 // We apply extreme contrast to the 'mask' effect to solidify semi-transparent holes
+                 filter: 'contrast(5) brightness(1.1)', 
+                 opacity: 1 
+               }} 
+            />
+
+            {/* 1. Base Product Image */}
+            <img 
+              src={optimizedSrc} 
+              alt="" 
+              loading="lazy"
+              decoding="async"
+              style={{ 
+                ...baseStyles, 
+                zIndex: 2, 
+                // Mixed with the solid primer beneath to ensure no background bleed-through
+                filter: `contrast(1.06) brightness(${luminance < 0.2 ? 0.98 : 0.99}) drop-shadow(0 15px 25px rgba(0,0,0,0.12))` 
+              }} 
+            />
+          </div>
         )}
 
         {((!isNeutral || optimizedTexture) && !hasError) && (
