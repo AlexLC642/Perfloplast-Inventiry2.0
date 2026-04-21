@@ -135,15 +135,22 @@ export default function FidelityImage({
       <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
         {(!hasError && optimizedSrc && !optimizedTexture) && (
           <div style={{ position: 'relative', width: '100%', height: '100%', zIndex: 1 }}>
-            {/* 0. Solid Primer (Hole Filler) - Hardens the mask to fill transparency gaps in highlights */}
-            <div 
+            {/* 0. Silhouette Healer (Sub-imprimación) - Fills transparency holes by dilating the alpha channel of a backdrop layer */}
+            <img 
+               src={optimizedSrc}
+               alt=""
+               loading="lazy"
+               decoding="async"
                style={{ 
-                 ...maskStyles, 
-                 backgroundColor: '#ffffff', 
+                 ...baseStyles, 
                  zIndex: 1, 
-                 // We apply extreme contrast to the 'mask' effect to solidify semi-transparent holes
-                 filter: 'contrast(5) brightness(1.1)', 
-                 opacity: 1 
+                 // The 'Blur-Contrast' trick: 
+                 // 1. Blur closes small and medium holes.
+                 // 2. High contrast hardens the result into a solid white shape.
+                 // 3. Brightness makes it pure white.
+                 filter: 'blur(3px) contrast(50) brightness(1.5)', 
+                 opacity: 1,
+                 pointerEvents: 'none'
                }} 
             />
 
