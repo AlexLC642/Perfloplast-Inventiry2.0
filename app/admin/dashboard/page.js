@@ -113,10 +113,7 @@ export default function AdminDashboard({ params, searchParams }) {
     });
   };
 
-  const handleTransformChange = (key, value) => {
-    // This now only affects the main product transform
-    setImageTransform(prev => ({ ...prev, [key]: value }));
-  };
+  // handleTransformChange removed for simplicity
 
   useEffect(() => {
     fetchProducts();
@@ -1001,7 +998,6 @@ export default function AdminDashboard({ params, searchParams }) {
       const newColors = [...colors];
       if (updates.lumina !== undefined) newColors[editingColorIndex].lumina = updates.lumina;
       setColors(newColors);
-      return;
     }
 
     // 2. ROUTE TO MODEL COLOR
@@ -1009,7 +1005,6 @@ export default function AdminDashboard({ params, searchParams }) {
       const newTypes = [...types];
       if (updates.lumina !== undefined) newTypes[editingTypeIndex].colors[editingTypeColorIndex].lumina = updates.lumina;
       setTypes(newTypes);
-      return;
     }
 
     // 3. ROUTE TO VIEW (MAIN OR TYPE)
