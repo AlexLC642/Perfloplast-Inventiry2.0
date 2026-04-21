@@ -84,6 +84,12 @@ export default function AdminDashboard({ params, searchParams }) {
     if (updates.transform !== undefined) {
       nextTransform = updates.transform;
       setTempColorTransform(nextTransform);
+    } else if (updates.file && updates.file !== 'clear') {
+      // AUTO-INHERIT: If adding a file, and no transform is set, inherit from main product
+      if (tempColorTransform.scale === 1 && tempColorTransform.x === 0 && tempColorTransform.y === 0) {
+        nextTransform = { ...imageTransform };
+        setTempColorTransform(nextTransform);
+      }
     }
 
     setColors(prev => {
@@ -126,6 +132,21 @@ export default function AdminDashboard({ params, searchParams }) {
       }
       return nextTransform;
     });
+  };
+
+  const syncTexturePosition = () => {
+    const nextTransform = { ...imageTransform };
+    setTempColorTransform(nextTransform);
+    
+    if (editingColorIndex !== null) {
+      setColors(prevColors => {
+        const newColors = [...prevColors];
+        if (newColors[editingColorIndex]) {
+          newColors[editingColorIndex].textureTransform = nextTransform;
+        }
+        return newColors;
+      });
+    }
   };
 
   useEffect(() => {
@@ -1795,9 +1816,20 @@ export default function AdminDashboard({ params, searchParams }) {
                             {/* NEW: Simple Image Size Slider (Only if image exists) */}
                             {(tempColorFile || (editingColorIndex !== null && colors[editingColorIndex]?.image && tempColorFile !== 'clear')) && (
                               <div style={{ padding: '20px', background: '#f0f9ff', borderRadius: '20px', border: '1px solid #bae6fd', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                   <label style={{ fontSize: '11px', fontWeight: '900', color: '#0369a1', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ajuste de Imagen de Color</label>
+                                   <button 
+                                      type="button" 
+                                      onClick={syncTexturePosition}
+                                      style={{ background: '#0ea5e9', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '10px', fontSize: '10px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                                    >
+                                      ✨ SINCRONIZAR POSICIÓN
+                                    </button>
+                                </div>
+
                                 <div>
                                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                                    <label style={{ fontSize: '11px', fontWeight: '900', color: '#0369a1', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tamaño de Imagen de Color</label>
+                                    <label style={{ fontSize: '11px', fontWeight: '700', color: '#0369a1' }}>Escala (Tamaño)</label>
                                     <span style={{ fontSize: '11px', fontWeight: '900', color: '#0ea5e9' }}>{tempColorTransform.scale}x</span>
                                   </div>
                                   <input
