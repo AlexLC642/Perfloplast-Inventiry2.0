@@ -83,6 +83,13 @@ export default function FidelityImage({
     return Math.min(0.95, base * shadowFactor);
   }, [luminance, isNeutral, optimizedTexture, lumina?.contrast]);
 
+  // COLOR DEPTH / REALISM - Calculates weight for realistic tones
+  const realismOpacity = useMemo(() => {
+    if (isNeutral || optimizedTexture) return 0.9;
+    // Darker colors need slightly more saturation/opacity to look "solid"
+    return luminance < 0.3 ? 0.95 : 0.9;
+  }, [luminance, isNeutral, optimizedTexture]);
+
   const softLightOpacity = useMemo(() => {
     if (optimizedTexture) return 0;
     // Reduce soft-light for very dark colors to avoid white-ish highlights "popping" too much
@@ -136,7 +143,9 @@ export default function FidelityImage({
               ...baseStyles, 
               zIndex: 1, 
               // Added subtle drop-shadow for ambient occlusion and reduced brightness for neutrals to avoid washing out
-              filter: `contrast(1.06) brightness(${luminance < 0.2 ? 0.98 : 0.99}) drop-shadow(0 15px 25px rgba(0,0,0,0.12))` 
+              // Added 'Solid Primer' (drop-shadow 0 0 0 white) to heal transparency holes in highlights
+              // This fixes "spots" without touching the mask calibration layer.
+              filter: `contrast(1.06) brightness(${luminance < 0.2 ? 0.98 : 0.99}) drop-shadow(0 0 0 #ffffff) drop-shadow(0 0 0 #ffffff) drop-shadow(0 15px 25px rgba(0,0,0,0.12))` 
             }} 
           />
         )}
@@ -162,8 +171,8 @@ export default function FidelityImage({
                <div style={{ ...maskStyles, backgroundColor: safeColor, mixBlendMode: 'multiply', opacity: multiplyOpacity, zIndex: 4 }} />
              )}
 
-             {/* 3. Color/Texture */}
-             <div style={{ ...maskStyles, backgroundColor: optimizedTexture ? 'transparent' : safeColor, mixBlendMode: optimizedTexture ? 'normal' : 'color', opacity: optimizedTexture ? 1 : 0.9, zIndex: 5 }}>
+             {/* 3. Color/Texture - Optimized for Realism */}
+             <div style={{ ...maskStyles, backgroundColor: optimizedTexture ? 'transparent' : safeColor, mixBlendMode: optimizedTexture ? 'normal' : 'color', opacity: optimizedTexture ? 1 : realismOpacity, zIndex: 5 }}>
                 {optimizedTexture && (
                    <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${optimizedTexture})`, backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', transform: `scale(${textureTransform?.scale || 1}) translate(${textureTransform?.x || 0}%, ${textureTransform?.y || 0}%)` }} />
                 )}
