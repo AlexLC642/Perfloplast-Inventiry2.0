@@ -107,7 +107,8 @@ export default function FidelityImage({
     opacity: hasError ? 0 : 1,
   };
 
-  const effectiveImageSource = optimizedSrc || optimizedTexture;
+  const effectiveImageSource = optimizedTexture || optimizedSrc;
+  const isUsingTexture = !!optimizedTexture;
   const activeMask = optimizedMask ? `url(${optimizedMask})` : (effectiveImageSource ? `url(${effectiveImageSource})` : null);
   
   const maskStyles = {
@@ -133,30 +134,28 @@ export default function FidelityImage({
       )}
 
       <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
-        {(!hasError && optimizedSrc && !optimizedTexture) && (
+        {(!hasError && effectiveImageSource) && (
           <div style={{ position: 'relative', width: '100%', height: '100%', zIndex: 1 }}>
-            {/* 1. Base Product Image with Micro-Heal */}
+            {/* 1. Base Image - Now can be the product photo OR the color photo replacement */}
             <img 
-              src={optimizedSrc} 
+              src={effectiveImageSource} 
               alt="" 
               loading="lazy"
               decoding="async"
               style={{ 
                 ...baseStyles, 
                 zIndex: 2, 
-                // Micro-Heal technique: 
-                // A tiny 0.4px blur creates a "bridge" for drop-shadows to fill even 100% transparent holes
-                // but is small enough to NOT create a visible glow/ghosting border.
-                filter: `blur(0.4px) contrast(1.06) brightness(${luminance < 0.2 ? 0.98 : 0.99}) drop-shadow(0 0 0 #fff) drop-shadow(0 0 0 #fff) drop-shadow(0 0 0 #fff) drop-shadow(0 15px 25px rgba(0,0,0,0.12))` 
+                // Color Correction & Spot Healing
+                filter: `blur(0.3px) contrast(1.06) brightness(${luminance < 0.2 ? 0.98 : 0.99}) drop-shadow(0 0 0 #fff) drop-shadow(0 0 0 #fff) drop-shadow(0 15px 25px rgba(0,0,0,0.12))` 
               }} 
             />
           </div>
         )}
 
-        {((!isNeutral || optimizedTexture) && !hasError) && (
+        {((!isNeutral && !isUsingTexture)) && !hasError && (
           <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
              {/* 1. Neutralizer (Deep Grayscale) */}
-             {(optimizedSrc && !optimizedTexture) && (
+             {optimizedSrc && (
               <img 
                 src={optimizedSrc} 
                 loading="lazy"
@@ -169,40 +168,32 @@ export default function FidelityImage({
               />
              )}
              
-             {/* 2. Darkness Reinforcement (Multiply) - NEW for dark colors */}
+             {/* 2. Darkness Reinforcement (Multiply) */}
              {multiplyOpacity > 0 && (
                <div style={{ ...maskStyles, backgroundColor: safeColor, mixBlendMode: 'multiply', opacity: multiplyOpacity, zIndex: 4 }} />
              )}
 
-             {/* 3. Color/Texture - Optimized for Realism */}
-             <div style={{ ...maskStyles, backgroundColor: optimizedTexture ? 'transparent' : safeColor, mixBlendMode: optimizedTexture ? 'normal' : 'color', opacity: optimizedTexture ? 1 : realismOpacity, zIndex: 5 }}>
-                {optimizedTexture && (
-                   <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${optimizedTexture})`, backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', transform: `scale(${textureTransform?.scale || 1}) translate(${textureTransform?.x || 0}%, ${textureTransform?.y || 0}%)` }} />
-                )}
-             </div>
+             {/* 3. Color Layer */}
+             <div style={{ ...maskStyles, backgroundColor: safeColor, mixBlendMode: 'color', opacity: realismOpacity, zIndex: 5 }} />
              
-             {/* 4. Soft Volume (High Saturation) */}
-             {(!optimizedTexture) && (
-              <div style={{ ...maskStyles, backgroundColor: safeColor, mixBlendMode: 'soft-light', opacity: softLightOpacity, zIndex: 6 }} />
-             )}
+             {/* 4. Soft Volume */}
+             <div style={{ ...maskStyles, backgroundColor: safeColor, mixBlendMode: 'soft-light', opacity: softLightOpacity, zIndex: 6 }} />
 
-             {/* 5. Deep Shadows (Extra pass for dark colors) */}
+             {/* 5. Deep Shadows */}
              {luminance < 0.15 && (
                <div style={{ ...maskStyles, backgroundColor: 'black', mixBlendMode: 'multiply', opacity: 0.15, zIndex: 7 }} />
              )}
 
-             {/* 6. Gloss Restoration (Specular POP) - RESTORES ORIGINAL SHINE */}
-             {(optimizedSrc && !optimizedTexture) && (
+             {/* 6. Gloss Restoration */}
+             {optimizedSrc && (
                <img 
                  src={optimizedSrc} 
                  loading="lazy"
                  decoding="async"
                  style={{ 
                    ...maskStyles, 
-                   // High contrast filter to isolate pure highlights
                    filter: `grayscale(1) brightness(0.9) contrast(1.8)`, 
                    mixBlendMode: 'screen', 
-                   // More visible gloss on dark colors to give that 'piano black' / polished look
                    opacity: luminance < 0.3 ? 0.35 : 0.2, 
                    zIndex: 8,
                    pointerEvents: 'none'

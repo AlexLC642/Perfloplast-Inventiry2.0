@@ -114,39 +114,8 @@ export default function AdminDashboard({ params, searchParams }) {
   };
 
   const handleTransformChange = (key, value) => {
-    setTempColorTransform(prev => {
-      const nextTransform = { ...prev, [key]: value };
-
-      if (editingColorIndex !== null) {
-        setColors(prevColors => {
-          const newColors = [...prevColors];
-          const current = newColors[editingColorIndex];
-          if (current) {
-            newColors[editingColorIndex] = {
-              ...current,
-              textureTransform: nextTransform
-            };
-          }
-          return newColors;
-        });
-      }
-      return nextTransform;
-    });
-  };
-
-  const syncTexturePosition = () => {
-    const nextTransform = { ...imageTransform };
-    setTempColorTransform(nextTransform);
-    
-    if (editingColorIndex !== null) {
-      setColors(prevColors => {
-        const newColors = [...prevColors];
-        if (newColors[editingColorIndex]) {
-          newColors[editingColorIndex].textureTransform = nextTransform;
-        }
-        return newColors;
-      });
-    }
+    // This now only affects the main product transform
+    setImageTransform(prev => ({ ...prev, [key]: value }));
   };
 
   useEffect(() => {
@@ -1814,62 +1783,7 @@ export default function AdminDashboard({ params, searchParams }) {
                             </div>
 
                             {/* NEW: Simple Image Size Slider (Only if image exists) */}
-                            {(tempColorFile || (editingColorIndex !== null && colors[editingColorIndex]?.image && tempColorFile !== 'clear')) && (
-                              <div style={{ padding: '20px', background: '#f0f9ff', borderRadius: '20px', border: '1px solid #bae6fd', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                   <label style={{ fontSize: '11px', fontWeight: '900', color: '#0369a1', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ajuste de Imagen de Color</label>
-                                   <button 
-                                      type="button" 
-                                      onClick={syncTexturePosition}
-                                      style={{ background: '#0ea5e9', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '10px', fontSize: '10px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
-                                    >
-                                      ✨ SINCRONIZAR POSICIÓN
-                                    </button>
-                                </div>
-
-                                <div>
-                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                                    <label style={{ fontSize: '11px', fontWeight: '700', color: '#0369a1' }}>Escala (Tamaño)</label>
-                                    <span style={{ fontSize: '11px', fontWeight: '900', color: '#0ea5e9' }}>{tempColorTransform.scale}x</span>
-                                  </div>
-                                  <input
-                                    type="range"
-                                    min="0.01"
-                                    max="4"
-                                    step="0.01"
-                                    value={tempColorTransform.scale}
-                                    onChange={(e) => handleTransformChange('scale', parseFloat(e.target.value))}
-                                    style={{ width: '100%', accentColor: '#0ea5e9', cursor: 'grab' }}
-                                  />
-                                </div>
-
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                                  <div>
-                                    <label style={{ fontSize: '10px', fontWeight: '900', color: '#0369a1', display: 'block', marginBottom: '8px' }}>EJE X (%)</label>
-                                    <input
-                                      type="range"
-                                      min="-100"
-                                      max="100"
-                                      value={tempColorTransform.x || 0}
-                                      onChange={(e) => handleTransformChange('x', parseInt(e.target.value))}
-                                      style={{ width: '100%', accentColor: '#0ea5e9' }}
-                                    />
-                                  </div>
-                                  <div>
-                                    <label style={{ fontSize: '10px', fontWeight: '900', color: '#0369a1', display: 'block', marginBottom: '8px' }}>EJE Y (%)</label>
-                                    <input
-                                      type="range"
-                                      min="-100"
-                                      max="100"
-                                      value={tempColorTransform.y || 0}
-                                      onChange={(e) => handleTransformChange('y', parseInt(e.target.value))}
-                                      style={{ width: '100%', accentColor: '#0ea5e9' }}
-                                    />
-                                  </div>
-                                </div>
-                                <p style={{ margin: 0, fontSize: '10px', color: '#64748b', fontStyle: 'italic' }}>Ajusta qué tan grande y dónde se ve la foto sobre el producto.</p>
-                              </div>
-                            )}
+                            {/* Texture adjustments removed: Now handled by global sliders for simplicity */}
 
                             <div>
                               <p style={{ margin: '0 0 12px 0', fontSize: '12px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Sugerencias de Calidad</p>
