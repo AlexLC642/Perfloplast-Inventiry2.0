@@ -2212,7 +2212,7 @@ export default function AdminDashboard({ params, searchParams }) {
                         {/* Contact Shadow (Sync with ProductCard) */}
                         <div style={{ position: 'absolute', bottom: '22%', width: '45%', height: '14px', background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, transparent 80%)', filter: 'blur(8px)', borderRadius: '50%', zIndex: 1, opacity: 0.9, transform: 'scaleY(0.7)' }} />
 
-                        <div style={{ transform: isMobile ? 'scale(0.7)' : 'none' }}>
+                        <div style={{ transform: isMobile ? 'scale(0.7)' : 'none', width: '100%', height: '100%', position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <FidelityImage
                             src={getActiveSettings().image}
                             maskSrc={getActiveSettings().maskImage}
