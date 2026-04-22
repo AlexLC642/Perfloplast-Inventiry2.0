@@ -62,13 +62,13 @@ export const generateCatalogPdf = async (products) => {
     chunks.push(allEntries.slice(i, i + 6));
   }
 
-  const pdf = new jsPDF('p', 'mm', 'a4');
-  const pdfWidth = pdf.internal.pageSize.getWidth();
-  const pdfHeight = pdf.internal.pageSize.getHeight();
+    // 2. Optimized PDF Generation
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
 
-  try {
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];
+    // Helper to process a single page
+    const renderPage = async (chunk, index) => {
       const pageDiv = document.createElement('div');
       pageDiv.style.position = 'fixed';
       pageDiv.style.top = '-10000px';
@@ -130,23 +130,42 @@ export const generateCatalogPdf = async (products) => {
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); gap: 25px; flex: 1;">
           ${itemsHtml}
         </div>
-        ${FOOTER_HTML(i + 1, chunks.length)}
+        ${FOOTER_HTML(index + 1, chunks.length)}
       `;
 
       document.body.appendChild(pageDiv);
 
       const canvas = await html2canvas(pageDiv, {
-        scale: 3,
+        scale: 2, // Reduced from 3 to 2 for much faster generation while maintaining quality
         useCORS: true,
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        imageTimeout: 0,
+        removeContainer: true
       });
 
-      const imgData = canvas.toDataURL('image/png', 1.0);
-      if (i > 0) pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
       document.body.removeChild(pageDiv);
+      return { index, canvas };
+    };
+
+    // Process pages in parallel (batches of 2 to balance speed and memory)
+    const CONCURRENCY_LIMIT = 2;
+    const results = [];
+    
+    for (let i = 0; i < chunks.length; i += CONCURRENCY_LIMIT) {
+      const batch = chunks.slice(i, i + CONCURRENCY_LIMIT).map((chunk, j) => 
+        renderPage(chunk, i + j)
+      );
+      const batchResults = await Promise.all(batch);
+      results.push(...batchResults);
     }
+
+    // Assemble PDF in order
+    results.sort((a, b) => a.index - b.index).forEach((res, i) => {
+      if (i > 0) pdf.addPage();
+      // Directly inject canvas and use JPEG for faster compression and smaller file size
+      pdf.addImage(res.canvas, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+    });
 
     pdf.save(`Catálogo_Premium_Perflo_${new Date().toISOString().split('T')[0]}.pdf`);
   } catch (err) {
