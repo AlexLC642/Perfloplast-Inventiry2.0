@@ -363,6 +363,7 @@ export default function AdminDashboard({ params, searchParams }) {
 
       const formattedTypes = (product.types || []).map(t => ({
         name: typeof t === 'string' ? t : (t.name || ''),
+        description: t.description || '',
         price: t.price || '',
         colors: t.colors || [],
         image: typeof t === 'string' ? (product.image || '') : (t.image || ''),
@@ -598,6 +599,7 @@ export default function AdminDashboard({ params, searchParams }) {
 
         return {
           name: t.name,
+          description: t.description || '',
           price: t.price || '',
           colors: t.colors || [],
           image: typeImageUrl,
