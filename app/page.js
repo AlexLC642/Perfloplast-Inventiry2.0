@@ -282,41 +282,48 @@ export default function Home() {
                 isLightboxView={true} 
                 sceneSrc={settings.productSceneBackground}
                 key={`lightbox-${selectedProduct.id}`} 
+                onNext={nextProduct}
+                onPrev={prevProduct}
+                onClose={closeLightbox}
               />
               
-              <button 
-                onClick={prevProduct}
-                className="nav-btn lightbox-nav"
-                style={{ position: 'absolute', left: '30px', top: '50%', transform: 'translateY(-50%)', zIndex: 3000, width: '56px', height: '56px' }}
-                title="Anterior (←)"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m15 18-6-6 6-6"/>
-                </svg>
-              </button>
-              
-              <button 
-                onClick={nextProduct}
-                className="nav-btn lightbox-nav"
-                style={{ position: 'absolute', right: '30px', top: '50%', transform: 'translateY(-50%)', zIndex: 3000, width: '56px', height: '56px' }}
-                title="Siguiente (→)"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m9 18 6-6-6-6"/>
-                </svg>
-              </button>
+              {!isMobile && (
+                <>
+                  <button 
+                    onClick={prevProduct}
+                    className="nav-btn lightbox-nav"
+                    style={{ position: 'absolute', left: '30px', top: '50%', transform: 'translateY(-50%)', zIndex: 3000, width: '56px', height: '56px' }}
+                    title="Anterior (←)"
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="m15 18-6-6 6-6"/>
+                    </svg>
+                  </button>
+                  
+                  <button 
+                    onClick={nextProduct}
+                    className="nav-btn lightbox-nav"
+                    style={{ position: 'absolute', right: '30px', top: '50%', transform: 'translateY(-50%)', zIndex: 3000, width: '56px', height: '56px' }}
+                    title="Siguiente (→)"
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="m9 18 6-6-6-6"/>
+                    </svg>
+                  </button>
 
-              <button 
-                onClick={closeLightbox}
-                style={{
-                  position: 'absolute', top: '32px', right: '32px', background: 'white', border: 'none', borderRadius: '50%', width: '48px', height: '48px',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', color: '#64748b', zIndex: 3001
-                }}
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-                </svg>
-              </button>
+                  <button 
+                    onClick={closeLightbox}
+                    style={{
+                      position: 'absolute', top: '32px', right: '32px', background: 'white', border: 'none', borderRadius: '50%', width: '48px', height: '48px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', color: '#64748b', zIndex: 3001
+                    }}
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                    </svg>
+                  </button>
+                </>
+              )}
             </motion.div>
           </motion.div>
         )}

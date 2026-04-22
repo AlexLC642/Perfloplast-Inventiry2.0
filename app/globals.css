@@ -280,10 +280,10 @@ html {
 @media (max-width: 1100px) {
   .lightbox-modal {
     width: 100%;
-    margin: 8px;
-    height: auto;
-    max-height: none;
-    border-radius: 28px;
+    margin: 0;
+    height: 100dvh; /* Better for mobile bars */
+    max-height: 100dvh;
+    border-radius: 0; /* Full screen look on mobile */
   }
   
   .product-card.in-lightbox {
@@ -291,38 +291,32 @@ html {
     display: flex !important;
     flex-direction: column;
     overflow-y: auto;
+    height: 100%;
   }
 
-  /* Ensure the image area takes reasonable space on mobile */
+  /* Image area */
   .product-card.in-lightbox > div:first-child {
-    aspect-ratio: auto; /* Allow content to dictate height */
-    min-height: 45vh; /* Take about half the screen on mobile */
-    background: transparent !important;
+    aspect-ratio: auto;
+    min-height: 40vh; 
+    max-height: 50vh;
+    background: #f8fafc !important;
+    flex-shrink: 0;
   }
 
   .lightbox-details {
     max-width: 100%;
     border-left: none;
     border-top: 1px solid #f1f5f9;
+    flex: 1;
+    overflow-y: visible; /* Scroll is handled by parent .product-card.in-lightbox */
   }
 
   .lightbox-details-inner {
-    padding: 24px 20px 60px; /* Reduced side padding */
+    padding: 20px 20px 40px; 
   }
-
-  .lightbox-nav {
-    width: 44px !important;
-    height: 44px !important;
-    top: auto !important;
-    bottom: 20px !important;
-    transform: none !important;
-  }
-  
-  .lightbox-nav[title*="Anterior"] { left: 8px !important; } /* Closer to edge on mobile */
-  .lightbox-nav[title*="Siguiente"] { right: 8px !important; }
 
   .lightbox-overlay {
-    padding: 10px;
+    padding: 0; /* Full screen overlay on mobile */
   }
 }
 

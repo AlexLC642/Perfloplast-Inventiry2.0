@@ -15,7 +15,16 @@ function useIsMobile() {
   return isMobile;
 }
 
-export default function ProductCard({ product, onClick, isLightboxView = false, activeTransform = null, sceneSrc = '' }) {
+export default function ProductCard({ 
+  product, 
+  onClick, 
+  isLightboxView = false, 
+  activeTransform = null, 
+  sceneSrc = '',
+  onNext = null,
+  onPrev = null,
+  onClose = null
+}) {
   const optimizeUrl = (url, width = 400) => {
     if (!url || typeof url !== 'string' || !url.includes('cloudinary.com')) return url;
     if (url.includes('/upload/f_auto')) return url;
@@ -118,13 +127,56 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
         background: isLightboxView ? '#f8fafc' : `radial-gradient(circle at 50% 50%, ${selectedColor?.hex || '#fff'}20 0%, transparent 85%)`,
         boxShadow: isLightboxView ? 'none' : 'inset 0 0 40px rgba(0,0,0,0.02)',
         transition: 'background 0.6s ease',
-        minHeight: isLightboxView ? (isMobile ? '300px' : '500px') : 'auto',
+        minHeight: isLightboxView ? (isMobile ? '350px' : '500px') : 'auto',
+        maxHeight: isLightboxView && isMobile ? '50vh' : 'auto',
         overflow: 'hidden'
       }}>
         {(!isMobile || isLightboxView) && (
           <div style={{ position: 'absolute', top: isMobile ? '20px' : '32px', left: isMobile ? '20px' : '32px', zIndex: 30, opacity: 0.15, pointerEvents: 'none' }}>
             <Logo size={isMobile ? 22 : 28} color="#0047AB" showIcon={false} />
           </div>
+        )}
+
+        {/* Navigation Buttons for Mobile Lightbox — Overlaying the image area */}
+        {isLightboxView && isMobile && (
+          <>
+            <button 
+              onClick={onPrev}
+              style={{
+                position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)',
+                zIndex: 100, background: 'white', border: 'none', borderRadius: '50%', width: '44px', height: '44px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', color: '#c5a059'
+              }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m15 18-6-6 6-6"/>
+              </svg>
+            </button>
+            <button 
+              onClick={onNext}
+              style={{
+                position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)',
+                zIndex: 100, background: 'white', border: 'none', borderRadius: '50%', width: '44px', height: '44px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', color: '#c5a059'
+              }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m9 18 6-6-6-6"/>
+              </svg>
+            </button>
+            <button 
+              onClick={onClose}
+              style={{
+                position: 'absolute', top: '16px', right: '16px',
+                zIndex: 101, background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: '50%', width: '38px', height: '38px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', color: '#64748b'
+              }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+              </svg>
+            </button>
+          </>
         )}
 
         <div style={{ position: 'absolute', bottom: '22%', width: '70%', height: '1px', background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.05) 50%, transparent 100%)', zIndex: 0 }} />
@@ -176,62 +228,79 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
         <div className="lightbox-details">
           <div className="lightbox-details-inner">
             <div style={{ flex: 1 }}>
+              
+              {/* MOBILE REORDER: MODELS FIRST */}
+              {isMobile && (
+                <div style={{ marginBottom: '24px' }}>
+                   {product.types && product.types.length > 0 && (
+                     <>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                        <div style={{ width: '3px', height: '10px', background: '#c5a059', borderRadius: '2px' }} />
+                        <h4 style={{ margin: 0, fontSize: '10px', fontWeight: '900', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Modelos</h4>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
+                        {availableTypes.map((t, idx) => (
+                          <motion.button
+                            key={idx}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={(e) => { e.stopPropagation(); handleTypeSelect(t); }}
+                            style={{
+                              flexShrink: 0, padding: '6px', borderRadius: '12px', cursor: 'pointer',
+                              background: selectedType?.name === t.name ? 'white' : '#f1f5f9',
+                              border: selectedType?.name === t.name ? '2px solid #c5a059' : '1px solid transparent',
+                              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', minWidth: '60px'
+                            }}
+                          >
+                            <div style={{ width: '32px', height: '32px', borderRadius: '8px', overflow: 'hidden', background: 'white' }}>
+                              <img src={optimizeUrl(t.image || product.image, 100)} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                            </div>
+                            <span style={{ fontSize: '8px', fontWeight: '800', color: selectedType?.name === t.name ? '#1e293b' : '#94a3b8', whiteSpace: 'nowrap' }}>{t.name}</span>
+                          </motion.button>
+                        ))}
+                      </div>
+                     </>
+                   )}
+                </div>
+              )}
+
               {/* Title + Dynamic Price */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: isMobile ? '20px' : '32px' }}>
                 <div>
-                  <h2 style={{ fontSize: '36px', fontWeight: '900', color: '#1e293b', margin: '0 0 8px 0', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+                  <h2 style={{ fontSize: isMobile ? '24px' : '36px', fontWeight: '900', color: '#1e293b', margin: '0 0 4px 0', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
                     {(selectedType && selectedType.name !== 'Original') ? selectedType.name : product.name}
                   </h2>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e' }} />
-                    <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Studio Product</span>
+                    <span style={{ fontSize: '10px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Studio Product</span>
                   </div>
                 </div>
-                {/* DYNAMIC PRICE — changes with model */}
+                {/* DYNAMIC PRICE */}
                 <motion.div
                   key={String(activePrice)}
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  style={{ background: '#f8fafc', padding: '12px 20px', borderRadius: '18px', border: '1px solid #e2e8f0' }}
+                  style={{ background: '#f8fafc', padding: isMobile ? '8px 12px' : '12px 20px', borderRadius: '14px', border: '1px solid #e2e8f0', textAlign: 'right' }}
                 >
-                  <span style={{ fontSize: '14px', fontWeight: '800', color: '#64748b', verticalAlign: 'super', marginRight: '4px' }}>Q</span>
-                  <span style={{ fontSize: '32px', fontWeight: '900', color: '#c5a059' }}>{Number(activePrice || 0).toFixed(2)}</span>
+                  <span style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', verticalAlign: 'super', marginRight: '2px' }}>Q</span>
+                  <span style={{ fontSize: isMobile ? '22px' : '32px', fontWeight: '900', color: '#c5a059' }}>{Number(activePrice || 0).toFixed(2)}</span>
                 </motion.div>
               </div>
 
-              <p style={{ fontSize: '15px', color: '#64748b', lineHeight: '1.7', marginBottom: '40px', whiteSpace: 'pre-wrap' }}>
+              <p style={{ fontSize: isMobile ? '14px' : '15px', color: '#64748b', lineHeight: '1.6', marginBottom: isMobile ? '24px' : '40px', whiteSpace: 'pre-wrap' }}>
                 {(selectedType && selectedType.description) 
                   ? selectedType.description 
                   : (product.description || 'Diseño exclusivo Perflo-Plast. Fabricado con materiales de alta resistencia, ideal para maximizar el estilo y funcionalidad de tus espacios.')}
               </p>
 
-              {/* Models */}
-              {(product.types && product.types.length > 0) && (
+              {/* Models (Desktop View only, since mobile has it at top now) */}
+              {(!isMobile && product.types && product.types.length > 0) && (
                 <div style={{ marginBottom: '40px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
                     <div style={{ width: '4px', height: '12px', background: '#c5a059', borderRadius: '2px' }} />
                     <h4 style={{ margin: 0, fontSize: '11px', fontWeight: '900', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Modelos Disponibles</h4>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(75px, 1fr))', gap: '8px' }}>
-                    {/* Base / Original */}
-                    <motion.button
-                      whileHover={{ y: -4, boxShadow: '0 10px 25px rgba(0,0,0,0.08)' }}
-                      whileTap={{ scale: 0.97 }}
-                      onClick={(e) => { e.stopPropagation(); handleTypeSelect(availableTypes[0]); }}
-                      style={{
-                        padding: '8px 4px', borderRadius: '14px', cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                        background: selectedType?.name === 'Original' ? 'white' : '#f8fafc',
-                        border: selectedType?.name === 'Original' ? '2px solid #c5a059' : '1px solid #e2e8f0',
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px'
-                      }}
-                    >
-                      <div style={{ width: '32px', height: '32px', background: 'white', borderRadius: '10px', overflow: 'hidden', padding: '3px', border: '1px solid #f1f5f9' }}>
-                        <img src={optimizeUrl(product.image, 100)} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                      </div>
-                      <span style={{ fontSize: '10px', fontWeight: '900', color: selectedType?.name === 'Original' ? '#1e293b' : '#64748b' }}>Original</span>
-                    </motion.button>
-
-                    {availableTypes.slice(1).map((t, idx) => (
+                    {availableTypes.map((t, idx) => (
                       <motion.button
                         key={idx}
                         whileHover={{ y: -4, boxShadow: '0 10px 25px rgba(0,0,0,0.08)' }}
@@ -245,10 +314,7 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
                         }}
                       >
                         <div style={{ width: '32px', height: '32px', background: 'white', borderRadius: '10px', overflow: 'hidden', padding: '3px', border: '1px solid #f1f5f9' }}>
-                          {t.image
-                            ? <img src={optimizeUrl(t.image, 100)} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                            : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', opacity: 0.3 }}>📦</div>
-                          }
+                          <img src={optimizeUrl(t.image || product.image, 100)} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                         </div>
                         <span style={{ fontSize: '10px', fontWeight: '900', color: selectedType?.name === t.name ? '#1e293b' : '#64748b' }}>{t.name}</span>
                         {t.price && (
@@ -263,13 +329,10 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
               {/* DYNAMIC COLOR PALETTE — changes with model */}
               {activeColors.length > 0 && (
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: isMobile ? '12px' : '20px' }}>
                     <div style={{ width: '4px', height: '12px', background: '#c5a059', borderRadius: '2px' }} />
-                    <h4 style={{ margin: 0, fontSize: '11px', fontWeight: '900', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+                    <h4 style={{ margin: 0, fontSize: isMobile ? '10px' : '11px', fontWeight: '900', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
                       Paleta de Colores
-                      {selectedType?.name && selectedType.name !== 'Original' && selectedType?.colors && (
-                        <span style={{ marginLeft: '8px', color: '#c5a059', fontWeight: '700' }}>— {selectedType.name}</span>
-                      )}
                     </h4>
                   </div>
                   <AnimatePresence mode="wait">
@@ -278,7 +341,7 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -8 }}
-                      style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}
+                      style={{ display: 'flex', gap: isMobile ? '10px' : '16px', flexWrap: 'wrap' }}
                     >
                       {activeColors.map((c, idx) => (
                         <motion.button
@@ -287,7 +350,7 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
                           whileTap={{ scale: 0.9 }}
                           onClick={(e) => { e.stopPropagation(); setSelectedColor(c); }}
                           style={{
-                            width: '42px', height: '42px', borderRadius: '50%', 
+                            width: isMobile ? '38px' : '42px', height: isMobile ? '38px' : '42px', borderRadius: '50%', 
                             background: c.hex,
                             backgroundImage: (c.file || c.image) ? `url(${optimizeUrl(typeof c.file === 'string' ? c.file : (c.image || ''), 100)})` : 'none',
                             backgroundSize: 'cover', backgroundPosition: 'center',
@@ -305,9 +368,9 @@ export default function ProductCard({ product, onClick, isLightboxView = false, 
               )}
             </div>
 
-            <div style={{ paddingTop: '40px', marginTop: '40px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ color: '#cbd5e1', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Ref: {product.id?.slice(0, 8)}</div>
-              <Logo size={48} color="#cbd5e1" />
+            <div style={{ paddingTop: '32px', marginTop: '32px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ color: '#cbd5e1', fontSize: '9px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Ref: {product.id?.slice(0, 8)}</div>
+              <Logo size={isMobile ? 32 : 48} color="#cbd5e1" />
             </div>
           </div>
         </div>
