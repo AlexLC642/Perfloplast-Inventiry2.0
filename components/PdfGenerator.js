@@ -62,6 +62,7 @@ export const generateCatalogPdf = async (products) => {
     chunks.push(allEntries.slice(i, i + 6));
   }
 
+  try {
     // 2. Optimized PDF Generation
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
