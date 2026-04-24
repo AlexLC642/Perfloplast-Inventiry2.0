@@ -40,6 +40,7 @@ export default function ProductCard({
       imageTransform: product.imageTransform || { scale: 1, x: 0, y: 0 },
       price: null,   // null = usar precio del producto
       colors: null,  // null = usar colores del producto
+      description: product.description || null,
     };
 
     const customTypes = product.types && product.types.length > 0
@@ -50,6 +51,7 @@ export default function ProductCard({
           baseHue: (typeof t === 'object' && t?.baseHue !== undefined) ? t.baseHue : product.baseHue,
           imageTransform: (typeof t === 'object' && t?.imageTransform) ? t.imageTransform : (product.imageTransform || { scale: 1, x: 0, y: 0 }),
           lumina: (typeof t === 'object' && t?.lumina) ? t.lumina : product.lumina,
+          description: (typeof t === 'object' && t?.description) ? t.description : null,
           // Independent price & colors per model
           price: (typeof t === 'object' && t?.price && t.price !== '') ? t.price : null,
           colors: (typeof t === 'object' && t?.colors && t.colors.length > 0) ? t.colors : null,
