@@ -1826,9 +1826,9 @@ export default function AdminDashboard({ params, searchParams }) {
                                   }}
                                 >
                                   {/* Color-Specific Image Thumbnail */}
-                                  {(typeof c === 'object' && (c.file || c.image)) && (
+                                  {(typeof c === 'object' && (c.file || c.image || c.imageUrl)) && (
                                     <div style={{ width: '24px', height: '24px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
-                                      <img src={c.file && c.file instanceof Blob ? URL.createObjectURL(c.file) : c.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                      <img src={c.file && c.file instanceof Blob ? URL.createObjectURL(c.file) : (c.image || c.imageUrl)} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                                     </div>
                                   )}
                                   <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: typeof c === 'object' ? c.hex : c, border: '1px solid rgba(0,0,0,0.1)' }} />
@@ -2231,8 +2231,8 @@ export default function AdminDashboard({ params, searchParams }) {
                               activeTab === 'types'
                                 ? (editingTypeIndex !== null && editingTypeColorIndex !== null && types[editingTypeIndex]?.colors[editingTypeColorIndex]?.image)
                                 : activeTab === 'colors'
-                                  ? (tempColorFile && tempColorFile !== 'clear' ? URL.createObjectURL(tempColorFile) : (editingColorIndex !== null ? colors[editingColorIndex]?.image : null))
-                                  : (colors.length > 0 && typeof colors[0] === 'object' ? (colors[0].file || colors[0].image) : null)
+                                  ? (tempColorFile && tempColorFile !== 'clear' ? URL.createObjectURL(tempColorFile) : (editingColorIndex !== null ? (colors[editingColorIndex]?.image || colors[editingColorIndex]?.imageUrl) : null))
+                                  : (colors.length > 0 && typeof colors[0] === 'object' ? (colors[0].file || colors[0].image || colors[0].imageUrl) : null)
                             }
                             textureTransform={
                               activeTab === 'colors'
