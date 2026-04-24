@@ -16,12 +16,12 @@ export const generateCatalogPdf = async (products) => {
   const cardWidth = (pageWidth - (margin * 2) - colGap) / 2;
   const cardHeight = (pageHeight - 65) / 3;
 
+  // 800px is ideal for 2-column grid print quality vs speed balance
   const optimizeUrl = (url) => {
     if (!url || typeof url !== 'string' || !url.includes('cloudinary.com')) return url;
-    return url.replace('/upload/', '/upload/f_jpg,q_auto:best,w_1000,c_limit/');
+    return url.replace('/upload/', '/upload/f_jpg,q_auto:good,w_800,c_limit/');
   };
 
-  // Helper to load image and get dimensions correctly
   const loadImage = (url) => {
     return new Promise((resolve) => {
       const img = new Image();
@@ -48,6 +48,9 @@ export const generateCatalogPdf = async (products) => {
   });
 
   const totalPages = Math.ceil(allEntries.length / 6);
+
+  // 1. PRE-LOAD ALL IMAGES IN PARALLEL (Faster)
+  const allLoadedImages = await Promise.all(allEntries.map(entry => loadImage(entry.imgUrl)));
 
   const drawHeader = () => {
     pdf.setFont("helvetica", "bold");
@@ -81,7 +84,7 @@ export const generateCatalogPdf = async (products) => {
     pdf.roundedRect(x, y, cardWidth, cardHeight, 6, 6, 'FD');
 
     const imgPadding = 4;
-    const imgBoxHeight = cardHeight * 0.48; // Reduced to give text more space
+    const imgBoxHeight = cardHeight * 0.48;
     pdf.setFillColor(248, 250, 252);
     pdf.roundedRect(x + imgPadding, y + imgPadding, cardWidth - (imgPadding * 2), imgBoxHeight, 4, 4, 'F');
     
@@ -93,7 +96,6 @@ export const generateCatalogPdf = async (products) => {
       const drawH = imgElement.height * ratio;
       const offX = (targetW - drawW) / 2;
       const offY = (targetH - drawH) / 2;
-      
       pdf.addImage(imgElement, 'JPEG', x + imgPadding + 5 + offX, y + imgPadding + 4 + offY, drawW, drawH, undefined, 'FAST');
     }
 
@@ -106,7 +108,6 @@ export const generateCatalogPdf = async (products) => {
     const titleLines = pdf.splitTextToSize(entry.name.toUpperCase(), cardWidth - 28);
     pdf.text(titleLines, textX, currentY);
     
-    // Price Tag
     pdf.setFillColor(30, 41, 59);
     const priceText = `Q ${Number(entry.price).toFixed(2)}`;
     const priceWidth = pdf.getTextWidth(priceText) + 5;
@@ -145,22 +146,23 @@ export const generateCatalogPdf = async (products) => {
     });
   };
 
-  // Process pages
+  // 2. DRAW PAGES WITH MICRO-PAUSES TO UNFREEZE UI
   for (let i = 0; i < allEntries.length; i += 6) {
-    if (i > 0) pdf.addPage();
+    if (i > 0) {
+      pdf.addPage();
+      // Brief pause every page to let browser handle other events (like clicks)
+      await new Promise(r => setTimeout(r, 10));
+    }
     const pageNum = Math.floor(i / 6) + 1;
     drawHeader();
     
     const chunk = allEntries.slice(i, i + 6);
-    // Load images for the current page in parallel
-    const loadedImages = await Promise.all(chunk.map(entry => loadImage(entry.imgUrl)));
-
     chunk.forEach((entry, index) => {
       const col = index % 2;
       const row = Math.floor(index / 2);
       const x = margin + (col * (cardWidth + colGap));
       const y = 35 + (row * (cardHeight + rowGap));
-      drawCard(entry, x, y, loadedImages[index]);
+      drawCard(entry, x, y, allLoadedImages[i + index]);
     });
 
     drawFooter(pageNum);
