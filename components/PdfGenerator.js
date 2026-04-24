@@ -7,172 +7,165 @@ import html2canvas from 'html2canvas';
  * Generates a premium catalog PDF with high-fidelity product images.
  */
 export const generateCatalogPdf = async (products) => {
-  const HEADER_HTML = `
-    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #c5a059; padding-bottom: 20px; margin-bottom: 25px; width: 100%;">
-      <div>
-        <h1 style="margin: 0; font-size: 44px; color: #0047AB; font-weight: 950; letter-spacing: -0.04em; text-transform: uppercase; line-height: 1;">PERFLO PLAST</h1>
-        <p style="margin: 8px 0 0 0; font-size: 14px; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em;">Industria de Plástico - Catálogo Oficial</p>
-      </div>
-      <div style="text-align: right; background: #fcfcfc; padding: 12px 18px; border-radius: 18px; border: 1px solid #f1f5f9;">
-        <p style="margin: 0; font-size: 13px; color: #c5a059; font-weight: 900;">${new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
-        <div style="margin-top: 4px; height: 2px; background: #c5a059; width: 35px; margin-left: auto;"></div>
-      </div>
-    </div>
-  `;
+  const pdf = new jsPDF('p', 'mm', 'a4');
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const margin = 15;
+  const colGap = 8;
+  const rowGap = 8;
+  const cardWidth = (pageWidth - (margin * 2) - colGap) / 2;
+  const cardHeight = (pageHeight - 65) / 3; // Space for header/footer
 
-  const FOOTER_HTML = (page, total) => `
-    <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #f1f5f9; text-align: center; width: 100%; display: flex; justify-content: space-between; align-items: center;">
-      <p style="margin: 0; font-size: 11px; color: #94a3b8; font-weight: 700;">página ${page} de ${total}</p>
-      <p style="margin: 0; font-size: 13px; color: #1e293b; font-weight: 800;">&copy; ${new Date().getFullYear()} PERFLO-PLAST</p>
-      <p style="margin: 0; font-size: 11px; color: #94a3b8; font-weight: 700;">www.perfloplast.com</p>
-    </div>
-  `;
+  // High-res optimized URL for PDF (1200px is perfect for A4 print)
+  const optimizeUrl = (url) => {
+    if (!url || typeof url !== 'string' || !url.includes('cloudinary.com')) return url;
+    return url.replace('/upload/', '/upload/f_jpg,q_auto:best,w_1200,c_limit/');
+  };
 
-  // 1. Flatten Products into Entries
   const allEntries = [];
   products.forEach(p => {
-    allEntries.push({
-      displayName: p.name,
-      description: p.description || '',
-      price: p.price,
-      colors: p.colors || [],
-      image: p.image,
-      transform: p.imageTransform || { scale: 1, x: 0, y: 0 },
-      isOriginal: true
-    });
-
-    if (p.types && p.types.length > 0) {
-      p.types.forEach(t => {
-        if (!t) return;
-        allEntries.push({
-          displayName: typeof t === 'string' ? t : (t.name || p.name),
-          description: (typeof t === 'object' && t.description) ? t.description : (p.description || ''),
-          price: (typeof t === 'object' && t.price) ? t.price : p.price,
-          colors: (typeof t === 'object' && t.colors && t.colors.length > 0) ? t.colors : p.colors,
-          image: (typeof t === 'object' && t.image) ? t.image : p.image,
-          transform: (typeof t === 'object' && t.imageTransform) ? t.imageTransform : (p.imageTransform || { scale: 1, x: 0, y: 0 }),
-          isOriginal: false
-        });
+    allEntries.push({ name: p.name, desc: p.description || '', price: p.price, colors: p.colors || [], img: optimizeUrl(p.image), isOrig: true });
+    if (p.types) p.types.forEach(t => {
+      if (t) allEntries.push({ 
+        name: t.name || p.name, 
+        desc: t.description || p.description || '', 
+        price: t.price || p.price, 
+        colors: (t.colors && t.colors.length > 0) ? t.colors : p.colors, 
+        img: optimizeUrl(t.image || p.image),
+        isOrig: false 
       });
-    }
+    });
   });
 
-  const chunks = [];
-  for (let i = 0; i < allEntries.length; i += 6) {
-    chunks.push(allEntries.slice(i, i + 6));
-  }
+  const totalPages = Math.ceil(allEntries.length / 6);
 
-  try {
-    // 2. Optimized PDF Generation
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-
-    // Helper to process a single page
-    const renderPage = async (chunk, index) => {
-      const pageDiv = document.createElement('div');
-      pageDiv.style.position = 'fixed';
-      pageDiv.style.top = '-10000px';
-      pageDiv.style.left = '-10000px';
-      pageDiv.style.width = '1000px';
-      pageDiv.style.height = '1414px';
-      pageDiv.style.background = 'white';
-      pageDiv.style.padding = '40px 60px';
-      pageDiv.style.fontFamily = "'Inter', system-ui, sans-serif";
-      pageDiv.style.display = 'flex';
-      pageDiv.style.flexDirection = 'column';
-      pageDiv.style.boxSizing = 'border-box';
-      pageDiv.style.overflow = 'hidden';
-
-      let itemsHtml = chunk.map(entry => {
-        const t = entry.transform || { scale: 1, x: 0, y: 0 };
-        const colorSwatches = (entry.colors || []).slice(0, 10).map(c => `
-          <div style="width: 16px; height: 16px; border-radius: 50%; background: ${c.hex}; border: 2px solid white; box-shadow: 0 3px 8px rgba(0,0,0,0.1);"></div>
-        `).join('');
-
-        return `
-          <div style="display: flex; flex-direction: column; padding: 20px; background: #ffffff; border-radius: 35px; border: 1px solid #e2e8f0; box-shadow: 0 15px 40px rgba(0,0,0,0.02); break-inside: avoid; height: 100%; box-sizing: border-box;">
-            <div style="width: 100%; height: 180px; background: radial-gradient(circle at center, #f8fafc 0%, #f1f5f9 100%); border-radius: 25px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 20px;">
-              <div style="position: absolute; top: 12px; left: 12px; opacity: 0.1; font-weight: 950; font-size: 13px; color: #0047AB; text-transform: uppercase;">Perflo Plast</div>
-              <img src="${entry.image}" style="max-width: 85%; max-height: 85%; object-fit: contain; transform: scale(${t.scale}) translate(${t.x || 0}%, ${t.y || 0}%);" crossorigin="anonymous" />
-            </div>
-
-            <div style="display: flex; flex-direction: column; flex-grow: 1;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; gap: 8px;">
-                <h2 style="margin: 0; font-size: 18px; font-weight: 900; color: #1e293b; line-height: 1.1;">${entry.displayName}</h2>
-                <div style="background: linear-gradient(135deg, #c5a059 0%, #a38241 100%); color: white; padding: 6px 14px; border-radius: 14px; font-weight: 950; font-size: 17px; white-space: nowrap;">
-                  <span style="font-size: 10px; vertical-align: middle; margin-right: 2px;">Q</span>${Number(entry.price || 0).toFixed(2)}
-                </div>
-              </div>
-
-              <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 8px;">
-                <div style="width: 5px; height: 5px; border-radius: 50%; background: ${entry.isOriginal ? '#22c55e' : '#c5a059'};"></div>
-                <span style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">${entry.isOriginal ? 'Línea Principal' : 'Modelo Seleccionado'}</span>
-              </div>
-
-              ${entry.description ? `
-                <p style="margin: 0 0 12px 0; font-size: 9.5px; color: #64748b; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-weight: 500;">
-                  ${entry.description}
-                </p>
-              ` : ''}
-
-              <div style="margin-top: auto; border-top: 1px solid #f8fafc; padding-top: 12px; display: flex; align-items: center; gap: 8px;">
-                <div style="display: flex; gap: -5px; align-items: center;">${colorSwatches}</div>
-                <div style="height: 10px; width: 1px; background: #e2e8f0;"></div>
-                <span style="font-size: 10px; color: #475569; font-weight: 800; text-transform: uppercase;">Colores</span>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      pageDiv.innerHTML = `
-        ${HEADER_HTML}
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); gap: 25px; flex: 1;">
-          ${itemsHtml}
-        </div>
-        ${FOOTER_HTML(index + 1, chunks.length)}
-      `;
-
-      document.body.appendChild(pageDiv);
-
-      const canvas = await html2canvas(pageDiv, {
-        scale: 2, // Reduced from 3 to 2 for much faster generation while maintaining quality
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        imageTimeout: 0,
-        removeContainer: true
-      });
-
-      document.body.removeChild(pageDiv);
-      return { index, canvas };
-    };
-
-    // Process pages in parallel (batches of 2 to balance speed and memory)
-    const CONCURRENCY_LIMIT = 2;
-    const results = [];
+  const drawHeader = (pageNum) => {
+    // Logo / Title
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(28);
+    pdf.setTextColor(0, 71, 171); // Blue
+    pdf.text("PERFLO PLAST", margin, 20);
     
-    for (let i = 0; i < chunks.length; i += CONCURRENCY_LIMIT) {
-      const batch = chunks.slice(i, i + CONCURRENCY_LIMIT).map((chunk, j) => 
-        renderPage(chunk, i + j)
-      );
-      const batchResults = await Promise.all(batch);
-      results.push(...batchResults);
-    }
+    pdf.setFontSize(9);
+    pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(100, 116, 139);
+    pdf.text("INDUSTRIA DE PLÁSTICO - CATÁLOGO OFICIAL", margin, 26);
 
-    // Assemble PDF in order
-    results.sort((a, b) => a.index - b.index).forEach((res, i) => {
-      if (i > 0) pdf.addPage();
-      // Directly inject canvas and use JPEG for faster compression and smaller file size
-      pdf.addImage(res.canvas, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+    // Date Box
+    pdf.setDrawColor(197, 160, 89); // Gold
+    pdf.setLineWidth(0.5);
+    pdf.line(pageWidth - margin - 40, 20, pageWidth - margin, 20);
+    pdf.setFontSize(10);
+    pdf.setTextColor(197, 160, 89);
+    const dateStr = new Date().toLocaleDateString('es-ES');
+    pdf.text(dateStr, pageWidth - margin, 25, { align: 'right' });
+  };
+
+  const drawFooter = (pageNum) => {
+    pdf.setDrawColor(241, 245, 249);
+    pdf.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(8);
+    pdf.setTextColor(148, 163, 184);
+    pdf.text(`página ${pageNum} de ${totalPages}`, margin, pageHeight - 10);
+    pdf.text("www.perfloplast.com", pageWidth - margin, pageHeight - 10, { align: 'right' });
+    pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(30, 41, 59);
+    pdf.text(`© ${new Date().getFullYear()} PERFLO-PLAST`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+  };
+
+  const drawCard = (entry, x, y) => {
+    // Card Background
+    pdf.setDrawColor(241, 245, 249);
+    pdf.setFillColor(255, 255, 255);
+    pdf.roundedRect(x, y, cardWidth, cardHeight, 6, 6, 'FD');
+
+    // Image Placeholder
+    const imgPadding = 4;
+    const imgBoxHeight = cardHeight * 0.55;
+    pdf.setFillColor(248, 250, 252);
+    pdf.roundedRect(x + imgPadding, y + imgPadding, cardWidth - (imgPadding * 2), imgBoxHeight, 4, 4, 'F');
+    
+    // Add Image (Note: jsPDF handles URL loading, but async is better)
+    // For performance in this native version, we use the URL directly
+    try {
+      pdf.addImage(entry.img, 'JPEG', x + imgPadding + 5, y + imgPadding + 5, cardWidth - (imgPadding * 2) - 10, imgBoxHeight - 10, undefined, 'FAST');
+    } catch (e) { console.warn("Img skip", e); }
+
+    // Text Content
+    const textX = x + imgPadding + 2;
+    let currentY = y + imgBoxHeight + 10;
+
+    // Title
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(12);
+    pdf.setTextColor(30, 41, 59);
+    const title = pdf.splitTextToSize(entry.name.toUpperCase(), cardWidth - 25);
+    pdf.text(title, textX, currentY);
+    
+    // Price Tag
+    pdf.setFillColor(30, 41, 59);
+    const priceText = `Q ${Number(entry.price).toFixed(2)}`;
+    const priceWidth = pdf.getTextWidth(priceText) + 6;
+    pdf.roundedRect(x + cardWidth - priceWidth - 4, currentY - 5, priceWidth, 8, 2, 2, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(10);
+    pdf.text(priceText, x + cardWidth - 4 - 3, currentY + 0.5, { align: 'right' });
+
+    // Type Label
+    currentY += 6;
+    pdf.setFillColor(entry.isOrig ? 34 : 197, entry.isOrig ? 197 : 160, entry.isOrig ? 94 : 89);
+    pdf.circle(textX + 1.5, currentY - 1, 1.2, 'F');
+    pdf.setFontSize(7);
+    pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(148, 163, 184);
+    pdf.text(entry.isOrig ? "LÍNEA PRINCIPAL" : "MODELO DISPONIBLE", textX + 5, currentY);
+
+    // Description
+    currentY += 5;
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(8);
+    pdf.setTextColor(71, 85, 105);
+    const desc = pdf.splitTextToSize(entry.desc, cardWidth - 10);
+    pdf.text(desc.slice(0, 3), textX, currentY, { lineHeightFactor: 1.2 });
+
+    // Colors
+    const colorY = y + cardHeight - 8;
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(7);
+    pdf.setTextColor(148, 163, 184);
+    pdf.text("COLORES", textX, colorY);
+    
+    (entry.colors || []).slice(0, 8).forEach((c, i) => {
+      const hex = c.hex.startsWith('#') ? c.hex : '#ffffff';
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      pdf.setDrawColor(226, 232, 240);
+      pdf.setFillColor(r, g, b);
+      pdf.circle(textX + 20 + (i * 5), colorY - 1, 1.8, 'FD');
+    });
+  };
+
+  // Generate Pages
+  for (let i = 0; i < allEntries.length; i += 6) {
+    if (i > 0) pdf.addPage();
+    const pageNum = Math.floor(i / 6) + 1;
+    drawHeader(pageNum);
+    
+    const chunk = allEntries.slice(i, i + 6);
+    chunk.forEach((entry, index) => {
+      const col = index % 2;
+      const row = Math.floor(index / 2);
+      const x = margin + (col * (cardWidth + colGap));
+      const y = 35 + (row * (cardHeight + rowGap));
+      drawCard(entry, x, y);
     });
 
-    pdf.save(`Catálogo_Premium_Perflo_${new Date().toISOString().split('T')[0]}.pdf`);
-  } catch (err) {
-    console.error("PDF Generation Error:", err);
-    alert("Error al generar el PDF. Revisa tu conexión de red.");
+    drawFooter(pageNum);
   }
+
+  pdf.save(`Catalogo_PerfloPlast_${new Date().toISOString().split('T')[0]}.pdf`);
 };
 
 
