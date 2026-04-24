@@ -126,20 +126,28 @@ export const generateCatalogPdf = async (products) => {
     const desc = pdf.splitTextToSize(entry.desc, cardWidth - 12);
     pdf.text(desc.slice(0, 4), textX, currentY, { lineHeightFactor: 1.2 });
 
-    const colorY = y + cardHeight - 10;
+    const colorY = y + cardHeight - 12; // Base Y for colors
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(8);
     pdf.setTextColor(148, 163, 184);
-    pdf.text("COLORES DISPONIBLES", textX, colorY);
+    pdf.text("COLORES DISPONIBLES", textX, colorY - 2);
     
-    (entry.colors || []).slice(0, 10).forEach((c, i) => {
+    const colorsPerRow = 8;
+    (entry.colors || []).slice(0, 16).forEach((c, i) => {
+      const row = Math.floor(i / colorsPerRow);
+      const col = i % colorsPerRow;
+      
       const hex = c.hex.startsWith('#') ? c.hex : '#ffffff';
       const r = parseInt(hex.slice(1, 3), 16) || 255;
       const g = parseInt(hex.slice(3, 5), 16) || 255;
       const b = parseInt(hex.slice(5, 7), 16) || 255;
+      
+      const circleX = textX + 38 + (col * 5.5);
+      const circleY = colorY - 3.2 + (row * 5.5);
+      
       pdf.setDrawColor(226, 232, 240);
       pdf.setFillColor(r, g, b);
-      pdf.circle(textX + 38 + (i * 6), colorY - 1.2, 2.2, 'FD');
+      pdf.circle(circleX, circleY, 2, 'FD');
     });
   };
 
