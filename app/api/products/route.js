@@ -14,27 +14,19 @@ async function getLocalProducts() {
 
 export async function GET() {
   try {
-    const client = await clientPromise;
-    const db = client.db("perflo-plast");
-    const products = await db.collection("products").find({}).toArray();
+    const api_url = process.env.NEXT_PUBLIC_LARAVEL_API_URL || 'https://perfloplast-app-6t3dz.ondigitalocean.app';
+    const response = await fetch(`${api_url}/api/catalog`, {
+      cache: 'no-store' // Para que siempre traiga datos frescos
+    });
     
-    // Auto-Migrate: If DB is empty, seed from local JSON for the first time
-    if (products.length === 0) {
-      const local = await getLocalProducts();
-      if (local.length > 0) {
-        // Remove local IDs to let MongoDB generate new ones, or keep them if needed
-        const toInsert = local.map(({ id, ...rest }) => ({ ...rest, legacyId: id }));
-        await db.collection("products").insertMany(toInsert);
-        const migrated = await db.collection("products").find({}).toArray();
-        return NextResponse.json(migrated.map(p => ({ ...p, id: p._id })));
-      }
-      return NextResponse.json([]);
-    }
-
-    // Map _id to id for frontend parity
-    return NextResponse.json(products.map(p => ({ ...p, id: p._id })));
+    if (!response.ok) throw new Error('Error fetching from Laravel API');
+    
+    const data = await response.json();
+    
+    // Devolvemos solo los productos para mantener compatibilidad con el frontend actual
+    return NextResponse.json(data.products);
   } catch (e) {
-    console.error("MongoDB GET Error, falling back to local:", e);
+    console.error("Laravel API GET Error, falling back to local:", e);
     const local = await getLocalProducts();
     return NextResponse.json(local);
   }
