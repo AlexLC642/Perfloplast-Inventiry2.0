@@ -186,10 +186,10 @@ export default function ProductCard({
 
         <div style={{ position: 'absolute', inset: 0, padding: isLightboxView ? (isMobile ? '40px' : '80px') : '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <FidelityImage
-            color={selectedColor?.image ? 'transparent' : (selectedColor?.hex || '#ffffff')}
+            color={(selectedColor?.image || selectedColor?.imageUrl) ? 'transparent' : (selectedColor?.hex || '#ffffff')}
             src={selectedType?.image || product.image}
             maskSrc={selectedType?.maskImage || product.maskImage}
-            textureSrc={selectedColor ? (selectedColor.file || selectedColor.image) : null}
+            textureSrc={selectedColor ? (selectedColor.file || selectedColor.image || selectedColor.imageUrl) : null}
             textureTransform={selectedColor ? (selectedColor.textureTransform || { scale: 1, x: 0, y: 0 }) : { scale: 1, x: 0, y: 0 }}
             transform={activeTransform || selectedType?.imageTransform || product.imageTransform}
             sceneSrc={product.sceneBackground || sceneSrc}
