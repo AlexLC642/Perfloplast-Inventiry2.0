@@ -4,15 +4,23 @@ import { Inter } from 'next/font/google';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Catálogo Premium | Perflo-plast',
-  description: 'Catálogo de productos con diseño premium y personalización dinámica.',
+  title: 'Perflo-Plast | Inventario & Catálogo',
+  description: 'Sistema integral de inventario y catálogo dinámico de Perflo-Plast.',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Perflo-Plast',
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 5,
-  userScalable: true,
+  themeColor: '#c5a059',
 };
 
 export default function RootLayout({ children }) {

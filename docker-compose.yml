@@ -1,0 +1,24 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: perfloplast-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: perfloplast_inventory
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_PASSWORD: perfloplast_password
+      MYSQL_USER: perfloplast_user
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  adminer:
+    image: adminer
+    container_name: perfloplast-adminer
+    restart: always
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql_data:

@@ -16,17 +16,17 @@ export default function AdminLogin() {
     setError('');
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+      const { signIn } = await import('next-auth/react');
+      const res = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
       });
 
-      const data = await res.json();
-      if (data.success) {
-        router.push('/admin/dashboard');
+      if (res?.error) {
+        setError(res.error === 'CredentialsSignin' ? 'Credenciales inválidas' : res.error);
       } else {
-        setError(data.message || 'Error de autenticación');
+        router.push('/admin/dashboard');
       }
     } catch (err) {
       setError('Ocurrió un error al intentar iniciar sesión');

@@ -1,53 +1,57 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '../../../lib/mongodb';
-import fs from 'fs/promises';
-import path from 'path';
-
-const DATA_PATH = path.join(process.cwd(), 'data', 'products.json');
-
-async function getLocalProducts() {
-  try {
-    const data = await fs.readFile(DATA_PATH, 'utf8');
-    return JSON.parse(data);
-  } catch (e) { return []; }
-}
+import prisma from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../auth/[...nextauth]/route';
 
 export async function GET() {
   try {
-    const api_url = process.env.NEXT_PUBLIC_LARAVEL_API_URL || 'https://perfloplast-app-6t3dz.ondigitalocean.app';
-    const response = await fetch(`${api_url}/api/catalog`, {
-      cache: 'no-store' // Para que siempre traiga datos frescos
+    const products = await prisma.product.findMany({
+      include: {
+        variants: true,
+        stocks: {
+          include: { warehouse: true }
+        }
+      },
+      orderBy: { name: 'asc' }
     });
     
-    if (!response.ok) throw new Error('Error fetching from Laravel API');
-    
-    const data = await response.json();
-    
-    // Devolvemos solo los productos para mantener compatibilidad con el frontend actual
-    return NextResponse.json(data.products);
-  } catch (e) {
-    console.error("Laravel API GET Error, falling back to local:", e);
-    const local = await getLocalProducts();
-    return NextResponse.json(local);
+    // Transform decimal to number for JSON compatibility if needed, 
+    // but Prisma Client usually handles this or returns Decimal objects.
+    return NextResponse.json(products);
+  } catch (error) {
+    console.error('Error fetching products from MySQL:', error);
+    return NextResponse.json({ error: 'Error al obtener productos' }, { status: 500 });
   }
 }
 
 export async function POST(request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    }
+
     const body = await request.json();
-    const client = await clientPromise;
-    const db = client.db("perflo-plast");
     
-    const newProduct = {
-      ...body,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    
-    const result = await db.collection("products").insertOne(newProduct);
-    return NextResponse.json({ id: result.insertedId, ...newProduct }, { status: 201 });
-  } catch (e) {
-    console.error("MongoDB POST Error:", e);
-    return NextResponse.json({ error: 'Error al guardar en la nube' }, { status: 500 });
+    // Logic to save a new product in MySQL
+    const product = await prisma.product.create({
+      data: {
+        name: body.name,
+        description: body.description,
+        salePrice: parseFloat(body.price) || 0,
+        imageUrl: body.image,
+        maskUrl: body.maskImage,
+        baseHue: body.baseHue || 0,
+        imageTransform: body.imageTransform,
+        lumina: body.lumina,
+        showInCatalog: true,
+        // Add more fields as needed
+      }
+    });
+
+    return NextResponse.json(product, { status: 201 });
+  } catch (error) {
+    console.error('MySQL POST Error:', error);
+    return NextResponse.json({ error: 'Error al guardar el producto' }, { status: 500 });
   }
 }
