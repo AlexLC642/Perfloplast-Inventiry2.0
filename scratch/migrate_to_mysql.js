@@ -1,87 +1,96 @@
 const { MongoClient } = require('mongodb');
-const { PrismaClient } = require('@prisma/client');
+const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
-
-const prisma = new PrismaClient();
+require('dotenv').config();
 
 // MongoDB URI
 const mongoUri = "mongodb+srv://alexestuardo642_db_user:aJAQr5Szf5nuBHMI@cluster0.ewhwqsh.mongodb.net/perflo-plast?retryWrites=true&w=majority&appName=Cluster0";
 
 async function migrate() {
-  const client = new MongoClient(mongoUri);
+  const mongoClient = new MongoClient(mongoUri);
+  const mysqlClient = await mysql.createConnection({
+    host: 'localhost',
+    user: 'perfloplast_user',
+    password: 'perfloplast_password',
+    database: 'perfloplast_inventory'
+  });
   
   try {
-    console.log("🚀 Starting Migration...");
-    await client.connect();
-    const db = client.db('perflo-plast');
+    console.log("🚀 Starting Migration (Native MySQL)...");
+    await mongoClient.connect();
+    const db = mongoClient.db('perflo-plast');
     
-    // 1. Create Default Admin if not exists
-    const adminEmail = "admin@perfloplast.com";
-    const existingAdmin = await prisma.user.findUnique({ where: { email: adminEmail } });
-    
-    if (!existingAdmin) {
-      console.log("👤 Creating default admin...");
-      const hashedPassword = await bcrypt.hash("perflo2026", 10);
-      await prisma.user.create({
-        data: {
-          name: "Administrador",
-          email: adminEmail,
-          password: hashedPassword,
-          role: 'ADMIN'
-        }
-      });
+    // 1. Ensure Roles exist
+    console.log("🔑 Checking roles...");
+    const [roles] = await mysqlClient.execute('SELECT id FROM Role WHERE name = ?', ['ADMIN']);
+    let adminRoleId;
+    if (roles.length === 0) {
+      const [result] = await mysqlClient.execute('INSERT INTO Role (name, description) VALUES (?, ?)', ['ADMIN', 'Administrador del sistema']);
+      adminRoleId = result.insertId;
+    } else {
+      adminRoleId = roles[0].id;
     }
 
-    // 2. Migrate Products
+    // 2. Create Default Admin if not exists
+    const adminEmail = "admin@perfloplast.com";
+    const [users] = await mysqlClient.execute('SELECT id FROM User WHERE email = ?', [adminEmail]);
+    
+    if (users.length === 0) {
+      console.log("👤 Creating default admin...");
+      const hashedPassword = await bcrypt.hash("perflo2026", 10);
+      await mysqlClient.execute(
+        'INSERT INTO User (name, email, password, roleId, isActive, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, NOW(), NOW())',
+        ["Administrador", adminEmail, hashedPassword, adminRoleId, 1]
+      );
+    }
+
+    // 3. Migrate Products
     console.log("📦 Migrating products...");
     const mongoProducts = await db.collection('products').find({}).toArray();
     
     for (const mp of mongoProducts) {
       console.log(`- Migrating: ${mp.name}`);
+      const sku = mp.sku || mp._id.toString();
       
       // Upsert product
-      const product = await prisma.product.upsert({
-        where: { sku: mp.sku || mp._id.toString() },
-        update: {
-          name: mp.name,
-          price: parseFloat(mp.price) || 0,
-          description: mp.description || "",
-          imageUrl: mp.image || null,
-          maskUrl: mp.maskImage || null,
-          baseHue: mp.baseHue || 0,
-          imageTransform: mp.imageTransform || null,
-          lumina: mp.lumina || null,
-          showInCatalog: true,
-        },
-        create: {
-          sku: mp.sku || mp._id.toString(),
-          name: mp.name,
-          salePrice: parseFloat(mp.price) || 0,
-          description: mp.description || "",
-          imageUrl: mp.image || null,
-          maskUrl: mp.maskImage || null,
-          baseHue: mp.baseHue || 0,
-          imageTransform: mp.imageTransform || null,
-          lumina: mp.lumina || null,
-          showInCatalog: true,
-        }
-      });
+      const [existingProducts] = await mysqlClient.execute('SELECT id FROM Product WHERE sku = ?', [sku]);
+      let productId;
+      
+      const salePrice = parseFloat(mp.price) || 0;
+      const description = mp.description || "";
+      const imageUrl = mp.image || null;
+      const maskUrl = mp.maskImage || null;
+      const baseHue = parseFloat(mp.baseHue) || 0;
+      const imageTransform = mp.imageTransform || mp.transform ? JSON.stringify(mp.imageTransform || mp.transform) : null;
+      const lumina = mp.lumina ? JSON.stringify(mp.lumina) : null;
+
+      if (existingProducts.length > 0) {
+        productId = existingProducts[0].id;
+        await mysqlClient.execute(
+          'UPDATE Product SET name = ?, salePrice = ?, description = ?, imageUrl = ?, maskUrl = ?, baseHue = ?, imageTransform = ?, lumina = ?, updatedAt = NOW() WHERE id = ?',
+          [mp.name, salePrice, description, imageUrl, maskUrl, baseHue, imageTransform, lumina, productId]
+        );
+      } else {
+        const [result] = await mysqlClient.execute(
+          'INSERT INTO Product (sku, name, salePrice, description, imageUrl, maskUrl, baseHue, imageTransform, lumina, showInCatalog, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())',
+          [sku, mp.name, salePrice, description, imageUrl, maskUrl, baseHue, imageTransform, lumina, 1]
+        );
+        productId = result.insertId;
+      }
 
       // Migrate Variants (types)
       if (mp.types && Array.isArray(mp.types)) {
+        await mysqlClient.execute('DELETE FROM ProductVariant WHERE productId = ?', [productId]);
+        
         for (const variant of mp.types) {
-          await prisma.productVariant.create({
-            data: {
-              productId: product.id,
-              name: variant.name || "Sin nombre",
-              price: parseFloat(variant.price) || null,
-              imageUrl: variant.image || null,
-              maskUrl: variant.maskImage || null,
-              imageTransform: variant.imageTransform || null,
-              lumina: variant.lumina || null,
-              description: variant.description || "",
-            }
-          });
+          const vPrice = parseFloat(variant.price) || null;
+          const vTransform = variant.imageTransform || variant.transform ? JSON.stringify(variant.imageTransform || variant.transform) : null;
+          const vLumina = variant.lumina ? JSON.stringify(variant.lumina) : null;
+          
+          await mysqlClient.execute(
+            'INSERT INTO ProductVariant (productId, name, price, imageUrl, maskUrl, imageTransform, lumina, description, isActive, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())',
+            [productId, variant.name || "Sin nombre", vPrice, variant.image || null, variant.maskImage || null, vTransform, vLumina, variant.description || "", 1]
+          );
         }
       }
     }
@@ -90,8 +99,8 @@ async function migrate() {
   } catch (error) {
     console.error("❌ Migration failed:", error);
   } finally {
-    await client.close();
-    await prisma.$disconnect();
+    await mongoClient.close();
+    await mysqlClient.end();
   }
 }
 

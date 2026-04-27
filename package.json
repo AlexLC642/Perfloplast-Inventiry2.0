@@ -28,6 +28,7 @@
     "leaflet": "^1.9.4",
     "lucide-react": "^1.11.0",
     "mongodb": "^7.1.0",
+    "mysql2": "^3.22.3",
     "next": "^16.1.6",
     "next-auth": "^4.24.14",
     "next-cloudinary": "^6.17.5",
