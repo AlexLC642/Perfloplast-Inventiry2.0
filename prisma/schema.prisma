@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -21,6 +24,7 @@ model User {
   phone         String?
   isActive      Boolean   @default(true)
   lastLogin     DateTime?
+  createdBy     Int?
 }
 
 model Role {
@@ -43,7 +47,7 @@ model Product {
   name                  String
   description           String?  @db.Text
   catalogDescription    String?  @db.Text
-  type                  String   @default("finished_product")
+  type                  String   @default("FINISHED") // RAW, FINISHED
   
   // Images
   imageUrl              String?
@@ -80,8 +84,13 @@ model Product {
   movements             InventoryMovement[]
   stocks                Stock[]
   orderItems            OrderItem[]
-  productions           Production[]
   colorProducts         ColorProduct[]
+  
+  // Production relations
+  recipesAsFinished     ProductRecipe[] @relation("FinishedProduct")
+  recipesAsRaw          ProductRecipe[] @relation("RawMaterial")
+  productions           Production[]
+  productionItems       ProductionItem[]
 }
 
 model UnitOfMeasure {
@@ -97,6 +106,7 @@ model Color {
   hexCode  String?   @db.VarChar(7)
   products Product[]
   productColors ColorProduct[]
+  productions Production[]
 }
 
 model ColorProduct {
@@ -112,6 +122,17 @@ model ColorProduct {
   updatedAt   DateTime @updatedAt
 
   @@unique([productId, colorId])
+}
+
+model ProductRecipe {
+  id                Int      @id @default(autoincrement())
+  finishedProductId Int
+  finishedProduct   Product  @relation("FinishedProduct", fields: [finishedProductId], references: [id])
+  rawMaterialId     Int
+  rawMaterial       Product  @relation("RawMaterial", fields: [rawMaterialId], references: [id])
+  quantity          Decimal  @db.Decimal(14, 4)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 model ProductVariant {
@@ -139,6 +160,7 @@ model Warehouse {
   updatedAt   DateTime @updatedAt
   movements   InventoryMovement[]
   stocks      Stock[]
+  productions Production[]
 }
 
 model Stock {
@@ -227,12 +249,65 @@ model Sale {
 
 model Production {
   id              Int      @id @default(autoincrement())
+  productionNumber String   @unique
+  productionDate  DateTime @default(now())
   productId       Int
   product         Product  @relation(fields: [productId], references: [id])
+  colorId         Int?
+  color           Color?   @relation(fields: [colorId], references: [id])
+  shiftId         Int?
+  shift           Shift?   @relation(fields: [shiftId], references: [id])
+  warehouseId     Int
+  warehouse       Warehouse @relation(fields: [warehouseId], references: [id])
   quantity        Decimal  @db.Decimal(14, 3)
-  shift           String?  // MORNING, EVENING, NIGHT
-  status          String   @default("COMPLETED")
+  status          String   @default("DRAFT") // DRAFT, CONFIRMED, CANCELLED
+  note            String?  @db.Text
+  createdBy       Int?
   createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  items           ProductionItem[]
+}
+
+model ProductionItem {
+  id            Int        @id @default(autoincrement())
+  productionId  Int
+  production    Production @relation(fields: [productionId], references: [id], onDelete: Cascade)
+  productId     Int
+  product       Product    @relation(fields: [productId], references: [id])
+  quantity      Decimal    @db.Decimal(14, 3)
+}
+
+model Shift {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique // Mañana, Tarde, Noche
+  startTime   String?
+  endTime     String?
+  productions Production[]
+}
+
+model InjectionReport {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  employeeName  String
+  position      String
+  department    String
+  weekRange     String
+  proposals     String?  @db.Text
+  nextWeekPlan  String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  items         InjectionReportItem[]
+}
+
+model InjectionReportItem {
+  id                Int             @id @default(autoincrement())
+  injectionReportId Int
+  report            InjectionReport @relation(fields: [injectionReportId], references: [id], onDelete: Cascade)
+  date              DateTime
+  day               String
+  activity          String          @db.Text
+  description       String?         @db.Text
+  result            String?         @db.Text
 }
 
 model Truck {
