@@ -8,6 +8,29 @@ const STATS = [
   { label: 'Despachos Pendientes', value: '8', icon: '🚚', color: '#3b82f6' },
 ];
 
+import { SalesTrendChart, InventoryDistribution, ProductionByShift } from '../../../components/DashboardCharts';
+
+const SALES_DATA = [
+  { name: 'Ene', ventas: 4000 },
+  { name: 'Feb', ventas: 3000 },
+  { name: 'Mar', ventas: 5000 },
+  { name: 'Abr', ventas: 8000 },
+  { name: 'May', ventas: 6000 },
+];
+
+const INV_DATA = [
+  { name: 'PVC', value: 400 },
+  { name: 'HDPE', value: 300 },
+  { name: 'Masterbatch', value: 200 },
+  { name: 'Empaque', value: 100 },
+];
+
+const PROD_DATA = [
+  { name: 'Mañana', cantidad: 1200 },
+  { name: 'Tarde', cantidad: 950 },
+  { name: 'Noche', cantidad: 600 },
+];
+
 export default function AdminDashboard() {
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
@@ -62,20 +85,26 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Main Content Area placeholder */}
-      <div style={{ 
-        height: '400px', 
-        background: 'rgba(255,255,255,0.5)', 
-        borderRadius: '32px', 
-        border: '2px dashed rgba(197, 160, 89, 0.2)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#c5a059',
-        fontSize: '18px',
-        fontWeight: '600'
-      }}>
-        Sección de Actividad Reciente (Próximamente)
+      {/* Charts Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px', marginBottom: '24px' }}>
+        <SalesTrendChart data={SALES_DATA} />
+        <InventoryDistribution data={INV_DATA} />
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px' }}>
+        <ProductionByShift data={PROD_DATA} />
+        <div style={{ 
+          background: 'white', 
+          borderRadius: '24px', 
+          border: '1px solid rgba(0,0,0,0.05)', 
+          padding: '24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#c5a059',
+          fontWeight: '700'
+        }}>
+          Tabla de Stock por Ubicación (Próximamente)
+        </div>
       </div>
     </div>
   );
