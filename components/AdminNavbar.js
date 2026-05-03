@@ -18,14 +18,14 @@ export default function AdminNavbar() {
       position: 'sticky',
       top: 0,
       zIndex: 100,
-      background: 'rgba(255, 255, 255, 0.7)',
-      backdropFilter: 'blur(20px)',
-      borderBottom: '1px solid rgba(255, 255, 255, 0.5)',
-      padding: '12px 24px',
+      background: 'rgba(255, 255, 255, 0.4)',
+      backdropFilter: 'blur(25px)',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.3)',
+      padding: '8px 24px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+      boxShadow: '0 4px 30px rgba(0,0,0,0.02)'
     }}>
       <Link href="/admin/dashboard" style={{ textDecoration: 'none' }}>
         <Logo size={40} showIcon={true} />
