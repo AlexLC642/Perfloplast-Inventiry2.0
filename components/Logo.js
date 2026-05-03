@@ -1,4 +1,5 @@
 'use client';
+import { motion } from 'framer-motion';
 
 export default function Logo({ size = 56, color = '#0047AB', showIcon = false }) {
   // size represents the height of the icon; total width is proportional
