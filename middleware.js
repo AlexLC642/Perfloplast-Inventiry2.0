@@ -9,9 +9,6 @@ export default withAuth(
     // Define access rules
     const roles = {
       ADMIN: ['/admin'], // Can see everything under /admin
-      MANAGER: ['/admin/dashboard', '/admin/catalog', '/admin/inventory', '/admin/sales', '/admin/production', '/admin/logistics'],
-      SELLER: ['/admin/dashboard', '/admin/catalog', '/admin/sales'],
-      DRIVER: ['/admin/logistics'],
     };
 
     const userRole = token?.role || 'USER';
