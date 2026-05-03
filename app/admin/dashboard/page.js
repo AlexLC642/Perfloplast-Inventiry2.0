@@ -1,3 +1,6 @@
+'use client';
+import { motion } from 'framer-motion';
+
 const STATS = [
   { label: 'Productos en Catálogo', value: '23', icon: '🎨', color: '#c5a059' },
   { label: 'Ajustes Visuales Guardados', value: '18', icon: '✨', color: '#10b981' },
