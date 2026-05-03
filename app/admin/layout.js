@@ -1,8 +1,9 @@
 'use client';
 import { usePathname } from 'next/navigation';
-import AdminSidebar from '../../components/AdminSidebar';
+import AdminNavbar from '../../components/AdminNavbar';
 import GPSGuard from '../../components/GPSGuard';
 import { SessionProvider } from 'next-auth/react';
+import { motion } from 'framer-motion';
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
@@ -43,8 +44,8 @@ export default function AdminLayout({ children }) {
           />
 
           {/* Content Layer */}
-          <div style={{ position: 'relative', zIndex: 1, display: 'flex', width: '100%', minHeight: '100vh' }}>
-            <AdminSidebar />
+          <div style={{ position: 'relative', zIndex: 1, width: '100%', minHeight: '100vh' }}>
+            <AdminNavbar />
             <main style={{ flex: 1, overflowY: 'auto', padding: '0' }}>
               {children}
             </main>
