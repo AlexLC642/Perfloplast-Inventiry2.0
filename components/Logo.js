@@ -14,37 +14,36 @@ export default function Logo({ size = 56, color = '#0047AB', showIcon = false })
       }}
     >
       {showIcon && (
-        <svg 
-          width={size} 
-          height={size} 
-          viewBox="0 0 100 100" 
-          fill="none" 
-          xmlns="http://www.w3.org/2000/svg"
-          style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.12))' }}
-        >
-          {/* The "P" Symbol - Realistic 3-Block Design */}
-          {/* 1. Main Vertical Pillar (Primary Blue) */}
-          <path 
-            d="M18 10V90H42V10H18Z" 
-            fill={color} 
+        <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '12px' }}>
+          <svg 
+            width={size} 
+            height={size} 
+            viewBox="0 0 100 100" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg"
+            style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.12))' }}
+          >
+            {/* The "P" Symbol - Realistic 3-Block Design */}
+            <path d="M18 10V90H42V10H18Z" fill={color} />
+            <path d="M42 10V48H66C80 48 91 37 91 23.5C91 10 80 0 66 0H42V10Z" fill="#002D72" />
+            <path d="M42 10H70C74 10 77 13 77 17C77 21 74 24 70 24H42V10Z" fill="white" opacity="0.15" />
+          </svg>
+          {/* Premium Shine Overlay */}
+          <motion.div
+            animate={{ x: ['-100%', '200%'] }}
+            transition={{ duration: 3, repeat: Infinity, repeatDelay: 4, ease: "linear" }}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '50%',
+              height: '100%',
+              background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)',
+              transform: 'skewX(-20deg)',
+              zIndex: 10
+            }}
           />
-          {/* 2. Top Curved Segment (Darker depth) */}
-          <path 
-            d="M42 10V48H66C80 48 91 37 91 23.5C91 10 80 0 66 0H42V10Z" 
-            fill="#002D72" 
-          />
-          {/* 3. Glossy Surface / Highlight Block (Subtle Teal contrast) */}
-          <path 
-            d="M42 10H70C74 10 77 13 77 17C77 21 74 24 70 24H42V10Z" 
-            fill="white" 
-            opacity="0.15"
-          />
-          <path 
-            d="M42 12H58C62 12 65 15 65 19C65 23 62 26 58 26H42V12Z" 
-            fill="white" 
-            opacity="0.1"
-          />
-        </svg>
+        </div>
       )}
       
       <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1, gap: '2px' }}>
