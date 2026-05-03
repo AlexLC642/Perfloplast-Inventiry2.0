@@ -1027,7 +1027,9 @@ export default function AdminDashboard({ params, searchParams }) {
     <main style={{
       minHeight: '100vh',
       padding: '40px 24px',
-      background: 'transparent'
+      background: 'url("https://res.cloudinary.com/dlp8m8vst/image/upload/v1713110291/Perfloplast/bg-marble_u8v6v6.jpg")',
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed'
     }}>
       <div className="container" style={{ maxWidth: '1440px', margin: '0 auto' }}>
 
@@ -1073,7 +1075,7 @@ export default function AdminDashboard({ params, searchParams }) {
                   fontFamily: 'var(--font-display)',
                   letterSpacing: '-0.03em',
                   color: '#0f172a'
-                }}>Catálogo Maestro</h1>
+                }}>Inventario</h1>
                 <p style={{ margin: '4px 0 0 0', opacity: 0.8, fontSize: '10px', color: '#c5a059', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Gestión Premium</p>
               </div>
             </div>

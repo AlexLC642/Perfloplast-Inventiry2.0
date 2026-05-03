@@ -34,24 +34,8 @@ export default function AdminSidebar() {
       }}
     >
       {/* Header */}
-      <div style={{ padding: '32px 24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <div style={{ minWidth: '40px' }}>
-          <Logo height={40} />
-        </div>
-        <AnimatePresence>
-          {!isCollapsed && (
-            <motion.div
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              style={{ flex: 1 }}
-            >
-              <h1 style={{ fontSize: '18px', fontWeight: '800', color: '#1a1a1b', margin: 0, letterSpacing: '-0.02em' }}>
-                Perflo-Plast
-              </h1>
-            </motion.div>
-          )}
-        </AnimatePresence>
+      <div style={{ padding: '32px 24px', display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'flex-start' }}>
+        <Logo size={isCollapsed ? 32 : 45} showIcon={true} />
       </div>
 
       {/* Navigation */}
