@@ -8,10 +8,6 @@ import Logo from './Logo';
 const MENU_ITEMS = [
   { id: 'dashboard', label: 'Panel General', icon: '📊', path: '/admin/dashboard' },
   { id: 'catalog', label: 'Catálogo Maestro', icon: '🎨', path: '/admin/catalog' },
-  { id: 'inventory', label: 'Inventario', icon: '📦', path: '/admin/inventory' },
-  { id: 'production', label: 'Producción', icon: '🏭', path: '/admin/production' },
-  { id: 'sales', label: 'Ventas y Pedidos', icon: '💰', path: '/admin/sales' },
-  { id: 'logistics', label: 'Logística', icon: '🚚', path: '/admin/logistics' },
   { id: 'users', label: 'Configuración', icon: '⚙️', path: '/admin/settings' },
 ];
 

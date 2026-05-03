@@ -1,11 +1,7 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import prisma from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
 
 export const authOptions = {
-  adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -14,30 +10,19 @@ export const authOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error('Email y contraseña requeridos');
+        const ADMIN_EMAIL = 'admin@perfloplast.com';
+        const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'perfloplast123';
+
+        if (credentials?.email === ADMIN_EMAIL && credentials?.password === ADMIN_PASSWORD) {
+          return {
+            id: 'admin-id',
+            name: 'Administrador',
+            email: ADMIN_EMAIL,
+            role: 'ADMIN',
+          };
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
-        });
-
-        if (!user) {
-          throw new Error('Usuario no encontrado');
-        }
-
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
-
-        if (!isPasswordValid) {
-          throw new Error('Contraseña incorrecta');
-        }
-
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        };
+        throw new Error('Credenciales inválidas');
       }
     })
   ],

@@ -1,34 +1,6 @@
-'use client';
-import { motion } from 'framer-motion';
-
 const STATS = [
   { label: 'Productos en Catálogo', value: '23', icon: '🎨', color: '#c5a059' },
-  { label: 'Stock Crítico', value: '5', icon: '⚠️', color: '#ef4444' },
-  { label: 'Ventas del Mes', value: '$12,450', icon: '💰', color: '#10b981' },
-  { label: 'Despachos Pendientes', value: '8', icon: '🚚', color: '#3b82f6' },
-];
-
-import { SalesTrendChart, InventoryDistribution, ProductionByShift } from '../../../components/DashboardCharts';
-
-const SALES_DATA = [
-  { name: 'Ene', ventas: 4000 },
-  { name: 'Feb', ventas: 3000 },
-  { name: 'Mar', ventas: 5000 },
-  { name: 'Abr', ventas: 8000 },
-  { name: 'May', ventas: 6000 },
-];
-
-const INV_DATA = [
-  { name: 'PVC', value: 400 },
-  { name: 'HDPE', value: 300 },
-  { name: 'Masterbatch', value: 200 },
-  { name: 'Empaque', value: 100 },
-];
-
-const PROD_DATA = [
-  { name: 'Mañana', cantidad: 1200 },
-  { name: 'Tarde', cantidad: 950 },
-  { name: 'Noche', cantidad: 600 },
+  { label: 'Ajustes Visuales Guardados', value: '18', icon: '✨', color: '#10b981' },
 ];
 
 export default function AdminDashboard() {
@@ -38,7 +10,7 @@ export default function AdminDashboard() {
         <h1 style={{ fontSize: '32px', fontWeight: '800', color: '#1a1a1b', marginBottom: '8px' }}>
           Bienvenido, Administrador
         </h1>
-        <p style={{ color: '#64748b' }}>Vista general de las operaciones de Perflo-Plast.</p>
+        <p style={{ color: '#64748b' }}>Gestión Premium del Catálogo de Perflo-Plast.</p>
       </header>
 
       {/* Stats Grid */}
@@ -85,26 +57,20 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Charts Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px', marginBottom: '24px' }}>
-        <SalesTrendChart data={SALES_DATA} />
-        <InventoryDistribution data={INV_DATA} />
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px' }}>
-        <ProductionByShift data={PROD_DATA} />
-        <div style={{ 
-          background: 'white', 
-          borderRadius: '24px', 
-          border: '1px solid rgba(0,0,0,0.05)', 
-          padding: '24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#c5a059',
-          fontWeight: '700'
-        }}>
-          Tabla de Stock por Ubicación (Próximamente)
-        </div>
+      <div style={{ 
+        background: 'rgba(197, 160, 89, 0.05)', 
+        borderRadius: '32px', 
+        padding: '48px', 
+        textAlign: 'center',
+        border: '1px dashed rgba(197, 160, 89, 0.2)'
+      }}>
+        <p style={{ fontSize: '18px', fontWeight: '600', color: '#c5a059', marginBottom: '16px' }}>
+          Sistema de Edición Premium Activo
+        </p>
+        <p style={{ color: '#64748b', maxWidth: '600px', margin: '0 auto' }}>
+          Utiliza el editor de catálogo para ajustar máscaras, colores, brillos y sombras de tus productos. 
+          Todos los cambios se sincronizan automáticamente con la visualización del cliente.
+        </p>
       </div>
     </div>
   );
