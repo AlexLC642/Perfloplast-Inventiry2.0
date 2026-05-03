@@ -9,13 +9,26 @@ export async function PUT(request, { params }) {
     const client = await clientPromise;
     const db = client.db("perflo-plast");
     
-    // Clean body of _id if present to avoid immutable field error
+    // Clean body of _id if present
     const { _id, ...updateData } = body;
     
+    // Attempt to match by MongoDB ObjectId OR by the Laravel 'id' field OR by 'name'
+    const query = {
+      $or: [
+        { _id: ObjectId.isValid(id) ? new ObjectId(id) : null },
+        { id: id },
+        { id: parseInt(id) || null },
+        { name: updateData.name }
+      ].filter(q => {
+        const val = Object.values(q)[0];
+        return val !== null && val !== undefined && !Number.isNaN(val);
+      })
+    };
+
     const result = await db.collection("products").findOneAndUpdate(
-      { _id: ObjectId.isValid(id) ? new ObjectId(id) : id },
+      query,
       { $set: { ...updateData, updatedAt: new Date() } },
-      { returnDocument: 'after' }
+      { returnDocument: 'after', upsert: true }
     );
     
     if (!result) {

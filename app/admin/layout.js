@@ -15,9 +15,15 @@ export default function AdminLayout({ children }) {
   return (
     <SessionProvider>
       <GPSGuard>
-        <div style={{ display: 'flex', minHeight: '100vh', background: '#f8fafc' }}>
+        <div style={{ 
+          display: 'flex', 
+          minHeight: '100vh', 
+          background: 'url("https://res.cloudinary.com/dlp8m8vst/image/upload/v1713110291/Perfloplast/bg-marble_u8v6v6.jpg")',
+          backgroundSize: 'cover',
+          backgroundAttachment: 'fixed'
+        }}>
           <AdminSidebar />
-          <main style={{ flex: 1, overflowY: 'auto', padding: '32px' }}>
+          <main style={{ flex: 1, overflowY: 'auto', padding: '0' }}>
             {children}
           </main>
         </div>

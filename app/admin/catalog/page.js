@@ -1027,9 +1027,7 @@ export default function AdminDashboard({ params, searchParams }) {
     <main style={{
       minHeight: '100vh',
       padding: '40px 24px',
-      background: 'url("https://res.cloudinary.com/dlp8m8vst/image/upload/v1713110291/Perfloplast/bg-marble_u8v6v6.jpg")',
-      backgroundSize: 'cover',
-      backgroundAttachment: 'fixed'
+      background: 'transparent'
     }}>
       <div className="container" style={{ maxWidth: '1440px', margin: '0 auto' }}>
 
