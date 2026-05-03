@@ -1073,7 +1073,7 @@ export default function AdminDashboard({ params, searchParams }) {
                   fontFamily: 'var(--font-display)',
                   letterSpacing: '-0.03em',
                   color: '#0f172a'
-                }}>Inventario</h1>
+                }}>Catálogo Maestro</h1>
                 <p style={{ margin: '4px 0 0 0', opacity: 0.8, fontSize: '10px', color: '#c5a059', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Gestión Premium</p>
               </div>
             </div>

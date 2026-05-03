@@ -11,7 +11,7 @@ export const authOptions = {
       },
       async authorize(credentials) {
         const ADMIN_EMAIL = 'admin@perfloplast.com';
-        const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'perfloplast123';
+        const ADMIN_PASSWORD = 'perfloplast123';
 
         if (credentials?.email === ADMIN_EMAIL && credentials?.password === ADMIN_PASSWORD) {
           return {
