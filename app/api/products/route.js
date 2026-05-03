@@ -1,57 +1,57 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../auth/[...nextauth]/route';
+import clientPromise from '../../../lib/mongodb';
 
 export async function GET() {
   try {
-    const products = await prisma.product.findMany({
-      include: {
-        variants: true,
-        stocks: {
-          include: { warehouse: true }
-        }
-      },
-      orderBy: { name: 'asc' }
+    const api_url = process.env.NEXT_PUBLIC_LARAVEL_API_URL || 'https://perfloplast-app-6t3dz.ondigitalocean.app';
+    const response = await fetch(`${api_url}/api/catalog`, {
+      cache: 'no-store'
     });
     
-    // Transform decimal to number for JSON compatibility if needed, 
-    // but Prisma Client usually handles this or returns Decimal objects.
-    return NextResponse.json(products);
-  } catch (error) {
-    console.error('Error fetching products from MySQL:', error);
+    if (!response.ok) throw new Error('Error fetching from Laravel API');
+    
+    const data = await response.json();
+    
+    // We fetch from MongoDB to get the visual adjustments (brightness, shadows, etc.)
+    const client = await clientPromise;
+    const db = client.db("perflo-plast");
+    const mongoProducts = await db.collection("products").find({}).toArray();
+
+    // Merge Laravel products with MongoDB adjustments if they match by ID or name
+    const mergedProducts = data.products.map(p => {
+      const adjustment = mongoProducts.find(m => m.id === p.id || m.name === p.name);
+      return adjustment ? { ...p, ...adjustment } : p;
+    });
+
+    return NextResponse.json(mergedProducts);
+  } catch (e) {
+    console.error("Hybrid API GET Error:", e);
     return NextResponse.json({ error: 'Error al obtener productos' }, { status: 500 });
   }
 }
 
 export async function POST(request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-    }
-
     const body = await request.json();
+    const client = await clientPromise;
+    const db = client.db("perflo-plast");
     
-    // Logic to save a new product in MySQL
-    const product = await prisma.product.create({
-      data: {
-        name: body.name,
-        description: body.description,
-        salePrice: parseFloat(body.price) || 0,
-        imageUrl: body.image,
-        maskUrl: body.maskImage,
-        baseHue: body.baseHue || 0,
-        imageTransform: body.imageTransform,
-        lumina: body.lumina,
-        showInCatalog: true,
-        // Add more fields as needed
-      }
-    });
+    // Save or Update the product adjustments in MongoDB
+    const result = await db.collection("products").updateOne(
+      { name: body.name }, // Use name as unique identifier if ID is not available from Laravel yet
+      { 
+        $set: { 
+          ...body, 
+          updatedAt: new Date() 
+        },
+        $setOnInsert: { createdAt: new Date() }
+      },
+      { upsert: true }
+    );
 
-    return NextResponse.json(product, { status: 201 });
-  } catch (error) {
-    console.error('MySQL POST Error:', error);
-    return NextResponse.json({ error: 'Error al guardar el producto' }, { status: 500 });
+    return NextResponse.json({ success: true, result }, { status: 201 });
+  } catch (e) {
+    console.error("MongoDB POST Error:", e);
+    return NextResponse.json({ error: 'Error al guardar en la nube' }, { status: 500 });
   }
 }
