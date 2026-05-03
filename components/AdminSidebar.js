@@ -49,9 +49,6 @@ export default function AdminSidebar() {
               <h1 style={{ fontSize: '18px', fontWeight: '800', color: '#1a1a1b', margin: 0, letterSpacing: '-0.02em' }}>
                 Perflo-Plast
               </h1>
-              <p style={{ fontSize: '10px', color: '#c5a059', margin: 0, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '700' }}>
-                Inventory 2.0
-              </p>
             </motion.div>
           )}
         </AnimatePresence>
