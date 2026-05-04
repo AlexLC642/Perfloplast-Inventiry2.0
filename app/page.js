@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ProductCard from '../components/ProductCard';
 import Logo from '../components/Logo';
 import { generateCatalogPdf } from '../components/PdfGenerator';
+import PremiumBackground from '../components/PremiumBackground';
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -120,7 +121,9 @@ export default function Home() {
   };
 
   return (
-    <main className="container" style={{ paddingBottom: '100px', position: 'relative', background: 'transparent' }}>
+    <>
+      <PremiumBackground />
+      <main className="container" style={{ paddingBottom: '100px', position: 'relative', background: 'transparent' }}>
       <header className="catalog-header">
         <div style={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
           <Logo size={isMobile ? 55 : 80} />
@@ -335,5 +338,6 @@ export default function Home() {
         </div>
       </footer>
     </main>
+    </>
   );
 }
