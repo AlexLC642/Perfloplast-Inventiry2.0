@@ -16,13 +16,14 @@ export default function PremiumBackground() {
       <div 
         style={{ 
           position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
+          top: '-2%',
+          left: '-2%',
+          width: '104%',
+          height: '104%',
           backgroundImage: 'url("/images/backgrounds/premium-deep-gold.png")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
           opacity: 1,
         }}
       />
