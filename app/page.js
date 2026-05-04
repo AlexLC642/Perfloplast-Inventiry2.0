@@ -120,7 +120,7 @@ export default function Home() {
   };
 
   return (
-    <main className="container" style={{ paddingBottom: '100px', position: 'relative' }}>
+    <main className="container" style={{ paddingBottom: '100px', position: 'relative', background: 'transparent' }}>
       <header className="catalog-header">
         <div style={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
           <Logo size={isMobile ? 55 : 80} />
