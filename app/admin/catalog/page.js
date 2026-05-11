@@ -73,6 +73,51 @@ export default function AdminDashboard({ params, searchParams }) {
     { name: 'Blanco Crema', hex: '#f5f5f5' }
   ];
 
+  // Dynamic Catalog Colors Calculation
+  const existingCatalogColors = useMemo(() => {
+    const colorMap = new Map();
+    
+    // Core clean defaults
+    const defaults = [
+      { name: 'Blanco', hex: '#ffffff' },
+      { name: 'Negro', hex: '#1a1a1a' },
+      { name: 'Gris', hex: '#808080' },
+      { name: 'Azul', hex: '#1976d2' },
+      { name: 'Rojo', hex: '#d32f2f' },
+      { name: 'Verde', hex: '#388e3c' },
+      { name: 'Amarillo', hex: '#fbc02d' },
+      { name: 'Naranja', hex: '#f57c00' },
+    ];
+    
+    defaults.forEach(d => {
+      colorMap.set(d.name.toLowerCase(), d);
+    });
+
+    // Merge with any custom colors from actual fetched catalog products
+    if (products && Array.isArray(products)) {
+      products.forEach(p => {
+        if (p.colors && Array.isArray(p.colors)) {
+          p.colors.forEach(c => {
+            if (c && c.name) {
+              const rawName = c.name.trim();
+              if (rawName) {
+                const capitalized = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+                const lowerKey = capitalized.toLowerCase();
+                colorMap.set(lowerKey, {
+                  name: capitalized,
+                  hex: c.hex || '#ffffff',
+                  image: c.image || c.imageUrl || null
+                });
+              }
+            }
+          });
+        }
+      });
+    }
+
+    return Array.from(colorMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [products]);
+
   // REAL-TIME SYNC: This fixes the bug where color adjustments (scale/pos) 
   // weren't saved unless the user clicked "ACTUALIZAR" manually.
   const syncColorChanges = (updates) => {
@@ -354,7 +399,10 @@ export default function AdminDashboard({ params, searchParams }) {
       setName(product.name);
       setDescription(product.description || '');
       setPrice(product.price);
-      setColors(product.colors || []);
+      setColors((product.colors || []).map(c => ({
+        ...c,
+        name: c && c.name ? (c.name.trim().charAt(0).toUpperCase() + c.name.trim().slice(1)) : ''
+      })));
       setTempColorFile(null); // Clear color file on open
 
       // If the product already has a mask, we treat it as "not manual" for now
@@ -729,6 +777,7 @@ export default function AdminDashboard({ params, searchParams }) {
 
   const addColor = () => {
     if (tempColorName && tempColorHex) {
+      const normalizedName = tempColorName.trim().charAt(0).toUpperCase() + tempColorName.trim().slice(1);
       if (editingColorIndex !== null) {
         // Update existing color
         const newColors = [...colors];
@@ -736,7 +785,7 @@ export default function AdminDashboard({ params, searchParams }) {
 
         newColors[editingColorIndex] = {
           ...existingColor,
-          name: tempColorName,
+          name: normalizedName,
           hex: tempColorHex,
           // If tempColorFile is 'clear', we remove it. Otherwise keep existing or use new.
           file: tempColorFile === 'clear' ? null : (tempColorFile || existingColor.file),
@@ -749,7 +798,7 @@ export default function AdminDashboard({ params, searchParams }) {
         // Add new color
         const newColor = {
           id: Date.now(),
-          name: tempColorName,
+          name: normalizedName,
           hex: tempColorHex,
           file: tempColorFile && tempColorFile !== 'clear' ? tempColorFile : null,
           textureTransform: tempColorTransform
@@ -1784,16 +1833,44 @@ export default function AdminDashboard({ params, searchParams }) {
                             {/* Texture adjustments removed: Now handled by global sliders for simplicity */}
 
                             <div>
-                              <p style={{ margin: '0 0 12px 0', fontSize: '12px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Sugerencias de Calidad</p>
-                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                                {PRESET_COLORS.map(p => (
-                                  <button key={p.hex} type="button" onClick={() => syncColorChanges({ name: p.name, hex: p.hex })} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', borderRadius: '10px', background: 'white', border: '1px solid #e2e8f0', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
-                                    <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: p.hex }} />
-                                    {p.name}
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
+                               <p style={{ margin: '0 0 12px 0', fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Colores Disponibles en tu Catálogo ({existingCatalogColors.length})</p>
+                               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', maxHeight: '160px', overflowY: 'auto', padding: '4px', background: 'white', borderRadius: '16px', border: '1px solid #cbd5e1' }}>
+                                 {existingCatalogColors.map(p => (
+                                   <button 
+                                     key={p.name + p.hex} 
+                                     type="button" 
+                                     onClick={() => syncColorChanges({ name: p.name, hex: p.hex, file: p.image || 'clear' })} 
+                                     style={{ 
+                                       display: 'flex', 
+                                       alignItems: 'center', 
+                                       gap: '8px', 
+                                       padding: '8px 12px', 
+                                       borderRadius: '10px', 
+                                       background: '#f8fafc', 
+                                       border: '1px solid #e2e8f0', 
+                                       fontSize: '11px', 
+                                       fontWeight: '800', 
+                                       cursor: 'pointer',
+                                       transition: 'all 0.2s',
+                                       color: '#1e293b'
+                                     }}
+                                     onMouseEnter={(e) => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
+                                     onMouseLeave={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                                   >
+                                     <div style={{ 
+                                       width: '12px', 
+                                       height: '12px', 
+                                       borderRadius: '50%', 
+                                       background: p.hex,
+                                       backgroundImage: p.image ? `url(${p.image})` : 'none',
+                                       backgroundSize: 'cover',
+                                       border: '1px solid rgba(0,0,0,0.1)'
+                                     }} />
+                                     {p.name}
+                                   </button>
+                                 ))}
+                               </div>
+                             </div>
                           </div>
 
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', padding: '24px', background: '#fffbeb', borderRadius: '24px', border: '1px solid #fde68a' }}>

@@ -63,7 +63,10 @@ export default function ProductCard({
 
   const baseColors = useMemo(() => {
     return product.colors && product.colors.length > 0
-      ? product.colors
+      ? product.colors.map(c => ({
+          ...c,
+          name: c && c.name ? (c.name.trim().charAt(0).toUpperCase() + c.name.trim().slice(1)) : ''
+        }))
       : [{ name: 'Blanco', hex: '#ffffff' }];
   }, [product.colors]);
 

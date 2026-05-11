@@ -41,5 +41,6 @@ yarn-error.log*
 
 # temporary scripts and backups
 /tmp/
+/scratch/
 
 /lib/generated/prisma
