@@ -613,6 +613,7 @@ export default function AdminDashboard({ params, searchParams }) {
       }));
 
       const productData = {
+        originalName: editingProduct ? editingProduct.name : null,
         name,
         description,
         price,

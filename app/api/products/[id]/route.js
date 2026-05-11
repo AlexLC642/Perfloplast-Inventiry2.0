@@ -9,16 +9,19 @@ export async function PUT(request, { params }) {
     const client = await clientPromise;
     const db = client.db("perflo-plast");
     
-    // Clean body of _id if present
-    const { _id, ...updateData } = body;
+    // Clean body of _id if present, and extract originalName
+    const { _id, originalName, ...updateData } = body;
     
-    // Attempt to match by MongoDB ObjectId OR by the Laravel 'id' field OR by 'name'
+    // Store the Laravel id in the MongoDB document to make sure it's always associated
+    updateData.id = id;
+    
+    // Attempt to match by MongoDB ObjectId OR by the Laravel 'id' field OR by originalName / new name
     const query = {
       $or: [
         { _id: ObjectId.isValid(id) ? new ObjectId(id) : null },
         { id: id },
         { id: parseInt(id) || null },
-        { name: updateData.name }
+        { name: originalName || updateData.name }
       ].filter(q => {
         const val = Object.values(q)[0];
         return val !== null && val !== undefined && !Number.isNaN(val);
