@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FidelityImage from './FidelityImage';
 import Logo from './Logo';
@@ -15,7 +15,7 @@ function useIsMobile() {
   return isMobile;
 }
 
-export default function ProductCard({ 
+export default memo(function ProductCard({ 
   product, 
   onClick, 
   isLightboxView = false, 
@@ -23,12 +23,13 @@ export default function ProductCard({
   sceneSrc = '',
   onNext = null,
   onPrev = null,
-  onClose = null
+  onClose = null,
+  priority = 'auto'
 }) {
   const optimizeUrl = (url, width = 400) => {
     if (!url || typeof url !== 'string' || !url.includes('cloudinary.com')) return url;
     if (url.includes('/upload/f_auto')) return url;
-    return url.replace('/upload/', `/upload/f_auto,q_auto:good,w_${width},c_limit/`);
+    return url.replace('/upload/', `/upload/f_auto,q_auto:good,w_${width},c_limit,dpr_auto,fl_progressive/`);
   };
 
   const availableTypes = useMemo(() => {
@@ -198,6 +199,7 @@ export default function ProductCard({
             sceneSrc={product.sceneBackground || sceneSrc}
             lumina={selectedColor?.lumina || selectedType?.lumina || product.lumina}
             isLightboxView={isLightboxView}
+            fetchPriority={priority}
           />
         </div>
 
@@ -256,9 +258,9 @@ export default function ProductCard({
                               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', minWidth: '60px'
                             }}
                           >
-                            <div style={{ width: '32px', height: '32px', borderRadius: '8px', overflow: 'hidden', background: 'white' }}>
-                              <img src={optimizeUrl(t.image || product.image, 100)} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                            </div>
+                             <div style={{ width: '32px', height: '32px', borderRadius: '8px', overflow: 'hidden', background: 'white' }}>
+                               <img src={optimizeUrl(t.image || product.image, 100)} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                             </div>
                             <span style={{ fontSize: '8px', fontWeight: '800', color: selectedType?.name === t.name ? '#1e293b' : '#94a3b8', whiteSpace: 'nowrap' }}>{t.name}</span>
                           </motion.button>
                         ))}
@@ -318,9 +320,9 @@ export default function ProductCard({
                           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px'
                         }}
                       >
-                        <div style={{ width: '32px', height: '32px', background: 'white', borderRadius: '10px', overflow: 'hidden', padding: '3px', border: '1px solid #f1f5f9' }}>
-                          <img src={optimizeUrl(t.image || product.image, 100)} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                        </div>
+                         <div style={{ width: '32px', height: '32px', background: 'white', borderRadius: '10px', overflow: 'hidden', padding: '3px', border: '1px solid #f1f5f9' }}>
+                           <img src={optimizeUrl(t.image || product.image, 100)} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                         </div>
                         <span style={{ fontSize: '10px', fontWeight: '900', color: selectedType?.name === t.name ? '#1e293b' : '#64748b' }}>{t.name}</span>
                         {t.price && (
                           <span style={{ fontSize: '9px', fontWeight: '800', color: '#c5a059' }}>Q{Number(t.price).toFixed(2)}</span>
@@ -382,4 +384,4 @@ export default function ProductCard({
       )}
     </motion.div>
   );
-}
+});

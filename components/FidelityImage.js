@@ -1,12 +1,12 @@
 'use client';
-import { useState, useEffect, useMemo, useId } from 'react';
+import { useState, useEffect, useMemo, useId, memo } from 'react';
 
 /**
  * FIDELITY ENGINE v7.40 - "VIBRANT CORE" 🎨
  * RESTORED: Maximum plastic saturation and clean masking.
  * REMOVED: Specular recovery layers that caused "washed out" colors.
  */
-export default function FidelityImage({ 
+export default memo(function FidelityImage({ 
   src, 
   maskSrc, 
   color, 
@@ -15,7 +15,8 @@ export default function FidelityImage({
   isLightboxView = false,
   textureSrc = null,
   textureTransform = { scale: 1, x: 0, y: 0 },
-  lumina = { brightness: 1, contrast: 1 }
+  lumina = { brightness: 1, contrast: 1 },
+  fetchPriority = 'auto'
 }) {
   const smartEraserId = useId().replace(/:/g, '');
   
@@ -52,7 +53,7 @@ export default function FidelityImage({
   const optimizeUrl = (url, width = 1200) => {
     if (!url || typeof url !== 'string' || !url.includes('cloudinary.com')) return url;
     if (url.includes('/upload/f_auto')) return url;
-    return url.replace('/upload/', `/upload/f_auto,q_auto:good,w_${width},c_limit/`);
+    return url.replace('/upload/', `/upload/f_auto,q_auto:good,w_${width},c_limit,dpr_auto,fl_progressive/`);
   };
 
   const optimizedSrc = useMemo(() => optimizeUrl(imageSource, isLightboxView ? 1600 : 1000), [imageSource, isLightboxView]);
@@ -142,6 +143,7 @@ export default function FidelityImage({
               alt="" 
               loading="lazy"
               decoding="async"
+              fetchPriority={fetchPriority}
               style={{ 
                 ...baseStyles, 
                 zIndex: 2, 
@@ -156,16 +158,17 @@ export default function FidelityImage({
           <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
              {/* 1. Neutralizer (Deep Grayscale) */}
              {optimizedSrc && (
-              <img 
-                src={optimizedSrc} 
-                loading="lazy"
-                decoding="async"
-                style={{ 
-                  ...maskStyles, 
-                  filter: `grayscale(1) brightness(${1.0 * (lumina?.brightness || 1)}) contrast(${1.0 * (lumina?.contrast || 1)}) drop-shadow(0 10px 20px rgba(0,0,0,0.08))`, 
-                  zIndex: 3 
-                }} 
-              />
+               <img 
+                 src={optimizedSrc} 
+                 loading="lazy"
+                 decoding="async"
+                 fetchPriority="low"
+                 style={{ 
+                   ...maskStyles, 
+                   filter: `grayscale(1) brightness(${1.0 * (lumina?.brightness || 1)}) contrast(${1.0 * (lumina?.contrast || 1)}) drop-shadow(0 10px 20px rgba(0,0,0,0.08))`, 
+                   zIndex: 3 
+                 }} 
+               />
              )}
              
              {/* 2. Darkness Reinforcement (Multiply) */}
@@ -186,23 +189,24 @@ export default function FidelityImage({
 
              {/* 6. Gloss Restoration */}
              {optimizedSrc && (
-               <img 
-                 src={optimizedSrc} 
-                 loading="lazy"
-                 decoding="async"
-                 style={{ 
-                   ...maskStyles, 
-                   filter: `grayscale(1) brightness(0.9) contrast(1.8)`, 
-                   mixBlendMode: 'screen', 
-                   opacity: luminance < 0.3 ? 0.35 : 0.2, 
-                   zIndex: 8,
-                   pointerEvents: 'none'
-                 }} 
-               />
+                <img 
+                  src={optimizedSrc} 
+                  loading="lazy"
+                  decoding="async"
+                  fetchPriority="auto"
+                  style={{ 
+                    ...maskStyles, 
+                    filter: `grayscale(1) brightness(0.9) contrast(1.8)`, 
+                    mixBlendMode: 'screen', 
+                    opacity: luminance < 0.3 ? 0.35 : 0.2, 
+                    zIndex: 8,
+                    pointerEvents: 'none'
+                  }} 
+                />
              )}
           </div>
         )}
       </div>
     </div>
   );
-}
+});

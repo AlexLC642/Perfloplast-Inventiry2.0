@@ -201,12 +201,13 @@ export default function Home() {
                 className="product-grid"
               >
                 <AnimatePresence mode="popLayout">
-                  {paginatedProducts.map(product => (
+                  {paginatedProducts.map((product, index) => (
                     <ProductCard 
                       key={product.id} 
                       product={product} 
                       sceneSrc={settings.productSceneBackground}
                       onClick={() => openLightbox(product)}
+                      priority={index < 4 ? 'high' : 'auto'}
                     />
                   ))}
                 </AnimatePresence>
@@ -288,6 +289,7 @@ export default function Home() {
                 onNext={nextProduct}
                 onPrev={prevProduct}
                 onClose={closeLightbox}
+                priority="high"
               />
               
               {!isMobile && (

@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '../../../lib/mongodb';
 
+export const revalidate = 300;
+
 export async function GET() {
   try {
     const api_url = process.env.NEXT_PUBLIC_LARAVEL_API_URL || 'https://perfloplast-app-6t3dz.ondigitalocean.app';
     const response = await fetch(`${api_url}/api/catalog`, {
-      cache: 'no-store'
+      next: { revalidate: 300 }
     });
     
     if (!response.ok) throw new Error('Error fetching from Laravel API');
